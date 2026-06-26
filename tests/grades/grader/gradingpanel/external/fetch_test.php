@@ -137,6 +137,13 @@ class fetch_test extends advanced_testcase {
         $this->assertArrayHasKey('gradedby', $result['grade']);
         $this->assertEquals(null, $result['grade']['gradedby']);
 
+        $this->assertArrayHasKey('options', $result['grade']);
+        $this->assertArrayHasKey('enablebulkcheck', $result['grade']['options']);
+        $this->assertTrue($result['grade']['options']['enablebulkcheck']);
+        $this->assertArrayHasKey('groupremarkheading', $result['grade']['options']);
+        $this->assertEquals(get_string('groupremarkheadingdefault', 'gradingform_checklist'),
+            $result['grade']['options']['groupremarkheading']);
+
         $this->assertArrayHasKey('criteria', $result['grade']);
         $criteria = $result['grade']['criteria'];
         $this->assertCount(count($definition->checklist_groups), $criteria);
@@ -281,6 +288,13 @@ class fetch_test extends advanced_testcase {
 
         $this->assertArrayHasKey('gradedby', $result['grade']);
         $this->assertEquals(fullname($grader), $result['grade']['gradedby']);
+
+        $this->assertArrayHasKey('options', $result['grade']);
+        $this->assertArrayHasKey('enablebulkcheck', $result['grade']['options']);
+        $this->assertEquals($fetcheruser->id !== $gradeduser->id, $result['grade']['options']['enablebulkcheck']);
+        $this->assertArrayHasKey('groupremarkheading', $result['grade']['options']);
+        $this->assertEquals(get_string('groupremarkheadingdefault', 'gradingform_checklist'),
+            $result['grade']['options']['groupremarkheading']);
 
         $this->assertArrayHasKey('criteria', $result['grade']);
         $criteria = $result['grade']['criteria'];

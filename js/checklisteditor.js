@@ -18,8 +18,12 @@ M.gradingform_checklisteditor.init = function(Y, options) {
         Y.one('body').on('touchend', M.gradingform_checklisteditor.clickanywhere);
     });
 
-    // Keydown length validator for definition inputs
-    Y.all('input[id$="-definition-input"]').on('keydown', M.gradingform_checklisteditor.lengthvalidator);
+    // Keydown length validator for group descriptions and item definitions.
+    Y.one('#checklist-' + options.name).delegate(
+        'keydown',
+        M.gradingform_checklisteditor.lengthvalidator,
+        '.checklisteditor-text'
+    );
 
     //Event handler for submit buttons
     Y.one('#checklist-' + options.name).delegate('click', M.gradingform_checklisteditor.buttonclick, 'input[type=submit]');
@@ -62,7 +66,8 @@ M.gradingform_checklisteditor.clickanywhere = function(e) {
         el = el.get('parentNode');
     }
     if (el) {
-        if (el.one('input[type=text]').hasClass('hiddenelement')) {
+        var editor = el.one('.checklisteditor-text');
+        if (editor && editor.hasClass('hiddenelement')) {
             M.gradingform_checklisteditor.disablealleditors();
             M.gradingform_checklisteditor.editmode(el, true, focustb);
         }
@@ -74,7 +79,7 @@ M.gradingform_checklisteditor.clickanywhere = function(e) {
 
 // switch the group description or item to edit mode or switch back
 M.gradingform_checklisteditor.editmode = function(el, editmode, focustb) {
-    var ta = el.one('input[type=text]');
+    var ta = el.one('.checklisteditor-text');
     if (!editmode && ta.hasClass('hiddenelement')) return;
     if (editmode && !ta.hasClass('hiddenelement')) return;
     var pseudotablink = '<input type="text" size="1" class="pseudotablink"/>',
@@ -103,9 +108,9 @@ M.gradingform_checklisteditor.editmode = function(el, editmode, focustb) {
             value = (el.hasClass('item')) ? M.str.gradingform_checklist.itemempty : M.str.gradingform_checklist.groupempty;
             taplain.addClass('empty');
         }
-        taplain.one('.textvalue').set('innerHTML', value);
+        taplain.one('.textvalue').set('text', value);
         if (tb) {
-            tbplain.one('.textvalue').set('innerHTML', tb.get('value'));
+            tbplain.one('.textvalue').set('text', tb.get('value'));
         }
         // hide/display textarea, textbox and plaintexts
         taplain.removeClass('hiddenelement');
@@ -210,6 +215,19 @@ M.gradingform_checklisteditor.buttonclick = function(e, confirmed) {
     } else if (chunks.length == 4 && action == 'movedown') {
         // MOVE GROUP DOWN
         var el = Y.one('#' + name + '-groups-' + chunks[2]);
+        if (el.next()) el.get('parentNode').insertBefore(el.next(), el);
+        M.gradingform_checklisteditor.assignclasses(elements_str)
+    } else if (chunks.length == 6 && action == 'moveup') {
+        // MOVE ITEM UP
+        var el = Y.one('#' + name + '-groups-' + chunks[2] + '-' + chunks[3] + '-' + chunks[4]);
+        var previous = el.previous();
+        if (previous) {
+            el.get('parentNode').insertBefore(el, previous);
+        }
+        M.gradingform_checklisteditor.assignclasses(elements_str)
+    } else if (chunks.length == 6 && action == 'movedown') {
+        // MOVE ITEM DOWN
+        var el = Y.one('#' + name + '-groups-' + chunks[2] + '-' + chunks[3] + '-' + chunks[4]);
         if (el.next()) el.get('parentNode').insertBefore(el.next(), el);
         M.gradingform_checklisteditor.assignclasses(elements_str)
     } else if (chunks.length == 4 && action == 'delete') {

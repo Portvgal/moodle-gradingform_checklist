@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Generator for the gradingforum_checklist plugin.
+ * Generator for the gradingform_checklist plugin.
  *
  * @package    gradingform_checklist
  * @copyright  Copyright (c) 2023 Open LMS (https://www.openlms.net)
@@ -64,6 +64,8 @@ class checklist {
         $this->set_option('enableitemremarks', 1);
         $this->set_option('enablegroupremarks', 1);
         $this->set_option('showremarksstudent', 1);
+        $this->set_option('enablebulkcheck', 1);
+        $this->set_option('groupremarkheading', '');
 
     }
 

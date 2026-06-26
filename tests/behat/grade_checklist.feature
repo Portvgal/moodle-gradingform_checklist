@@ -38,8 +38,10 @@ Feature: Converting checklist score to grades
       | Name | Assignment 1 checklist |
       | Description | Checklist test description |
     And I click on "#checklist-groups-NEWID1-description" "css_element"
+    And "//textarea[@id='checklist-groups-NEWID1-description-input'][@maxlength='500']" "xpath" should exist
     And I set the field "checklist-groups-NEWID1-description-input" to "Group 1"
     And I click on "#checklist-groups-NEWID1-items-NEWID0-definition" "css_element"
+    And "//textarea[@id='checklist-groups-NEWID1-items-NEWID0-definition-input'][@maxlength='1000']" "xpath" should exist
     And I set the field "checklist-groups-NEWID1-items-NEWID0-definition-input" to "Has title"
     And I click on "#checklist-groups-NEWID1-items-NEWID0-score" "css_element"
     And I set the field "checklist-groups-NEWID1-items-NEWID0-score-input" to "1.5"
