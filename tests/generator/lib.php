@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Generator for the gradingforum_checklist plugin.
+ * Generator for the gradingform_checklist plugin.
  *
  * @package    gradingform_checklist
  * @copyright  Copyright (c) 2023 Open LMS (https://www.openlms.net)
@@ -31,7 +31,7 @@ use tests\gradingform_checklist\generator\checklist;
 use tests\gradingform_checklist\generator\criterion;
 
 /**
- * Generator for the gradingforum_checklist plugintype.
+ * Generator for the gradingform_checklist plugin type.
  *
  * @package    gradingform_checklist
  * @copyright  Copyright (c) 2023 Open LMS (https://www.openlms.net)
@@ -75,7 +75,7 @@ class gradingform_checklist_generator extends component_generator_base {
             $checklist->add_criteria($this->get_criterion($name, $criterion));
         }
 
-        // Update the controller wih the checklist definition.
+        // Update the controller with the checklist definition.
         $controller->update_definition($checklist->get_definition());
 
         return $controller;

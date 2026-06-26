@@ -171,6 +171,8 @@ class fetch extends external_api {
         $templateoptions->showpoints = $controller->can_display_points($isgrading);
         $templateoptions->showgroupfeedback = $controller->can_display_group_feedback($isgrading);
         $templateoptions->showitemfeedback = $controller->can_display_item_feedback($isgrading);
+        $templateoptions->enablebulkcheck = $isgrading && !empty($options['enablebulkcheck']);
+        $templateoptions->groupremarkheading = \gradingform_checklist_controller::get_group_remark_heading($options);
 
         // Set up some items we need to return on other interfaces.
         $gradegrade = \grade_grade::fetch(['itemid' => $gradeitem->get_grade_item()->id, 'userid' => $gradeduser->id]);
@@ -296,6 +298,8 @@ class fetch extends external_api {
                     'showpoints' => new external_value(PARAM_BOOL, 'The points should be displayed'),
                     'showgroupfeedback' => new external_value(PARAM_BOOL, 'The group feedback should be displayed'),
                     'showitemfeedback' => new external_value(PARAM_BOOL, 'The item feedback should be displayed'),
+                    'enablebulkcheck' => new external_value(PARAM_BOOL, 'Bulk check controls should be displayed'),
+                    'groupremarkheading' => new external_value(PARAM_TEXT, 'The group feedback heading'),
                 ]),
                 'criteria' => new external_multiple_structure(
                     new external_single_structure([

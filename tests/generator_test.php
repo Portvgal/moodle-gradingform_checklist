@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Generator testcase for the gradingforum_checklist generator.
+ * Generator testcase for the gradingform_checklist generator.
  *
  * @package    gradingform_checklist
  * @category   test
@@ -30,8 +30,10 @@ use context_module;
 use gradingform_checklist_controller;
 use gradingform_controller;
 
+require_once(__DIR__ . '/../checklisteditor.php');
+
 /**
- * Generator testcase for the gradingforum_checklist generator.
+ * Generator testcase for the gradingform_checklist generator.
  *
  * @package    gradingform_checklist
  * @category   test
@@ -39,6 +41,256 @@ use gradingform_controller;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class generator_test extends advanced_testcase {
+
+    /**
+     * Test checklist editor validation accepts the configured long-text limits.
+     */
+    public function test_checklist_editor_validates_long_text_limits(): void {
+        $this->resetAfterTest(true);
+
+        $groupdescription = str_repeat('G', \MoodleQuickForm_checklisteditor::GROUP_DESCRIPTION_MAX_LENGTH);
+        $itemdefinition = str_repeat('I', \MoodleQuickForm_checklisteditor::ITEM_DEFINITION_MAX_LENGTH);
+
+        $editor = new \MoodleQuickForm_checklisteditor('checklist', 'Checklist');
+        $validvalue = [
+            'groups' => [
+                'NEWID1' => [
+                    'description' => $groupdescription,
+                    'items' => [
+                        'NEWID1' => [
+                            'definition' => $itemdefinition,
+                            'score' => 1,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $this->assertFalse($editor->validate($validvalue));
+
+        $editor = new \MoodleQuickForm_checklisteditor('checklist', 'Checklist');
+        $invalidgroupvalue = $validvalue;
+        $invalidgroupvalue['groups']['NEWID1']['description'] .= 'G';
+        $groupvalidation = $editor->validate($invalidgroupvalue);
+
+        $this->assertNotFalse($groupvalidation);
+        $this->assertStringContainsString(get_string('err_descriptionmax', 'gradingform_checklist'), $groupvalidation);
+
+        $editor = new \MoodleQuickForm_checklisteditor('checklist', 'Checklist');
+        $invaliditemvalue = $validvalue;
+        $invaliditemvalue['groups']['NEWID1']['items']['NEWID1']['definition'] .= 'I';
+        $itemvalidation = $editor->validate($invaliditemvalue);
+
+        $this->assertNotFalse($itemvalidation);
+        $this->assertStringContainsString(get_string('err_definitionmax', 'gradingform_checklist'), $itemvalidation);
+    }
+
+    /**
+     * Test checklist editor can reorder items without JavaScript.
+     */
+    public function test_checklist_editor_reorders_items_without_javascript(): void {
+        $this->resetAfterTest(true);
+
+        $editor = new \MoodleQuickForm_checklisteditor('checklist', 'Checklist');
+        $submittedvalues = [
+            'checklist' => [
+                'groups' => [
+                    'NEWID1' => [
+                        'description' => 'Group',
+                        'items' => [
+                            'NEWID1' => [
+                                'definition' => 'First item',
+                                'score' => 1,
+                                'movedown' => 1,
+                            ],
+                            'NEWID2' => [
+                                'definition' => 'Second item',
+                                'score' => 1,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $value = $editor->exportValue($submittedvalues);
+        $items = array_values($value['checklist']['groups']['NEWID1']['items']);
+
+        $this->assertSame('Second item', $items[0]['definition']);
+        $this->assertSame(1, $items[0]['sortorder']);
+        $this->assertSame('First item', $items[1]['definition']);
+        $this->assertSame(2, $items[1]['sortorder']);
+    }
+
+    /**
+     * Test checklist creation with max-length group descriptions and item definitions.
+     */
+    public function test_checklist_creation_with_long_group_and_item_text(): void {
+        $this->resetAfterTest(true);
+
+        $generator = \testing_util::get_data_generator();
+        $checklistgenerator = $generator->get_plugin_generator('gradingform_checklist');
+
+        $course = $generator->create_course();
+        $module = $generator->create_module('assign', ['course' => $course]);
+        $user = $generator->create_user();
+        $context = context_module::instance($module->cmid);
+
+        $groupdescription = str_repeat('G', \MoodleQuickForm_checklisteditor::GROUP_DESCRIPTION_MAX_LENGTH);
+        $itemdefinition = str_repeat('I', \MoodleQuickForm_checklisteditor::ITEM_DEFINITION_MAX_LENGTH);
+
+        $this->setUser($user);
+        $controller = $checklistgenerator->create_instance($context, 'mod_assign', 'submission', 'longtextchecklist', 'Description', [
+            $groupdescription => [
+                $itemdefinition => 1,
+            ],
+        ]);
+
+        $definition = $controller->get_definition();
+        $groupids = array_keys($definition->checklist_groups);
+        $group = $definition->checklist_groups[$groupids[0]];
+        $itemids = array_keys($group['items']);
+        $item = $group['items'][$itemids[0]];
+
+        $this->assertSame($groupdescription, $group['description']);
+        $this->assertSame($itemdefinition, $item['definition']);
+    }
+
+    /**
+     * Test checklist creation preserves line breaks in group descriptions and item definitions.
+     */
+    public function test_checklist_creation_preserves_multiline_group_and_item_text(): void {
+        $this->resetAfterTest(true);
+
+        $generator = \testing_util::get_data_generator();
+        $checklistgenerator = $generator->get_plugin_generator('gradingform_checklist');
+
+        $course = $generator->create_course();
+        $module = $generator->create_module('assign', ['course' => $course]);
+        $user = $generator->create_user();
+        $context = context_module::instance($module->cmid);
+
+        $groupdescription = "Portfolio criteria\n- Planning\n- Layout";
+        $itemdefinition = "Use typography techniques\n- hierarchy\n- spacing\n- contrast";
+
+        $this->setUser($user);
+        $controller = $checklistgenerator->create_instance($context, 'mod_assign', 'submission', 'multilinechecklist',
+            'Description', [
+                $groupdescription => [
+                    $itemdefinition => 1,
+                ],
+            ]);
+
+        $definition = $controller->get_definition();
+        $groupids = array_keys($definition->checklist_groups);
+        $group = $definition->checklist_groups[$groupids[0]];
+        $itemids = array_keys($group['items']);
+        $item = $group['items'][$itemids[0]];
+
+        $this->assertSame($groupdescription, $group['description']);
+        $this->assertSame($itemdefinition, $item['definition']);
+    }
+
+    /**
+     * Test required-comment validation for checked checklist items.
+     */
+    public function test_required_item_comment_validation(): void {
+        $groups = $this->get_required_comment_test_groups();
+        $options = gradingform_checklist_controller::get_default_options();
+        $options['requireitemcommentschecked'] = 1;
+
+        $value = $this->get_required_comment_test_value('', '');
+        $errors = gradingform_checklist_controller::get_required_comment_errors($groups, $options, $value);
+        $this->assertContains('err_requireitemcommentschecked', $errors);
+
+        $value = $this->get_required_comment_test_value('Item comment', '');
+        $errors = gradingform_checklist_controller::get_required_comment_errors($groups, $options, $value);
+        $this->assertNotContains('err_requireitemcommentschecked', $errors);
+    }
+
+    /**
+     * Test at-least-one item comment validation only applies when items are checked.
+     */
+    public function test_required_at_least_one_item_comment_validation(): void {
+        $groups = $this->get_required_comment_test_groups();
+        $options = gradingform_checklist_controller::get_default_options();
+        $options['requireatleastoneitemcomment'] = 1;
+
+        $value = $this->get_required_comment_test_value('', '');
+        $errors = gradingform_checklist_controller::get_required_comment_errors($groups, $options, $value);
+        $this->assertContains('err_requireatleastoneitemcomment', $errors);
+
+        $value = $this->get_required_comment_test_value('', '', false);
+        $errors = gradingform_checklist_controller::get_required_comment_errors($groups, $options, $value);
+        $this->assertNotContains('err_requireatleastoneitemcomment', $errors);
+
+        $value = $this->get_required_comment_test_value('Item comment', '');
+        $errors = gradingform_checklist_controller::get_required_comment_errors($groups, $options, $value);
+        $this->assertNotContains('err_requireatleastoneitemcomment', $errors);
+    }
+
+    /**
+     * Test required-comment validation for groups with checked checklist items.
+     */
+    public function test_required_group_comment_validation(): void {
+        $groups = $this->get_required_comment_test_groups();
+        $options = gradingform_checklist_controller::get_default_options();
+        $options['requiregroupcommentschecked'] = 1;
+
+        $value = $this->get_required_comment_test_value('', '');
+        $errors = gradingform_checklist_controller::get_required_comment_errors($groups, $options, $value);
+        $this->assertContains('err_requiregroupcommentschecked', $errors);
+
+        $value = $this->get_required_comment_test_value('', 'Group comment');
+        $errors = gradingform_checklist_controller::get_required_comment_errors($groups, $options, $value);
+        $this->assertNotContains('err_requiregroupcommentschecked', $errors);
+    }
+
+    /**
+     * Test at-least-one group comment validation only applies when items are checked.
+     */
+    public function test_required_at_least_one_group_comment_validation(): void {
+        $groups = $this->get_required_comment_test_groups();
+        $options = gradingform_checklist_controller::get_default_options();
+        $options['requireatleastonegroupcomment'] = 1;
+
+        $value = $this->get_required_comment_test_value('', '');
+        $errors = gradingform_checklist_controller::get_required_comment_errors($groups, $options, $value);
+        $this->assertContains('err_requireatleastonegroupcomment', $errors);
+
+        $value = $this->get_required_comment_test_value('', '', false);
+        $errors = gradingform_checklist_controller::get_required_comment_errors($groups, $options, $value);
+        $this->assertNotContains('err_requireatleastonegroupcomment', $errors);
+
+        $value = $this->get_required_comment_test_value('', 'Group comment');
+        $errors = gradingform_checklist_controller::get_required_comment_errors($groups, $options, $value);
+        $this->assertNotContains('err_requireatleastonegroupcomment', $errors);
+    }
+
+    /**
+     * Test required-comment options enable the matching remark fields.
+     */
+    public function test_required_comment_options_enable_remark_fields(): void {
+        $options = gradingform_checklist_controller::get_default_options();
+        $options['enableitemremarks'] = 0;
+        $options['enablegroupremarks'] = 0;
+        $this->assertFalse(gradingform_checklist_controller::item_remarks_enabled($options));
+        $this->assertFalse(gradingform_checklist_controller::group_remarks_enabled($options));
+
+        $options['requireitemcommentschecked'] = 1;
+        $this->assertTrue(gradingform_checklist_controller::item_remarks_enabled($options));
+
+        $options['requireitemcommentschecked'] = 0;
+        $options['requireatleastoneitemcomment'] = 1;
+        $this->assertTrue(gradingform_checklist_controller::item_remarks_enabled($options));
+
+        $options['requiregroupcommentschecked'] = 1;
+        $this->assertTrue(gradingform_checklist_controller::group_remarks_enabled($options));
+
+        $options['requiregroupcommentschecked'] = 0;
+        $options['requireatleastonegroupcomment'] = 1;
+        $this->assertTrue(gradingform_checklist_controller::group_remarks_enabled($options));
+    }
 
     /**
      * Test checklist creation.
@@ -115,6 +367,35 @@ class generator_test extends advanced_testcase {
         $this->assertEquals(1, $item['score']);
         $this->assertEquals('Has references', $item['definition']);
 
+    }
+
+    /**
+     * Test checklist creation with decimal item scores.
+     */
+    public function test_checklist_creation_with_decimal_score(): void {
+        $this->resetAfterTest(true);
+
+        $generator = \testing_util::get_data_generator();
+        $checklistgenerator = $generator->get_plugin_generator('gradingform_checklist');
+
+        $course = $generator->create_course();
+        $module = $generator->create_module('assign', ['course' => $course]);
+        $user = $generator->create_user();
+        $context = context_module::instance($module->cmid);
+
+        $this->setUser($user);
+        $controller = $checklistgenerator->create_instance($context, 'mod_assign', 'submission', 'decimalchecklist',
+            'Description', [
+                'Group 1' => [
+                    'Has decimal score' => 1.5,
+                ],
+            ]);
+
+        $definition = $controller->get_definition();
+        $group = reset($definition->checklist_groups);
+        $item = reset($group['items']);
+
+        $this->assertEquals(1.5, $item['score']);
     }
 
     /**
@@ -281,5 +562,56 @@ class generator_test extends advanced_testcase {
         $this->assertIsArray($result['groups'][$group2['criterion']->id]);
         $this->assertArrayHasKey($group2['item']->id, $result['groups'][$group2['criterion']->id]['items']);
         $this->assertEquals('This is the second comment', $result['groups'][$group2['criterion']->id]['items'][$group2['item']->id]['remark']);
+    }
+
+    /**
+     * Gets a minimal checklist definition for required-comment tests.
+     *
+     * @return array
+     */
+    protected function get_required_comment_test_groups(): array {
+        return [
+            1 => [
+                'id' => 1,
+                'description' => 'Group 1',
+                'items' => [
+                    11 => [
+                        'id' => 11,
+                        'definition' => 'Item 1',
+                        'score' => 1,
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Gets submitted checklist data for required-comment tests.
+     *
+     * @param string $itemremark submitted item remark
+     * @param string $groupremark submitted group remark
+     * @param bool $checked whether the item is checked
+     * @return array
+     */
+    protected function get_required_comment_test_value(string $itemremark, string $groupremark, bool $checked = true): array {
+        $item = [
+            'remark' => $itemremark,
+        ];
+        if ($checked) {
+            $item['id'] = 11;
+        }
+
+        return [
+            'groups' => [
+                1 => [
+                    'items' => [
+                        0 => [
+                            'remark' => $groupremark,
+                        ],
+                        11 => $item,
+                    ],
+                ],
+            ],
+        ];
     }
 }

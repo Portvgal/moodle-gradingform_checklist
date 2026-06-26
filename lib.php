@@ -28,6 +28,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once(__DIR__ . '/checklisteditor.php');
 require_once($CFG->dirroot.'/grade/grading/form/lib.php');
 
 /** checklist: Used to compare our gradeitem_type against. */
@@ -259,7 +260,7 @@ class gradingform_checklist_controller extends gradingform_controller {
                 foreach ($groupsfields as $key) {
                     if (array_key_exists($key, $group)) {
                         if ($key == 'description') {
-                            $group[$key] = trim(clean_param($group[$key], PARAM_TEXT));
+                            $group[$key] = MoodleQuickForm_checklisteditor::clean_multiline_text($group[$key]);
                         }
                         $data[$key] = $group[$key];
                     }
@@ -273,7 +274,7 @@ class gradingform_checklist_controller extends gradingform_controller {
                 $data = array();
                 foreach ($groupsfields as $key) {
                     if (array_key_exists($key, $group) && $key == 'description') {
-                        $group[$key] = trim(clean_param($group[$key], PARAM_TEXT));
+                        $group[$key] = MoodleQuickForm_checklisteditor::clean_multiline_text($group[$key]);
                     }
                     if (array_key_exists($key, $group) && $group[$key] != $currentgroups[$id][$key]) {
                         $data[$key] = $group[$key];
@@ -314,7 +315,7 @@ class gradingform_checklist_controller extends gradingform_controller {
                     foreach ($itemfields as $key) {
                         if (array_key_exists($key, $item)) {
                             if ($key == 'definition') {
-                                $item[$key] = trim(clean_param($item[$key], PARAM_TEXT));
+                                $item[$key] = MoodleQuickForm_checklisteditor::clean_multiline_text($item[$key]);
                             }
                             $data[$key] = $item[$key];
                         }
@@ -331,7 +332,7 @@ class gradingform_checklist_controller extends gradingform_controller {
                     $data = array();
                     foreach ($itemfields as $key) {
                         if (array_key_exists($key, $item) && $key == 'definition') {
-                            $item[$key] = trim(clean_param($item[$key], PARAM_TEXT));
+                            $item[$key] = MoodleQuickForm_checklisteditor::clean_multiline_text($item[$key]);
                         }
                         if (array_key_exists($key, $item) && $item[$key] != $currentgroups[$id]['items'][$itemid][$key]) {
                             $data[$key] = $item[$key];
@@ -630,9 +631,136 @@ class gradingform_checklist_controller extends gradingform_controller {
             'showitempointstudent' => 1,
             'enableitemremarks' => 1,
             'enablegroupremarks' => 1,
-            'showremarksstudent' => 1
+            'showremarksstudent' => 1,
+            'enablebulkcheck' => 0,
+            'requireitemcommentschecked' => 0,
+            'requireatleastoneitemcomment' => 0,
+            'requiregroupcommentschecked' => 0,
+            'requireatleastonegroupcomment' => 0,
+            'groupremarkheading' => ''
         );
         return $options;
+    }
+
+    /**
+     * Returns whether item remark fields are enabled directly or by a required-comment rule.
+     *
+     * @param array $options checklist definition options
+     * @return bool
+     */
+    public static function item_remarks_enabled(array $options): bool {
+        return !empty($options['enableitemremarks'])
+            || !empty($options['requireitemcommentschecked'])
+            || !empty($options['requireatleastoneitemcomment']);
+    }
+
+    /**
+     * Returns whether group remark fields are enabled directly or by a required-comment rule.
+     *
+     * @param array $options checklist definition options
+     * @return bool
+     */
+    public static function group_remarks_enabled(array $options): bool {
+        return !empty($options['enablegroupremarks'])
+            || !empty($options['requiregroupcommentschecked'])
+            || !empty($options['requireatleastonegroupcomment']);
+    }
+
+    /**
+     * Gets the visible heading to display above group remark fields.
+     *
+     * @param array $options checklist definition options
+     * @return string
+     */
+    public static function get_group_remark_heading(array $options): string {
+        if (!empty($options['groupremarkheading'])) {
+            return trim(clean_param($options['groupremarkheading'], PARAM_TEXT));
+        }
+        return get_string('groupremarkheadingdefault', 'gradingform_checklist');
+    }
+
+    /**
+     * Finds required-comment validation errors in submitted checklist grading data.
+     *
+     * @param array $groups checklist definition groups
+     * @param array $options checklist definition options
+     * @param array $value submitted grading value
+     * @return array error string identifiers
+     */
+    public static function get_required_comment_errors(array $groups, array $options, array $value): array {
+        $requireitemcommentschecked = !empty($options['requireitemcommentschecked']);
+        $requireatleastoneitemcomment = !empty($options['requireatleastoneitemcomment']);
+        $requiregroupcommentschecked = !empty($options['requiregroupcommentschecked']);
+        $requireatleastonegroupcomment = !empty($options['requireatleastonegroupcomment']);
+
+        if (!$requireitemcommentschecked && !$requireatleastoneitemcomment
+                && !$requiregroupcommentschecked && !$requireatleastonegroupcomment) {
+            return array();
+        }
+
+        $hascheckeditem = false;
+        $hascheckeditemremark = false;
+        $hascheckedgroupremark = false;
+        $missingcheckeditemremark = false;
+        $missingcheckedgroupremark = false;
+
+        foreach ($groups as $groupid => $group) {
+            $submittedgroup = $value['groups'][$groupid] ?? array('items' => array());
+            $submitteditems = $submittedgroup['items'] ?? array();
+            $groupcontainscheckeditem = false;
+
+            foreach ($group['items'] as $itemid => $item) {
+                $submitteditem = $submitteditems[$itemid] ?? array();
+                $ischecked = !empty($submitteditem['id']) || !empty($submitteditem['checked']);
+
+                if (!$ischecked) {
+                    continue;
+                }
+
+                $hascheckeditem = true;
+                $groupcontainscheckeditem = true;
+
+                $remark = '';
+                if (isset($submitteditem['remark'])) {
+                    $remark = trim(clean_param($submitteditem['remark'], PARAM_TEXT));
+                }
+
+                if ($remark === '') {
+                    $missingcheckeditemremark = true;
+                } else {
+                    $hascheckeditemremark = true;
+                }
+            }
+
+            if ($groupcontainscheckeditem) {
+                $groupremark = '';
+                if (isset($submitteditems[0]['remark'])) {
+                    $groupremark = trim(clean_param($submitteditems[0]['remark'], PARAM_TEXT));
+                }
+
+                if ($groupremark === '') {
+                    $missingcheckedgroupremark = true;
+                } else {
+                    $hascheckedgroupremark = true;
+                }
+            }
+        }
+
+        $errors = array();
+        if ($requireitemcommentschecked && $missingcheckeditemremark) {
+            $errors[] = 'err_requireitemcommentschecked';
+        }
+        if ($requireatleastoneitemcomment && $hascheckeditem && !$hascheckeditemremark) {
+            $errors[] = 'err_requireatleastoneitemcomment';
+        }
+        if ($requiregroupcommentschecked && $missingcheckedgroupremark) {
+            $errors[] = 'err_requiregroupcommentschecked';
+        }
+        if ($requireatleastonegroupcomment && $hascheckeditem && !$hascheckedgroupremark) {
+            $errors[] = 'err_requireatleastonegroupcomment';
+        }
+
+        return $errors;
     }
 
     /**
@@ -652,7 +780,7 @@ class gradingform_checklist_controller extends gradingform_controller {
     }
 
     /**
-     * Returns whether the points of the groups and items should be displayedtaking into account the method configuration
+     * Returns whether the points of the groups and items should be displayed taking into account the method configuration
      * and whether the user is grading or not.
      *
      * @param bool $isgrading The user is reviewing their grades or is grading.
@@ -664,27 +792,27 @@ class gradingform_checklist_controller extends gradingform_controller {
     }
 
     /**
-     * Returns whether the group feedback should be displayed taking into account the method configuration and whether
-     * the user is grading or not. If enablegroupremarks is disabled it will not be displayed in any case.
+     * Returns whether group feedback should be displayed taking into account the method configuration and whether
+     * the user is grading or not.
      *
      * @param bool $isgrading The user is reviewing their grades or is grading.
      * @return bool
      */
     public function can_display_group_feedback(bool $isgrading): bool {
         $options = $this->get_options();
-        return !empty($options['enablegroupremarks']) && ($isgrading || !empty($options['showremarksstudent']));
+        return self::group_remarks_enabled($options) && ($isgrading || !empty($options['showremarksstudent']));
     }
 
     /**
-     * Returns whether the item feedback should be displayed taking into account the method configuration and whether
-     * the user is grading or not. If enableitemremarks is disabled it will not be displayed in any case.
+     * Returns whether item feedback should be displayed taking into account the method configuration and whether
+     * the user is grading or not.
      *
      * @param bool $isgrading The user is reviewing their grades or is grading.
      * @return bool
      */
     public function can_display_item_feedback(bool $isgrading): bool {
         $options = $this->get_options();
-        return !empty($options['enableitemremarks']) && ($isgrading || !empty($options['showremarksstudent']));
+        return self::item_remarks_enabled($options) && ($isgrading || !empty($options['showremarksstudent']));
     }
 }
 
@@ -698,6 +826,8 @@ class gradingform_checklist_controller extends gradingform_controller {
 class gradingform_checklist_instance extends gradingform_instance {
 
     protected $checklist;
+    /** @var array Required-comment validation errors from the most recent validation. */
+    protected $requiredcommenterrors = array();
 
     /**
      * Deletes this (INCOMPLETE) instance from database.
@@ -816,6 +946,96 @@ class gradingform_checklist_instance extends gradingform_instance {
 
         $this->get_checklist_filling(true);
     }
+
+    /**
+     * Validates submitted checklist grading data.
+     *
+     * @param array $elementvalue value of element as came in form submit
+     * @return bool
+     */
+    public function validate_grading_element($elementvalue) {
+        $this->requiredcommenterrors = array();
+
+        if (!isset($elementvalue['groups']) || !is_array($elementvalue['groups'])) {
+            return false;
+        }
+
+        $this->requiredcommenterrors = gradingform_checklist_controller::get_required_comment_errors(
+            $this->get_controller()->get_definition()->checklist_groups,
+            $this->get_controller()->get_options(),
+            $elementvalue
+        );
+
+        return empty($this->requiredcommenterrors);
+    }
+
+    /**
+     * Returns required-comment validation error string identifiers from the most recent validation.
+     *
+     * @return array
+     */
+    public function get_required_comment_validation_errors(): array {
+        return $this->requiredcommenterrors;
+    }
+
+    /**
+     * Returns required-comment validation error messages from the most recent validation.
+     *
+     * @return array
+     */
+    public function get_required_comment_validation_error_messages(): array {
+        $messages = array();
+        foreach ($this->requiredcommenterrors as $error) {
+            $messages[] = get_string($error, 'gradingform_checklist');
+        }
+        return $messages;
+    }
+
+    /**
+     * Adds display-friendly checked flags to submitted grading data.
+     *
+     * Checkbox submissions use an item id field, while the renderer expects a checked flag.
+     *
+     * @param array $value submitted grading value
+     * @return array
+     */
+    protected function normalise_grading_value_for_display(array $value): array {
+        if (empty($value['groups']) || !is_array($value['groups'])) {
+            return $value;
+        }
+
+        foreach ($value['groups'] as $groupid => $group) {
+            if (empty($group['items']) || !is_array($group['items'])) {
+                continue;
+            }
+            foreach ($group['items'] as $itemid => $item) {
+                if (!empty($item['id'])) {
+                    $value['groups'][$groupid]['items'][$itemid]['checked'] = 1;
+                } else if (!isset($item['checked'])) {
+                    $value['groups'][$groupid]['items'][$itemid]['checked'] = 0;
+                }
+            }
+        }
+
+        return $value;
+    }
+
+    /**
+     * Submits grading data and returns the grade.
+     *
+     * @param array $elementvalue value of element as came in form submit
+     * @param int $itemid the item being graded
+     * @return float|int
+     */
+    public function submit_and_get_grade($elementvalue, $itemid) {
+        $elementvalue['itemid'] = $itemid;
+        if (!$this->validate_grading_element($elementvalue)) {
+            $this->update($elementvalue);
+            return -1;
+        }
+        return parent::submit_and_get_grade($elementvalue, $itemid);
+    }
+
     /**
      * Calculates the grade to be pushed to the gradebook
      *
@@ -862,7 +1082,11 @@ class gradingform_checklist_instance extends gradingform_instance {
      */
     public function render_grading_element($page, $gradingformelement) {
         if (!$gradingformelement->_flagFrozen) {
-            $module = array('name'=>'gradingform_checklist', 'fullpath'=>'/grade/grading/form/checklist/js/checklist.js');
+            $module = array('name'=>'gradingform_checklist', 'fullpath'=>'/grade/grading/form/checklist/js/checklist.js',
+                'strings' => array(
+                    array('tickall', 'gradingform_checklist'),
+                    array('untickall', 'gradingform_checklist'),
+                ));
             $page->requires->js_init_call('M.gradingform_checklist.init', array(array('name' => $gradingformelement->getName())), true, $module);
             $mode = gradingform_checklist_controller::DISPLAY_EVAL;
         } else {
@@ -875,11 +1099,17 @@ class gradingform_checklist_instance extends gradingform_instance {
         $groups = $this->get_controller()->get_definition()->checklist_groups;
         $options = $this->get_controller()->get_options();
         $value = $gradingformelement->getValue();
+        $submitted = $value !== null;
         $html = '';
         if ($value === null) {
             $value = $this->get_checklist_filling();
-        } else if (!$this->validate_grading_element($value)) {
-            $html .= \core\output\html_writer::tag('div', get_string('checklistnotcompleted', 'gradingform_checklist'), array('class' => 'gradingform_checklist-error'));
+        } else {
+            $value = $this->normalise_grading_value_for_display($value);
+        }
+        if ($submitted && !$this->validate_grading_element($value)) {
+            $errors = $this->get_required_comment_validation_error_messages();
+            $message = empty($errors) ? get_string('checklistnotcompleted', 'gradingform_checklist') : implode('<br />', $errors);
+            $html .= \core\output\html_writer::tag('div', $message, array('class' => 'gradingform_checklist-error'));
         }
         $currentinstance = $this->get_current_instance();
         if ($currentinstance && $currentinstance->get_status() == gradingform_instance::INSTANCE_STATUS_NEEDUPDATE) {
@@ -889,15 +1119,20 @@ class gradingform_checklist_instance extends gradingform_instance {
         if ($currentinstance) {
             $curfilling = $currentinstance->get_checklist_filling();
             foreach ($curfilling['groups'] as $groupid => $group) {
-                foreach ($group['items'] as $itemid => $item)
+                foreach ($group['items'] as $itemid => $item) {
                     // the saved checked status
                     $value['groups'][$groupid]['items'][$itemid]['savedchecked'] = !empty($item['checked']);
                     $newremark = null;
                     $newchecked = null;
-                    if (isset($value['groups'][$groupid]['items'][$itemid]['remark'])) $newremark = $value['groups'][$groupid]['items'][$itemid]['remark'];
-                    if (isset($value['groups'][$groupid]['items'][$itemid]['id'])) $newchecked = !empty($value['groups'][$groupid]['items'][$itemid]['id']);
+                    if (isset($value['groups'][$groupid]['items'][$itemid]['remark'])) {
+                        $newremark = $value['groups'][$groupid]['items'][$itemid]['remark'];
+                    }
+                    if (isset($value['groups'][$groupid]['items'][$itemid]['id'])) {
+                        $newchecked = !empty($value['groups'][$groupid]['items'][$itemid]['id']);
+                    }
                     if ($newchecked != !empty($item['checked']) || $newremark != $item['remark']) {
                         $haschanges = true;
+                    }
                 }
             }
         }

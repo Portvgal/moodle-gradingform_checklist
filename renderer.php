@@ -28,6 +28,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once(__DIR__ . '/checklisteditor.php');
+
 /**
  * Checklist grading method plugin renderer
  *
@@ -83,8 +85,11 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
             $grouptemplate .= \core\output\html_writer::empty_tag('input', array('type' => 'hidden', 'name' => '{NAME}[groups][{GROUP-id}][sortorder]', 'value' => $group['sortorder']));
             $labelfordesc = \core\output\html_writer::tag('label', get_string('groupdescription', 'gradingform_checklist'),
                     array('class' => 'hiddenelement', 'for' => '{NAME}-groups-{GROUP-id}-description-input'));
-            $description = $labelfordesc . \core\output\html_writer::empty_tag('input', array('type' => 'text', 'id' => '{NAME}-groups-{GROUP-id}-description-input',
-                    'name' => '{NAME}[groups][{GROUP-id}][description]', 'value' => $group['description']));
+            $description = $labelfordesc . \core\output\html_writer::tag('textarea', s($group['description']), array(
+                    'id' => '{NAME}-groups-{GROUP-id}-description-input',
+                    'name' => '{NAME}[groups][{GROUP-id}][description]',
+                    'maxlength' => MoodleQuickForm_checklisteditor::GROUP_DESCRIPTION_MAX_LENGTH,
+                    'rows' => '3', 'class' => 'checklisteditor-text'));
         } else {
             if ($mode == gradingform_checklist_controller::DISPLAY_EDIT_FROZEN) {
                 $grouptemplate .= \core\output\html_writer::empty_tag('input', array('type' => 'hidden', 'name' => '{NAME}[groups][{GROUP-id}][sortorder]', 'value' => $group['sortorder']));
@@ -111,15 +116,17 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
                     'id' => '{NAME}-groups-{GROUP-id}-items-additem', 'value' => $value, 'title' => $value));
             $grouptemplate .= \core\output\html_writer::tag('div', $button, array('class' => 'additem'));
         }
-        $displayremark = ($options['enablegroupremarks'] && ($mode != gradingform_checklist_controller::DISPLAY_VIEW || $options['showremarksstudent']));
+        $displayremark = (gradingform_checklist_controller::group_remarks_enabled($options)
+                && ($mode != gradingform_checklist_controller::DISPLAY_VIEW || $options['showremarksstudent']));
         if ($displayremark) {
             $currentremark = '';
             if (isset($gvalue['items'][0]['remark'])) {
                 $currentremark = $gvalue['items'][0]['remark'];
             }
             if ($mode == gradingform_checklist_controller::DISPLAY_EVAL) {
-                $labelforremark = \core\output\html_writer::tag('label', get_string('groupremark', 'gradingform_checklist', $group['description']),
-                        array('class' => 'hiddenelement', 'for' => '{NAME}-groups-{GROUP-id}-items-0-remark'));
+                $labelforremark = \core\output\html_writer::tag('label',
+                        gradingform_checklist_controller::get_group_remark_heading($options),
+                        array('class' => 'checklistremarkheading', 'for' => '{NAME}-groups-{GROUP-id}-items-0-remark'));
                 $input = $labelforremark . \core\output\html_writer::tag('textarea', htmlspecialchars($currentremark),
                         array('id' => '{NAME}-groups-{GROUP-id}-items-0-remark', 'name' => '{NAME}[groups][{GROUP-id}][items][0][remark]', 'cols' => '10', 'rows' => '5'));
                 $grouptemplate .= \core\output\html_writer::tag('div', $input, array('class' => 'remark'));
@@ -201,10 +208,11 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
         if ($mode == gradingform_checklist_controller::DISPLAY_EDIT_FULL) {
             $labelfordef = \core\output\html_writer::tag('label', get_string('itemdefinition', 'gradingform_checklist'),
                     array('class' => 'hiddenelement', 'for' => '{NAME}-groups-{GROUP-id}-items-{ITEM-id}-definition-input'));
-            $definition = $labelfordef . \core\output\html_writer::empty_tag('input', array('type' => 'text',
+            $definition = $labelfordef . \core\output\html_writer::tag('textarea', s($item['definition']), array(
                     'id' => '{NAME}-groups-{GROUP-id}-items-{ITEM-id}-definition-input',
-                    'name' => '{NAME}[groups][{GROUP-id}][items][{ITEM-id}][definition]', 'value' => $item['definition'],
-                    'maxlength' => '255'));
+                    'name' => '{NAME}[groups][{GROUP-id}][items][{ITEM-id}][definition]',
+                    'maxlength' => MoodleQuickForm_checklisteditor::ITEM_DEFINITION_MAX_LENGTH,
+                    'rows' => '4', 'class' => 'checklisteditor-text'));
 
             $labelforscore = \core\output\html_writer::tag('label', get_string('itemscore', 'gradingform_checklist'),
                     array('class' => 'hiddenelement', 'for' => '{NAME}-groups-{GROUP-id}-items-{ITEM-id}-score-input'));
@@ -267,13 +275,33 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
             $itemtemplate .= \core\output\html_writer::tag('div', get_string('scorepostfix', 'gradingform_checklist', $score), array('class' => $scoreclass));
         }
         if ($mode == gradingform_checklist_controller::DISPLAY_EDIT_FULL) {
+            $movecontrols = '';
+            foreach (array('moveup', 'movedown') as $key) {
+                $value = get_string('item'.$key, 'gradingform_checklist');
+                $labelforctrl = \core\output\html_writer::tag('label', $value, array(
+                    'class' => 'hiddenelement',
+                    'for' => '{NAME}-groups-{GROUP-id}-items-{ITEM-id}-'.$key,
+                ));
+                $button = $labelforctrl . \core\output\html_writer::empty_tag('input', array(
+                    'type' => 'submit',
+                    'name' => '{NAME}[groups][{GROUP-id}][items][{ITEM-id}]['.$key.']',
+                    'id' => '{NAME}-groups-{GROUP-id}-items-{ITEM-id}-'.$key,
+                    'value' => $value,
+                    'title' => $value,
+                    'tabindex' => -1,
+                ));
+                $movecontrols .= \core\output\html_writer::tag('div', $button, array('class' => $key));
+            }
+            $itemtemplate .= \core\output\html_writer::tag('div', $movecontrols, array('class' => 'controls'));
+
             $value = get_string('itemdelete', 'gradingform_checklist');
             $labelfordelete = \core\output\html_writer::tag('label', $value, array('class' => 'hiddenelement', 'for' => '{NAME}-groups-{GROUP-id}-items-{ITEM-id}-delete'));
             $button = $labelfordelete . \core\output\html_writer::empty_tag('input', array('type' => 'submit', 'name' => '{NAME}[groups][{GROUP-id}][items][{ITEM-id}][delete]',
                     'id' => '{NAME}-groups-{GROUP-id}-items-{ITEM-id}-delete', 'value' => $value, 'title' => $value, 'tabindex' => -1));
             $itemtemplate .= \core\output\html_writer::tag('div', $button, array('class' => 'delete'));
         }
-        $displayremark = ($options['enableitemremarks'] && ($mode != gradingform_checklist_controller::DISPLAY_VIEW || $options['showremarksstudent']));
+        $displayremark = (gradingform_checklist_controller::item_remarks_enabled($options)
+                && ($mode != gradingform_checklist_controller::DISPLAY_VIEW || $options['showremarksstudent']));
         if ($displayremark) {
             $currentremark = '';
             if (isset($item['remark'])) {
@@ -350,6 +378,14 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
                     'id' => '{NAME}-groups-addgroup', 'value' => $value, 'title' => $value));
             $checklisttemplate .= \core\output\html_writer::tag('div', $input, array('class' => 'addgroup'));
         }
+        if ($mode == gradingform_checklist_controller::DISPLAY_EVAL && !empty($options['enablebulkcheck'])) {
+            $buttons = \core\output\html_writer::tag('button', get_string('tickall', 'gradingform_checklist'), array(
+                'type' => 'button',
+                'class' => 'btn btn-secondary bulkchecktoggle',
+                'data-action' => 'tickall',
+            ));
+            $checklisttemplate .= \core\output\html_writer::tag('div', $buttons, array('class' => 'bulkcheckcontrols'));
+        }
         $checklisttemplate .= $totalpointsstr;
         $checklisttemplate .= $this->checklist_edit_options($mode, $options);
         $checklisttemplate .= \core\output\html_writer::end_tag('div');
@@ -374,10 +410,64 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
         }
         $html = \core\output\html_writer::start_tag('div', array('class' => 'options'));
         $html .= \core\output\html_writer::tag('div', get_string('checklistoptions', 'gradingform_checklist'), array('class' => 'optionsheading'));
-        $attrs = array('type' => 'hidden', 'name' => '{NAME}[options][optionsset]', 'value' => 1);
-        foreach ($options as $option => $value) {
-            $html .= \core\output\html_writer::start_tag('div', array('class' => 'option '.$option));
+        $html .= \core\output\html_writer::empty_tag('input', array('type' => 'hidden', 'name' => '{NAME}[options][optionsset]', 'value' => 1));
+
+        $optionorder = array(
+            'alwaysshowdefinition',
+            'showremarksstudent',
+            'enablebulkcheck',
+            array('heading' => 'optionsectionitems'),
+            'showitempointseval',
+            'enableitemremarks',
+            'requireitemcommentschecked',
+            array('option' => 'requireatleastoneitemcomment', 'class' => 'childoption'),
+            array('heading' => 'optionsectiongroups'),
+            'showitempointstudent',
+            'enablegroupremarks',
+            'requiregroupcommentschecked',
+            array('option' => 'requireatleastonegroupcomment', 'class' => 'childoption'),
+            'groupremarkheading',
+        );
+
+        foreach ($optionorder as $optioninfo) {
+            if (is_array($optioninfo) && isset($optioninfo['heading'])) {
+                $html .= \core\output\html_writer::tag('div', get_string($optioninfo['heading'], 'gradingform_checklist'),
+                    array('class' => 'optionssectionheading'));
+                continue;
+            }
+
+            $option = is_array($optioninfo) ? $optioninfo['option'] : $optioninfo;
+            if (!array_key_exists($option, $options)) {
+                continue;
+            }
+
+            $optionclass = 'option '.$option;
+            if (is_array($optioninfo) && !empty($optioninfo['class'])) {
+                $optionclass .= ' '.$optioninfo['class'];
+            }
+
+            $value = $options[$option];
+            $html .= \core\output\html_writer::start_tag('div', array('class' => $optionclass));
             $attrs = array('name' => '{NAME}[options]['.$option.']', 'id' => '{NAME}-options-'.$option);
+
+            if ($option == 'groupremarkheading') {
+                if ($mode == gradingform_checklist_controller::DISPLAY_EDIT_FROZEN && $value !== '') {
+                    $html .= \core\output\html_writer::empty_tag('input', $attrs + array('type' => 'hidden', 'value' => $value));
+                }
+                if ($mode == gradingform_checklist_controller::DISPLAY_EDIT_FROZEN || $mode == gradingform_checklist_controller::DISPLAY_PREVIEW) {
+                    unset($attrs['name']);
+                    $attrs['disabled'] = 'disabled';
+                }
+                $html .= \core\output\html_writer::tag('label', get_string($option, 'gradingform_checklist'), array('for' => $attrs['id']));
+                $html .= \core\output\html_writer::empty_tag('input', $attrs + array(
+                    'type' => 'text',
+                    'value' => $value,
+                    'placeholder' => get_string('groupremarkheadingdefault', 'gradingform_checklist'),
+                    'size' => '32',
+                ));
+                $html .= \core\output\html_writer::end_tag('div'); // .option
+                continue;
+            }
 
             if ($mode == gradingform_checklist_controller::DISPLAY_EDIT_FROZEN && $value) {
                 $html .= \core\output\html_writer::empty_tag('input', $attrs + array('type' => 'hidden', 'value' => $value));

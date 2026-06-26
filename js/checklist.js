@@ -4,12 +4,40 @@ M.gradingform_checklist = M.gradingform_checklist || {};
  * This function is called for each checklist on page.
  */
 M.gradingform_checklist.init = function(Y, options) {
+    M.gradingform_checklist.Y = Y;
     Y.on('click', M.gradingform_checklist.itemclick, '#checklist-'+options.name+' .item', null, Y, options.name);
+    Y.one('#checklist-' + options.name).delegate('click', M.gradingform_checklist.bulkcheckclick, '.bulkcheckcontrols button');
     Y.all('#checklist-'+options.name+' .item').each(function (node) {
         if (node.one('input[type=checkbox]').get('checked')) {
             node.addClass('checked');
         }
     });
+    M.gradingform_checklist.updatebulkcheckbutton(Y.one('#checklist-' + options.name));
+};
+
+M.gradingform_checklist.bulkcheckclick = function(e) {
+    e.preventDefault();
+
+    var Y = M.gradingform_checklist.Y;
+    var button = e.currentTarget;
+    var checklist = button.ancestor('.gradingform_checklist');
+    if (!checklist) {
+        return;
+    }
+
+    var checked = button.getAttribute('data-action') == 'tickall';
+    checklist.all('.item input[type=checkbox]').each(function(checkbox) {
+        checkbox.set('checked', checked);
+        var item = checkbox.ancestor('.item');
+        if (checked) {
+            item.addClass('checked');
+        } else {
+            item.removeClass('checked');
+        }
+    });
+
+    M.gradingform_checklist.recalculatetotals(Y, checklist.get('id').replace(/^checklist-/, ''));
+    M.gradingform_checklist.updatebulkcheckbutton(checklist);
 };
 
 M.gradingform_checklist.itemclick = function(e, Y, name) {
@@ -46,6 +74,33 @@ M.gradingform_checklist.itemclick = function(e, Y, name) {
 
     // recalc the scores
     M.gradingform_checklist.recalculatetotals(Y, name);
+    M.gradingform_checklist.updatebulkcheckbutton(Y.one('#checklist-' + name));
+};
+
+M.gradingform_checklist.updatebulkcheckbutton = function(checklist) {
+    if (!checklist) {
+        return;
+    }
+
+    var button = checklist.one('.bulkcheckcontrols button');
+    if (!button) {
+        return;
+    }
+
+    var allchecked = true;
+    checklist.all('.item input[type=checkbox]').each(function(checkbox) {
+        if (!checkbox.get('checked')) {
+            allchecked = false;
+        }
+    });
+
+    if (allchecked) {
+        button.setAttribute('data-action', 'untickall');
+        button.set('text', M.str.gradingform_checklist.untickall);
+    } else {
+        button.setAttribute('data-action', 'tickall');
+        button.set('text', M.str.gradingform_checklist.tickall);
+    }
 };
 
 M.gradingform_checklist.recalculatetotals = function(Y, name) {
@@ -69,7 +124,11 @@ M.gradingform_checklist.recalculatetotals = function(Y, name) {
         // iterate through all group items
         groupitems.each(function(item) {
             var checked = item.one('input[type=checkbox]').get('checked');
-            var score   = parseFloat(item.one('.scorevalue').get('innerHTML'));
+            var scorevalue = item.one('.scorevalue');
+            if (!scorevalue) {
+                return;
+            }
+            var score = parseFloat(scorevalue.get('innerHTML'));
 
             grouptotal += score;
             if (checked) {
@@ -80,8 +139,14 @@ M.gradingform_checklist.recalculatetotals = function(Y, name) {
         overalltotal += grouptotal;
         overallscored += groupscored;
 
-        group.one('.pointstotals .scoredpoints').set('innerHTML', groupscored);
+        var grouppoints = group.one('.pointstotals .scoredpoints');
+        if (grouppoints) {
+            grouppoints.set('innerHTML', groupscored);
+        }
     });
 
-    checklist.one('> .pointstotals .scoredpoints').set('innerHTML', overallscored);
+    var overallpoints = checklist.one('> .pointstotals .scoredpoints');
+    if (overallpoints) {
+        overallpoints.set('innerHTML', overallscored);
+    }
 };
