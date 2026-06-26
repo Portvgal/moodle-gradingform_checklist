@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Generator for the gradingforum_checklist plugin.
+ * Generator for the gradingform_checklist plugin.
  *
  * @package    gradingform_checklist
  * @copyright  Copyright (c) 2023 Open LMS (https://www.openlms.net)
@@ -58,11 +58,11 @@ class criterion {
      * Adds items to the criterion.
      *
      * @param string $definition The definition for this items.
-     * @param int $score The score received if this item is selected.
+     * @param float $score The score received if this item is selected.
      * @param int $sortorder
      * @return self
      */
-    public function add_item(string $definition, int $score, int $sortorder): self {
+    public function add_item(string $definition, float $score, int $sortorder): self {
         $this->items[] = [
             'definition' => $definition,
             'score' => $score,

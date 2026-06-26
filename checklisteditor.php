@@ -31,6 +31,12 @@ defined('MOODLE_INTERNAL') || die();
 require_once("HTML/QuickForm/input.php");
 
 class MoodleQuickForm_checklisteditor extends HTML_QuickForm_input {
+    /** Maximum length for group descriptions. */
+    public const GROUP_DESCRIPTION_MAX_LENGTH = 500;
+
+    /** Maximum length for item definitions. */
+    public const ITEM_DEFINITION_MAX_LENGTH = 1000;
+
     /** help message */
     public $_helpbutton = '';
     /** stores the result of the last validation: null - undefined, false - no errors, string - error(s) text */
@@ -41,6 +47,18 @@ class MoodleQuickForm_checklisteditor extends HTML_QuickForm_input {
     protected $nonjsbuttonpressed = false;
     /** Message to display in front of the editor (that there exist grades on this checklist being edited) */
     protected $regradeconfirmation = false;
+
+    /**
+     * Cleans checklist plain text while preserving line breaks entered in textareas.
+     *
+     * @param string $value
+     * @return string
+     */
+    public static function clean_multiline_text($value) {
+        $value = str_replace(["\r\n", "\r"], "\n", $value);
+        $value = clean_param($value, PARAM_NOTAGS);
+        return trim($value);
+    }
 
     function __construct($elementName=null, $elementLabel=null, $attributes=null) {
         parent::__construct($elementName, $elementLabel, $attributes);
@@ -160,6 +178,13 @@ class MoodleQuickForm_checklisteditor extends HTML_QuickForm_input {
         // If options are present in $value, replace default values with submitted values
         if (!empty($value['options'])) {
             foreach (array_keys($return['options']) as $option) {
+                if ($option == 'groupremarkheading') {
+                    $return['options'][$option] = '';
+                    if (array_key_exists($option, $value['options'])) {
+                        $return['options'][$option] = trim(clean_param($value['options'][$option], PARAM_TEXT));
+                    }
+                    continue;
+                }
                 // special treatment for checkboxes
                 if (!empty($value['options'][$option])) {
                     $return['options'][$option] = $value['options'][$option];
@@ -202,6 +227,8 @@ class MoodleQuickForm_checklisteditor extends HTML_QuickForm_input {
             $items = array();
             $maxscore = null;
             if (array_key_exists('items', $group)) {
+                $lastitemaction = null;
+                $lastitemid = null;
                 foreach ($group['items'] as $itemid => $item) {
                     if ($itemid == 'additem') {
                         $itemid = $this->get_next_id(array_keys($group['items']));
@@ -213,11 +240,11 @@ class MoodleQuickForm_checklisteditor extends HTML_QuickForm_input {
                     }
                     if (!array_key_exists('delete', $item)) {
                         if ($withvalidation) {
-                            $deflength = strlen(trim(clean_param($item['definition'], PARAM_TEXT)));
+                            $deflength = \core_text::strlen(self::clean_multiline_text($item['definition']));
                             if (!$deflength) {
                                 $errors['err_nodefinition'] = 1;
                                 $item['error_definition'] = true;
-                            } else if ($deflength > 255) {
+                            } else if ($deflength > self::ITEM_DEFINITION_MAX_LENGTH) {
                                 $errors['err_definitionmax'] = 1;
                                 $item['error_definition'] = true;
                             }
@@ -230,9 +257,30 @@ class MoodleQuickForm_checklisteditor extends HTML_QuickForm_input {
                                 $item['error_score'] = true;
                             }
                         }
-                        $items[$itemid] = $item;
                         if ($maxscore === null || (float)$item['score'] > $maxscore) {
                             $maxscore = (float)$item['score'];
+                        }
+                        if (array_key_exists('moveup', $item) || $lastitemaction == 'movedown') {
+                            unset($item['moveup']);
+                            if ($lastitemid !== null) {
+                                $lastitem = $items[$lastitemid];
+                                unset($items[$lastitemid]);
+                                $items[$itemid] = $item;
+                                $items[$lastitemid] = $lastitem;
+                            } else {
+                                $items[$itemid] = $item;
+                            }
+                            $lastitemaction = null;
+                            $lastitemid = $itemid;
+                            $this->nonjsbuttonpressed = true;
+                        } else {
+                            if (array_key_exists('movedown', $item)) {
+                                unset($item['movedown']);
+                                $lastitemaction = 'movedown';
+                                $this->nonjsbuttonpressed = true;
+                            }
+                            $items[$itemid] = $item;
+                            $lastitemid = $itemid;
                         }
                     } else {
                         $this->nonjsbuttonpressed = true;
@@ -252,11 +300,11 @@ class MoodleQuickForm_checklisteditor extends HTML_QuickForm_input {
                     $errors['err_minoneitems'] = 1;
                     $group['error_items'] = true;
                 }
-                $descriptionlen = strlen(trim(clean_param($group['description'], PARAM_TEXT)));
+                $descriptionlen = \core_text::strlen(self::clean_multiline_text($group['description']));
                 if (!$descriptionlen) {
                     $errors['err_nodescription'] = 1;
                     $group['error_description'] = true;
-                } else if ($descriptionlen > 255) {
+                } else if ($descriptionlen > self::GROUP_DESCRIPTION_MAX_LENGTH) {
                     $errors['err_descriptionmax'] = 1;
                     $group['error_description'] = true;
                 }

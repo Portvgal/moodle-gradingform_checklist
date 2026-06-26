@@ -4,6 +4,11 @@
     position: relative;
 }
 
+.gradingform_checklist .group {
+    clear: both;
+    margin-bottom: 1rem;
+}
+
 .gradingform_checklist.editor .group .controls,
 .gradingform_checklist .group .description,
 .gradingform_checklist .group .items,
@@ -12,31 +17,33 @@
 .gradingform_checklist .group .items .item .remark,
 .gradingform_checklist .group .items .item .score,
 .gradingform_checklist .group .items .item .definition,
-.gradingform_checklist .group .items .item {vertical-align: top;}
-
 .gradingform_checklist .group .items .item {
-    .definition {
-        width: 80%;
-    }
-    .score {
-        width: 32%;
-        margin-left: 3px;
-    }
-    .remark {
-        width: auto;
-    }
+    vertical-align: top;
 }
 
-#fitem_id_advancedgrading.popout .gradingform_checklist .group .items .item {
-    .definition {
-        width: 50%;
-    }
-    .score {
-        width: 15%;
-    }
-    .remark {
-        width: 25%;
-    }
+.gradingform_checklist .group .items .item .definition {
+    width: auto;
+}
+
+.gradingform_checklist .group .items .item .score {
+    width: auto;
+    margin-left: 0;
+}
+
+.gradingform_checklist .group .items .item .remark {
+    width: auto;
+}
+
+#fitem_id_advancedgrading.popout .gradingform_checklist .group .items .item .definition {
+    width: auto;
+}
+
+#fitem_id_advancedgrading.popout .gradingform_checklist .group .items .item .score {
+    width: auto;
+}
+
+#fitem_id_advancedgrading.popout .gradingform_checklist .group .items .item .remark {
+    width: auto;
 }
 
 .gradingform_checklist.editor .group .controls,
@@ -44,81 +51,270 @@
 .gradingform_checklist.editor .group .additem,
 .gradingform_checklist .group .remark,
 .gradingform_checklist .group .items .item,
-.gradingform_checklist .group .pointstotals {padding:3px;}
+.gradingform_checklist .group .pointstotals {
+    padding: 3px;
+}
 
 .gradingform_checklist .controls,
 .gradingform_checklist .controls div,
+.gradingform_checklist .group .items .item .definition,
+.gradingform_checklist .group .items .item .score,
+.gradingform_checklist .group .items .item .delete,
+.gradingform_checklist .group .items .item .controls,
+.gradingform_checklist .group .items .item .checkbox,
+.gradingform_checklist .group .items .item .plainvalue {
+    display: inline-block;
+}
+
 .gradingform_checklist .group .description,
-.gradingform_checklist .group .items .item .definition,
-.gradingform_checklist .group .items .item .score,
-.gradingform_checklist .group .items .item .delete,
-.gradingform_checklist .group .items .item .remark,
-.gradingform_checklist .group .items .item .checkbox,
-.gradingform_checklist .group .items .item .plainvalue {display: inline-block;}
-
-.mform .gradingform_checklist .group > .remark textarea {width: 99%;}
+.gradingform_checklist .group .items .item .remark {
+    display: block;
+}
 
 .gradingform_checklist .group .items .item .definition,
 .gradingform_checklist .group .items .item .score,
 .gradingform_checklist .group .items .item .delete,
+.gradingform_checklist .group .items .item .controls,
 .gradingform_checklist .group .items .item .remark,
 .gradingform_checklist .group .items .item .checkbox,
-.gradingform_checklist .group .items .item .plainvalue {padding-left: 3px;}
+.gradingform_checklist .group .items .item .plainvalue {
+    padding-left: 3px;
+}
 
-.gradingform_checklist_editform .status {font-weight:normal;text-transform:uppercase;font-size:60%;padding:0.25em;border:1px solid #EEE;}
-.gradingform_checklist_editform .status.ready {background-color:#e7f1c3;border-color:#AAEEAA;}
-.gradingform_checklist_editform .status.draft {background-color:#f3f2aa;border-color:#EEEE22;}
+.gradingform_checklist_editform .status {
+    border: 1px solid #eee;
+    font-size: 60%;
+    font-weight: normal;
+    padding: 0.25em;
+    text-transform: uppercase;
+}
 
-.gradingform_checklist .group .description {width:150px; font-weight:bold;}
+.gradingform_checklist_editform .status.ready {
+    background-color: #e7f1c3;
+    border-color: #aea;
+}
+
+.gradingform_checklist_editform .status.draft {
+    background-color: #f3f2aa;
+    border-color: #ee2;
+}
+
+.gradingform_checklist .group .description {
+    font-weight: bold;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+    width: auto;
+}
 
 .gradingform_checklist .checklistfeedback,
-.gradingform_checklist .pointstotals {font-weight: bold;}
+.gradingform_checklist .pointstotals {
+    font-weight: bold;
+}
+
+.gradingform_checklist .checklistremarkheading {
+    display: block;
+    font-weight: bold;
+    margin: .75rem 0 .5rem;
+}
+
+.gradingform_checklist .bulkcheckcontrols {
+    display: flex;
+    justify-content: center;
+    margin: 1rem 0;
+}
 
 /* evaluation */
-.gradingform_checklist .group .items .item.currentchecked {background:#fff0f0;}
-.gradingform_checklist .group .items .item.checked {background:#d0ffd0;border:1px solid #555;}
-.gradingform_checklist.evaluate .group .items .item:hover {background:#30ff30;}
+.gradingform_checklist .group .items .item.currentchecked {
+    background: #fff0f0;
+}
 
-/* Make invisible the buttons 'Move up' for the first group and 'Move down' for the last, because those buttons will make no change */
+.gradingform_checklist .group .items .item.checked {
+    background: #d0ffd0;
+    border: 1px solid #555;
+}
+
+.gradingform_checklist.evaluate .group .items .item:hover {
+    background: #30ff30;
+}
+
+/* Make invisible the buttons 'Move up' for the first group and 'Move down' for the last. */
 .gradingform_checklist.editor .group.first .controls .moveup input,
-.gradingform_checklist.editor .group.last .controls .movedown input {display:none;}
+.gradingform_checklist.editor .group.last .controls .movedown input,
+.gradingform_checklist.editor .group .items .item.first > .item-wrapper > .controls .moveup input,
+.gradingform_checklist.editor .group .items .item.last > .item-wrapper > .controls .movedown input {
+    display: none;
+}
 
 /* replace buttons with images */
 .gradingform_checklist.editor .delete input,
 .gradingform_checklist.editor .moveup input,
-.gradingform_checklist.editor .movedown input{text-indent: -1000em;cursor:pointer;border:none;}
-.gradingform_checklist.editor .group .controls .delete input {width:20px;height:16px;background: transparent url([[pix:i/invalid]]) no-repeat center top;}
-.gradingform_checklist.editor .items .item .delete input {width:20px;height:16px;background: transparent url([[pix:i/invalid]]) no-repeat center top;}
-.gradingform_checklist.editor .moveup input {width:20px;height:15px;background: transparent url([[pix:t/up]]) no-repeat center top;margin-top:4px;}
-.gradingform_checklist.editor .movedown input {width:20px;height:15px;background: transparent url([[pix:t/down]]) no-repeat center top;margin-top:4px;}
+.gradingform_checklist.editor .movedown input {
+    border: none;
+    cursor: pointer;
+    text-indent: -1000em;
+}
+
+.gradingform_checklist.editor .group .controls .delete input {
+    background: transparent url([[pix:i/invalid]]) no-repeat center top;
+    height: 16px;
+    width: 20px;
+}
+
+.gradingform_checklist.editor .items .item .delete input {
+    background: transparent url([[pix:i/invalid]]) no-repeat center top;
+    height: 16px;
+    width: 20px;
+}
+
+.gradingform_checklist.editor .moveup input {
+    background: transparent url([[pix:t/up]]) no-repeat center top;
+    height: 15px;
+    margin-top: 4px;
+    width: 20px;
+}
+
+.gradingform_checklist.editor .movedown input {
+    background: transparent url([[pix:t/down]]) no-repeat center top;
+    height: 15px;
+    margin-top: 4px;
+    width: 20px;
+}
 
 .gradingform_checklist.editor .addgroup input,
-.gradingform_checklist.editor .additem input {background: transparent url([[pix:t/add]]) no-repeat;display:block;color:#555555;font-weight:bold;text-decoration:none;}
-.gradingform_checklist.editor .addgroup input {height:30px;line-height:29px;margin-bottom:14px;padding-left:20px;padding-right:10px;}
-.gradingform_checklist.editor .additem input {height:25px;line-height:24px;margin-bottom:10px;padding-left:18px;padding-right:8px;}
+.gradingform_checklist.editor .additem input {
+    background: transparent url([[pix:t/add]]) no-repeat .5rem center;
+    background-size: .85rem .85rem;
+    color: #1d2125;
+    display: inline-flex;
+    font-size: .875rem;
+    font-weight: bold;
+    line-height: 1.4;
+    margin: 0;
+    min-height: 1.9rem;
+    padding: .25rem .65rem .25rem 1.65rem;
+    text-decoration: none;
+}
 
-.gradingform_checklist .options .optionsheading {font-weight:bold;font-size:1.1em;padding-bottom:5px;}
-.gradingform_checklist .options .option {padding-bottom:2px;}
-.gradingform_checklist .options .option label {margin-left: 5px;}
-.gradingform_checklist .options .option .value {margin-left: 5px;font-weight:bold;}
+.gradingform_checklist.editor .addgroup input {
+    margin-bottom: 14px;
+}
 
-.gradingform_checklist .group .items.error { border:1px solid red;}
+.gradingform_checklist.editor .additem input {
+    margin-bottom: 10px;
+}
+
+.gradingform_checklist .options .optionsheading {
+    font-size: 1.1em;
+    font-weight: bold;
+    padding-bottom: 5px;
+}
+
+.gradingform_checklist .options .option {
+    padding-bottom: 2px;
+}
+
+.gradingform_checklist .options .optionssectionheading {
+    border-top: 1px solid #d7dfe7;
+    font-weight: bold;
+    margin: .85rem 0 .35rem;
+    padding-top: .75rem;
+}
+
+.gradingform_checklist .options .option.childoption {
+    margin-left: 1.75rem;
+}
+
+.gradingform_checklist .options .option label {
+    margin-left: 5px;
+}
+
+.gradingform_checklist .options .option.groupremarkheading {
+    align-items: center;
+    display: grid;
+    gap: .45rem .9rem;
+    grid-template-columns: max-content minmax(18rem, 32rem);
+    margin-top: .65rem;
+}
+
+.gradingform_checklist .options .option.groupremarkheading label {
+    margin-left: 0;
+}
+
+.gradingform_checklist .options .option.groupremarkheading input[type="text"] {
+    box-sizing: border-box;
+    max-width: 100%;
+    width: 100%;
+}
+
+.gradingform_checklist .options .option .value {
+    font-weight: bold;
+    margin-left: 5px;
+}
+
+.gradingform_checklist .group .items.error {
+    border: 1px solid red;
+}
+
 .gradingform_checklist .group .description.error,
 .gradingform_checklist .group .items .item .definition.error,
-.gradingform_checklist .group .items .item .score.error {background:#FFDDDD;}
+.gradingform_checklist .group .items .item .score.error {
+    background: #fdd;
+}
 
-.gradingform_checklist-regrade {padding:10px;background:#FFDDDD;border:1px solid #F00;margin-bottom:10px;}
-.gradingform_checklist-restored {padding:10px;background:#FFFFDD;border:1px solid #FF0;margin-bottom:10px;}
-.gradingform_checklist-error {color:red;font-weight:bold;}
+.gradingform_checklist-regrade {
+    background: #fdd;
+    border: 1px solid #f00;
+    margin-bottom: 10px;
+    padding: 10px;
+}
+
+.gradingform_checklist-restored {
+    background: #ffd;
+    border: 1px solid #ff0;
+    margin-bottom: 10px;
+    padding: 10px;
+}
+
+.gradingform_checklist-error {
+    background: #fff3cd;
+    border: 1px solid #f0b429;
+    border-left: .35rem solid #d9822b;
+    border-radius: .35rem;
+    box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .08);
+    color: #5f370e;
+    font-weight: bold;
+    line-height: 1.35;
+    margin: .75rem 0 1rem;
+    padding: .85rem 1rem;
+}
 
 /* special classes for elements created by checklisteditor.js */
 .gradingform_checklist .hiddenelement,
 .gradingform_checklist.editor .hiddenelement,
-.gradingform_checklist.editor .group .items .item .plainvalue.hiddenelement {display:none;}
-.gradingform_checklist.editor .pseudotablink {background-color:transparent;border:0 solid;height:1px;width:1px;color:transparent;padding:0;margin:0;position:relative;float:right;}
+.gradingform_checklist.editor .group .items .item .plainvalue.hiddenelement {
+    display: none;
+}
 
-#page-mod-assign-view .gradingform_checklist-description table { width: 100%;}
-#page-mod-assign-view #checklist-advancedgrading { padding-left: 22px;}
+.gradingform_checklist.editor .pseudotablink {
+    background-color: transparent;
+    border: 0 solid;
+    color: transparent;
+    float: right;
+    height: 1px;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    width: 1px;
+}
+
+#page-mod-assign-view .gradingform_checklist-description table {
+    width: 100%;
+}
+
+#page-mod-assign-view #checklist-advancedgrading {
+    padding-left: 22px;
+}
 
 /* Hide extra popout buttons added by js that assumes only one label tag per grade-panel fitem MDL-59264 */
 .path-mod-assign [data-region="grade-panel"] .gradingform_checklist a[data-region="popout-button"] {
@@ -129,21 +325,143 @@
     width: 100%;
 }
 
-/* Wrap checklist option if word is too long */
-#page-grade-grading-form-checklist-edit .gradingform_checklist .definition .plainvalue .textvalue {
-    word-break: break-word;
+/* Long text support for checklist groups and criteria. */
+.gradingform_checklist:not(.editor) {
+    font-size: .95rem;
+    line-height: 1.4;
 }
 
-/* Increase definition input size to be more comfortable */
-#page-grade-grading-form-checklist-edit .gradingform_checklist input[id$="-definition-input"] {
-    width: calc(100% - 2rem);
+.gradingform_checklist.editor .group {
+    max-width: 76rem;
+}
+
+.gradingform_checklist .group .items .item {
+    clear: both;
+    display: block;
+}
+
+.gradingform_checklist .group .items .item .item-wrapper {
+    align-items: start;
+    display: grid;
+    gap: .35rem .75rem;
+    grid-template-columns: auto minmax(0, 1fr) max-content;
+}
+
+.gradingform_checklist.editor .group .items .item .item-wrapper {
+    grid-template-columns: minmax(0, 1fr) max-content 1.5rem 1.5rem;
+}
+
+.gradingform_checklist .group .items .item .checkbox {
+    justify-self: start;
+}
+
+.gradingform_checklist .group .items .item .definition {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+    width: auto;
+}
+
+.gradingform_checklist .group .items .item .score {
+    justify-self: end;
+    min-width: 4rem;
+    white-space: nowrap;
+}
+
+.gradingform_checklist.editor .group .items .item .score {
+    align-items: center;
+    display: flex;
+    gap: .35rem;
+    min-width: max-content;
+}
+
+.gradingform_checklist.editor .group .items .item .score .scorevalue {
+    display: inline-flex;
+}
+
+.gradingform_checklist.editor .group .items .item .score input[type="text"] {
+    box-sizing: border-box;
+    width: 3.25rem;
+}
+
+.gradingform_checklist .group .items .item .delete {
+    justify-self: end;
+}
+
+.gradingform_checklist .group .items .item .controls {
+    justify-self: end;
+    padding-left: 0;
+}
+
+.gradingform_checklist.editor .group .items .item .controls {
+    display: flex;
+    flex-direction: column;
+    gap: .1rem;
+}
+
+.gradingform_checklist .group .items .item .remark {
+    grid-column: 2 / -1;
+    max-width: none;
+    width: 100%;
+}
+
+.gradingform_checklist .group > .remark {
+    display: block;
+    max-width: none;
+    width: 100%;
+}
+
+.gradingform_checklist .group .items .item .remark textarea,
+.gradingform_checklist .group > .remark textarea {
+    box-sizing: border-box;
+    display: block;
+    max-width: none;
+    min-height: 8rem;
+    width: 100%;
+}
+
+.gradingform_checklist.editor .group .description .checklisteditor-text,
+.gradingform_checklist.editor .group .items .item .definition .checklisteditor-text {
+    box-sizing: border-box;
+    line-height: 1.4;
+    max-width: 100%;
+    min-height: 6rem;
+    padding: .5rem;
+    resize: vertical;
+    width: 100%;
+}
+
+.gradingform_checklist.editor .group .description .plainvalue,
+.gradingform_checklist.editor .group .items .item .definition .plainvalue {
+    display: block;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+    width: 100%;
+}
+
+.gradingform_checklist.editor .additem,
+.gradingform_checklist.editor .addgroup {
+    margin-top: .75rem;
 }
 
 @media (max-width: 992px) {
-    .gradingform_checklist .group .items .item .score {
-        width: 50%;
+    .gradingform_checklist .group .items .item .item-wrapper,
+    .gradingform_checklist.editor .group .items .item .item-wrapper {
+        grid-template-columns: auto minmax(0, 1fr);
     }
-    .gradingform_checklist .group .items .item .remark textarea {
-        width: 120px;
+
+    .gradingform_checklist .group .items .item .score,
+    .gradingform_checklist .group .items .item .controls {
+        grid-column: 2;
+        justify-self: start;
+    }
+
+    .gradingform_checklist .group .items .item .delete {
+        grid-column: 2;
+        justify-self: end;
+    }
+
+    .gradingform_checklist .group .items .item .remark {
+        grid-column: 1 / -1;
     }
 }
