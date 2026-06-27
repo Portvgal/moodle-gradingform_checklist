@@ -127,7 +127,8 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
                 $labelforremark = \core\output\html_writer::tag('label',
                         gradingform_checklist_controller::get_group_remark_heading($options),
                         array('class' => 'checklistremarkheading', 'for' => '{NAME}-groups-{GROUP-id}-items-0-remark'));
-                $input = $labelforremark . \core\output\html_writer::tag('textarea', htmlspecialchars($currentremark),
+                $input = $labelforremark . \core\output\html_writer::tag('textarea',
+                        htmlspecialchars($currentremark, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401),
                         array('id' => '{NAME}-groups-{GROUP-id}-items-0-remark', 'name' => '{NAME}[groups][{GROUP-id}][items][0][remark]', 'cols' => '10', 'rows' => '5'));
                 $grouptemplate .= \core\output\html_writer::tag('div', $input, array('class' => 'remark'));
             } else if ($mode == gradingform_checklist_controller::DISPLAY_EVAL_FROZEN) {
@@ -310,7 +311,8 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
             if ($mode == gradingform_checklist_controller::DISPLAY_EVAL) {
                 $labelforremark = \core\output\html_writer::tag('label', get_string('itemremark', 'gradingform_checklist', $item['definition']),
                         array('class' => 'hiddenelement', 'for' => '{NAME}-groups-{GROUP-id}-items-{ITEM-id}-remark-input'));
-                $input = $labelforremark . \core\output\html_writer::tag('textarea', htmlspecialchars($currentremark), array('id' => '{NAME}-groups-{GROUP-id}-items-{ITEM-id}-remark-input',
+                $input = $labelforremark . \core\output\html_writer::tag('textarea',
+                        htmlspecialchars($currentremark, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401), array('id' => '{NAME}-groups-{GROUP-id}-items-{ITEM-id}-remark-input',
                         'name' => '{NAME}[groups][{GROUP-id}][items][{ITEM-id}][remark]', 'cols' => '20', 'rows' => '3'));
                 $itemtemplate .= \core\output\html_writer::tag('div', $input, array('class' => 'remark'));
             } else if ($mode == gradingform_checklist_controller::DISPLAY_EVAL_FROZEN) {
@@ -514,7 +516,7 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
         $scoredpoints = 0;
         $cnt = 0;
         foreach ($groups as $id => $group) {
-            $group['class'] = $this->get_css_class_suffix($cnt++, sizeof($groups) -1);
+            $group['class'] = $this->get_css_class_suffix($cnt++, count($groups) - 1);
             $group['id'] = $id;
             $itemsstr = '';
             $itemcnt = 0;
@@ -525,7 +527,7 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
             }
             foreach ($group['items'] as $itemid => $item) {
                 $item['id'] = $itemid;
-                $item['class'] = $this->get_css_class_suffix($itemcnt++, sizeof($group['items']) -1);
+                $item['class'] = $this->get_css_class_suffix($itemcnt++, count($group['items']) - 1);
                 $item['checked'] = !empty($groupvalue['items'][$itemid]['checked']);
                 if ($item['checked'] && ($mode == gradingform_checklist_controller::DISPLAY_EVAL_FROZEN || $mode == gradingform_checklist_controller::DISPLAY_REVIEW || $mode == gradingform_checklist_controller::DISPLAY_VIEW)) {
                     $item['class'] .= ' checked';
@@ -597,7 +599,7 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
      */
     public function display_instances($instances, $defaultcontent, $cangrade) {
         $return = '';
-        if (sizeof($instances)) {
+        if (count($instances)) {
             $return .= \core\output\html_writer::start_tag('div', array('class' => 'advancedgrade'));
             $idx = 0;
             foreach ($instances as $instance) {
