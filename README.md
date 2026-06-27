@@ -19,12 +19,12 @@ Extract the contents of the plugin into _/wwwroot/grade/grading/form_ then visit
 For more information about the configuration and usage, please see http://docs.moodle.org/dev/Checklist
 
 ## Options
-Checklist definitions can allow graders to tick or untick all checklist items in one action.
-They can also require comments for checked items, require comments for groups with checked
-items, or require at least one item or group comment.
+Checklist definitions can allow graders to tick or untick all items in one action.
+They can also require comments for checked items, require comments for groups with
+checked items, or require at least one item or group comment.
 
-Group descriptions support up to 500 characters, and item definitions support up to 1000
-characters. Both fields support multiline text.
+Group descriptions support up to 500 characters, and item definitions support up to
+1000 characters. Both fields support multiline text.
 
 ## License
 Copyright (c) 2021 Open LMS (https://www.openlms.net)

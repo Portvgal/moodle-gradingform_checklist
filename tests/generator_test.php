@@ -30,7 +30,7 @@ use context_module;
 use gradingform_checklist_controller;
 use gradingform_controller;
 
-require_once(__DIR__ . '/../checklisteditor.php');
+require_once(__DIR__ . '/../lib.php');
 
 /**
  * Generator testcase for the gradingform_checklist generator.
@@ -113,7 +113,7 @@ class generator_test extends advanced_testcase {
             ],
         ];
 
-        $value = $editor->exportValue($submittedvalues);
+        $value = $editor->exportValue($submittedvalues, true);
         $items = array_values($value['checklist']['groups']['NEWID1']['items']);
 
         $this->assertSame('Second item', $items[0]['definition']);
@@ -189,6 +189,20 @@ class generator_test extends advanced_testcase {
 
         $this->assertSame($groupdescription, $group['description']);
         $this->assertSame($itemdefinition, $item['definition']);
+    }
+
+    /**
+     * Test checklist defaults keep the existing preview and remark options enabled.
+     */
+    public function test_default_options_enable_preview_and_group_remarks_only(): void {
+        $options = gradingform_checklist_controller::get_default_options();
+
+        $this->assertSame(1, $options['alwaysshowdefinition']);
+        $this->assertSame(1, $options['showremarksstudent']);
+        $this->assertSame(1, $options['enablegroupremarks']);
+        $this->assertSame(0, $options['enableitemremarks']);
+        $this->assertSame(0, $options['showitempointseval']);
+        $this->assertSame(0, $options['showitempointstudent']);
     }
 
     /**
