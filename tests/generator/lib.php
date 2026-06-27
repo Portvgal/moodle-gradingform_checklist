@@ -48,6 +48,7 @@ class gradingform_checklist_generator extends component_generator_base {
      * @param string $name
      * @param string $description
      * @param array $criteria The list of criteria to add to the generated checklist
+     * @param array $options Checklist options to override.
      * @return gradingform_checklist_controller
      */
     public function create_instance(
@@ -56,7 +57,8 @@ class gradingform_checklist_generator extends component_generator_base {
         string $area,
         string $name,
         string $description,
-        array $criteria
+        array $criteria,
+        array $options = []
     ): gradingform_checklist_controller {
         global $USER;
 
@@ -71,6 +73,9 @@ class gradingform_checklist_generator extends component_generator_base {
 
         // Generate a definition for the supplied checklist.
         $checklist = $this->get_checklist($name, $description);
+        foreach ($options as $key => $value) {
+            $checklist->set_option($key, $value);
+        }
         foreach ($criteria as $name => $criterion) {
             $checklist->add_criteria($this->get_criterion($name, $criterion));
         }
@@ -205,7 +210,8 @@ class gradingform_checklist_generator extends component_generator_base {
             ],
         ];
 
-        return $this->create_instance($context, $component, $area, 'testchecklist', 'Description text', $criteria);
+        return $this->create_instance($context, $component, $area, 'testchecklist', 'Description text', $criteria,
+            ['enableitemremarks' => 1]);
     }
 
     /**
