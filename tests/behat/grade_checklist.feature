@@ -57,16 +57,16 @@ Feature: Converting checklist score to grades
     When I click on "Grade users" "button"
     And I click on "[data-direction='1'][data-action='change-user']" "css_element"
     And I should see "Student 1"
-    Then I should see "Group points: 0/3.5"
-    And I should see "Overall points: 0/3.5"
+    Then I should not see "Group points: 0/3.5"
+    And I should not see "Overall points: 0/3.5"
     And I click on ".form-check-input" "css_element"
     And I should see "Group 1"
     And I should see "Has title"
     And I should see "Has description"
     And I should see "Has conclusions"
-    And I should see "Group points: 1.5/3.5"
-    And I should see "Overall points: 1.5/3.5"
-    And "//div[contains(@id, 'criteria-')]//div//textarea" "xpath" should exist
+    And I should not see "Group points: 1.5/3.5"
+    And I should not see "Overall points: 1.5/3.5"
+    And "//div[contains(@id, 'criteria-')]//div//textarea" "xpath" should not exist
     And "//div[contains(@id, 'criteria-')]//textarea[contains(@id, '-items-0-remark')]" "xpath" should exist
     And I click on "button[data-action='savegrade']" "css_element"
     And I log out
@@ -78,12 +78,12 @@ Feature: Converting checklist score to grades
     And I should see "Has title"
     And I should see "Has description"
     And I should see "Has conclusions"
-    And I should see "Group points: 1.5/3.5"
-    And I should see "Overall points: 1.5/3.5"
-    And "//div[contains(@id, 'criteria-')]//div//textarea" "xpath" should exist
+    And I should not see "Group points: 1.5/3.5"
+    And I should not see "Overall points: 1.5/3.5"
+    And "//div[contains(@id, 'criteria-')]//div//textarea" "xpath" should not exist
     And "//div[contains(@id, 'criteria-')]//textarea[contains(@id, '-items-0-remark')]" "xpath" should exist
 
-  Scenario: Disable display of points during evaluation and feedback of groups
+  Scenario: Enable display of points during evaluation and disable feedback of groups
     And I am on the "forum1" "forum activity editing" page
     And I navigate to "Advanced grading" in current page administration
     And I select "Checklist" from the "setmethod" singleselect
@@ -95,19 +95,19 @@ Feature: Converting checklist score to grades
     When I click on "Grade users" "button"
     And I click on "[data-direction='1'][data-action='change-user']" "css_element"
     And I should see "Student 1"
-    Then I should not see "Group points: 0/3.5"
-    And I should not see "Overall points: 0/3.5"
-    And "//div[contains(@id, 'criteria-')]//div//textarea" "xpath" should exist
+    Then I should see "Group points: 0/3.5"
+    And I should see "Overall points: 0/3.5"
+    And "//div[contains(@id, 'criteria-')]//div//textarea" "xpath" should not exist
     And "//div[contains(@id, 'criteria-')]//textarea[contains(@id, '-items-0-remark')]" "xpath" should not exist
     And I log out
     And I am on the "forum1" "forum activity" page logged in as "student1"
     And I click on "View grades" "button"
-    Then I should see "Group points: 0/3.5"
-    And I should see "Overall points: 0/3.5"
-    And "//div[contains(@id, 'criteria-')]//div//textarea" "xpath" should exist
+    Then I should not see "Group points: 0/3.5"
+    And I should not see "Overall points: 0/3.5"
+    And "//div[contains(@id, 'criteria-')]//div//textarea" "xpath" should not exist
     And "//div[contains(@id, 'criteria-')]//textarea[contains(@id, '-items-0-remark')]" "xpath" should not exist
 
-  Scenario: Disable display points for each item to those being graded and item feedback
+  Scenario: Enable display points for those being graded and item feedback
     And I am on the "forum1" "forum activity editing" page
     And I navigate to "Advanced grading" in current page administration
     And I select "Checklist" from the "setmethod" singleselect
@@ -120,14 +120,14 @@ Feature: Converting checklist score to grades
     When I click on "Grade users" "button"
     And I click on "[data-direction='1'][data-action='change-user']" "css_element"
     And I should see "Student 1"
-    Then I should see "Group points: 0/3.5"
-    And I should see "Overall points: 0/3.5"
-    And "//div[contains(@id, 'criteria-')]//div//textarea" "xpath" should not exist
+    Then I should not see "Group points: 0/3.5"
+    And I should not see "Overall points: 0/3.5"
+    And "//div[contains(@id, 'criteria-')]//div//textarea" "xpath" should exist
     And "//div[contains(@id, 'criteria-')]//textarea[contains(@id, '-items-0-remark')]" "xpath" should exist
     And I log out
     And I am on the "forum1" "forum activity" page logged in as "student1"
     And I click on "View grades" "button"
-    Then I should not see "Group points: 0/3.5"
-    And I should not see "Overall points: 0/3.5"
+    Then I should see "Group points: 0/3.5"
+    And I should see "Overall points: 0/3.5"
     And "//div[contains(@id, 'criteria-')]//div//textarea" "xpath" should not exist
     And "//div[contains(@id, 'criteria-')]//textarea[contains(@id, '-items-0-remark')]" "xpath" should not exist
