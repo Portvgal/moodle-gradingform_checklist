@@ -30,7 +30,7 @@ use context_module;
 use gradingform_checklist_controller;
 use gradingform_controller;
 
-require_once(__DIR__ . '/../checklisteditor.php');
+require_once(__DIR__ . '/../lib.php');
 
 /**
  * Generator testcase for the gradingform_checklist generator.
@@ -113,7 +113,7 @@ class generator_test extends advanced_testcase {
             ],
         ];
 
-        $value = $editor->exportValue($submittedvalues);
+        $value = $editor->exportValue($submittedvalues, true);
         $items = array_values($value['checklist']['groups']['NEWID1']['items']);
 
         $this->assertSame('Second item', $items[0]['definition']);
