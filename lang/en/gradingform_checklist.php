@@ -109,3 +109,4 @@ $string['tickall'] = 'Tick all';
 $string['unchecked'] = 'Unchecked';
 $string['untickall'] = 'Untick all';
 $string['maxlengthalert'] = 'This input field has a maximum length of {$a} characters';
+$string['privacy:metadata'] = 'This plugin does not store personal data.';
