@@ -59,9 +59,9 @@ class checklist {
         $this->description = $description;
 
         $this->set_option('alwaysshowdefinition', 1);
-        $this->set_option('showitempointseval', 1);
-        $this->set_option('showitempointstudent', 1);
-        $this->set_option('enableitemremarks', 1);
+        $this->set_option('showitempointseval', 0);
+        $this->set_option('showitempointstudent', 0);
+        $this->set_option('enableitemremarks', 0);
         $this->set_option('enablegroupremarks', 1);
         $this->set_option('showremarksstudent', 1);
         $this->set_option('enablebulkcheck', 1);
