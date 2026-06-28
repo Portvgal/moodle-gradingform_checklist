@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -109,4 +108,10 @@ $string['tickall'] = 'Select All';
 $string['unchecked'] = 'Unchecked';
 $string['untickall'] = 'Unselect All';
 $string['maxlengthalert'] = 'This input field has a maximum length of {$a} characters';
-$string['privacy:metadata'] = 'This plugin does not store personal data.';
+$string['privacy:metadata:checked'] = 'Whether the checklist item was selected during grading.';
+$string['privacy:metadata:fillingssummary'] = 'Stores checklist grading selections and remarks for an advanced grading instance.';
+$string['privacy:metadata:groupid'] = 'An identifier for a checklist group being graded.';
+$string['privacy:metadata:instanceid'] = 'An identifier relating to a grade in an activity.';
+$string['privacy:metadata:itemid'] = 'An identifier for a checklist item being graded.';
+$string['privacy:metadata:remark'] = 'Remarks related to the checklist item or group being assessed.';
+$string['privacy:metadata:remarkformat'] = 'The text format of the checklist remark.';
