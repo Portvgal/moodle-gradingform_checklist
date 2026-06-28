@@ -18,25 +18,81 @@
  * Privacy Subsystem implementation.
  *
  * @package    gradingform_checklist
- * @copyright  Catalyst IT
+ * @copyright  Copyright (c) 2026 Open LMS (https://www.openlms.net)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace gradingform_checklist\privacy;
 
-defined('MOODLE_INTERNAL') || die();
+use core_privacy\local\metadata\collection;
+use core_privacy\local\request\writer;
 
 /**
- * Privacy Subsystem null provider implementation.
+ * Privacy Subsystem implementation.
  */
-class provider implements \core_privacy\local\metadata\null_provider {
+class provider implements
+    \core_grading\privacy\gradingform_provider_v2,
+    \core_privacy\local\metadata\provider {
+    /**
+     * Returns metadata about this plugin.
+     *
+     * @param collection $collection The initialised collection to add items to.
+     * @return collection A listing of user data stored through this system.
+     */
+    public static function get_metadata(collection $collection): collection {
+        $collection->add_database_table('gradingform_checklist_fills', [
+            'instanceid' => 'privacy:metadata:instanceid',
+            'groupid' => 'privacy:metadata:groupid',
+            'itemid' => 'privacy:metadata:itemid',
+            'checked' => 'privacy:metadata:checked',
+            'remark' => 'privacy:metadata:remark',
+            'remarkformat' => 'privacy:metadata:remarkformat',
+        ], 'privacy:metadata:fillingssummary');
+
+        return $collection;
+    }
 
     /**
-     * Returns the language string identifier explaining why this plugin stores no data.
+     * Export checklist data relating to an advanced grading instance.
      *
-     * @return string
+     * @param \context $context Context to use with the export writer.
+     * @param int $instanceid The grading instance ID.
+     * @param array $subcontext The directory to export this data to.
      */
-    public static function get_reason(): string {
-        return 'privacy:metadata';
+    public static function export_gradingform_instance_data(\context $context, int $instanceid, array $subcontext): void {
+        global $DB;
+
+        $params = ['instanceid' => $instanceid];
+        $sql = "SELECT cf.id,
+                       cg.description AS groupdescription,
+                       ci.definition AS itemdefinition,
+                       ci.score,
+                       cf.checked,
+                       cf.remark,
+                       cf.remarkformat,
+                       cf.groupid,
+                       cf.itemid
+                  FROM {gradingform_checklist_fills} cf
+                  JOIN {gradingform_checklist_groups} cg ON cg.id = cf.groupid
+             LEFT JOIN {gradingform_checklist_items} ci ON ci.id = cf.itemid
+                 WHERE cf.instanceid = :instanceid
+              ORDER BY cg.sortorder, ci.sortorder, cf.itemid";
+        $records = $DB->get_records_sql($sql, $params);
+
+        if ($records) {
+            $subcontext = array_merge($subcontext, [get_string('checklist', 'gradingform_checklist'), $instanceid]);
+            writer::with_context($context)->export_data($subcontext, (object) $records);
+        }
+    }
+
+    /**
+     * Deletes checklist data related to the provided grading instance IDs.
+     *
+     * @param array $instanceids The grading instance IDs to delete information from.
+     */
+    public static function delete_gradingform_for_instances(array $instanceids): void {
+        global $DB;
+
+        $DB->delete_records_list('gradingform_checklist_fills', 'instanceid', $instanceids);
     }
 }
