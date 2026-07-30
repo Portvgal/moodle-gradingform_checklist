@@ -439,6 +439,11 @@
     width: 100%;
 }
 
+.gradingform_checklist.editor .group .description .plainvalue.hiddenelement,
+.gradingform_checklist.editor .group .items .item .definition .plainvalue.hiddenelement {
+    display: none;
+}
+
 .gradingform_checklist.editor .additem,
 .gradingform_checklist.editor .addgroup {
     margin-top: .75rem;
