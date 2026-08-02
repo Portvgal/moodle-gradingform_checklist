@@ -20,7 +20,8 @@ namespace gradingform_checklist\local\importer;
 use advanced_testcase;
 use gradingform_checklist_controller;
 
-require_once(__DIR__ . '/../../../lib.php');
+global $CFG;
+require_once($CFG->dirroot . '/grade/grading/form/checklist/lib.php');
 
 /**
  * Checklist importer tests.

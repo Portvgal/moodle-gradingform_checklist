@@ -30,7 +30,8 @@ use context_module;
 use gradingform_checklist_controller;
 use gradingform_controller;
 
-require_once(__DIR__ . '/../lib.php');
+global $CFG;
+require_once($CFG->dirroot . '/grade/grading/form/checklist/lib.php');
 
 /**
  * Generator testcase for the gradingform_checklist generator.
