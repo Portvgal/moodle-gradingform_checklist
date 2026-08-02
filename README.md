@@ -68,12 +68,12 @@ Checklist authors can:
 - Import a replacement checklist definition from a Word `.docx` template or JSON
   file.
 - Download the Word authoring template, JSON example, and JSON Schema from the
-  checklist edit page.
+  advanced grading management page.
 
 ## Checklist Import
 
-Teachers can use **Import checklist** from the checklist definition edit page to
-upload either:
+Teachers can use **Import checklist** from the advanced grading management page
+to upload either:
 
 - a Word `.docx` file based on `docs/checklist-import-template.docx`; or
 - a canonical JSON file using the `gradingform_checklist_import` format.

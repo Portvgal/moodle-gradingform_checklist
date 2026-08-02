@@ -161,65 +161,31 @@
     font-weight: 400;
 }
 
-.path-grade-grading .alert:has(.gradingform-checklist-management-actions) {
+.alert:has(.gradingform-checklist-import-actions) {
     background: transparent;
     border: 0;
     color: inherit;
-    margin: 2rem 0 0;
+    margin: 1.5rem 0;
     padding: 0;
+}
+
+.alert:has(.gradingform-checklist-import-actions) .btn-close,
+.alert:has(.gradingform-checklist-import-actions) .close {
+    display: none;
 }
 
 .gradingform-checklist-import-actions {
     align-items: center;
     display: flex;
+    flex-direction: column;
     flex-wrap: wrap;
-    gap: 1rem 1.25rem;
-}
-
-.gradingform-checklist-management-actions {
+    gap: 1rem;
     justify-content: center;
-}
-
-.gradingform-checklist-edit-actions {
-    border-top: 1px solid #dee2e6;
-    margin: 0 0 1.5rem;
-    padding: 1.25rem 0;
 }
 
 .gradingform-checklist-import-primary {
     display: flex;
     justify-content: center;
-}
-
-.gradingform-checklist-import-tile.action.btn.btn-lg {
-    align-items: center;
-    background: #fff;
-    border: 1px solid #b8bcc2;
-    border-radius: .5rem;
-    color: #17479e;
-    display: flex;
-    flex-direction: column;
-    font-size: 1.05rem;
-    gap: .75rem;
-    justify-content: center;
-    min-height: 10.5rem;
-    padding: 1.25rem;
-    text-align: center;
-    white-space: normal;
-    width: 12rem;
-}
-
-.gradingform-checklist-import-tile.action.btn.btn-lg:hover,
-.gradingform-checklist-import-tile.action.btn.btn-lg:focus {
-    border-color: #17479e;
-    box-shadow: 0 0 0 .2rem rgba(23, 71, 158, .12);
-    color: #0f3477;
-    text-decoration: none;
-}
-
-.gradingform-checklist-import-tile .fa {
-    color: #214ca2;
-    line-height: 1;
 }
 
 .gradingform-checklist-import-downloads {
@@ -241,11 +207,6 @@
     background: #eef3fb;
     border-color: #17479e;
     color: #0f3477;
-}
-
-.gradingform-checklist-import-status {
-    flex: 0 0 100%;
-    text-align: center;
 }
 
 /* evaluation */

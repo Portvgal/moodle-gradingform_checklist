@@ -110,20 +110,15 @@ class gradingform_checklist_controller extends gradingform_controller {
      * @return string|null
      */
     public function form_unavailable_notification() {
-        if ($this->is_form_available()) {
-            return null;
-        }
-
-        return $this->render_import_actions(!$this->is_form_defined());
+        return $this->render_import_actions();
     }
 
     /**
      * Renders checklist import and template download actions.
      *
-     * @param bool $managementpage whether the actions are rendered on the core management page
      * @return string
      */
-    public function render_import_actions(bool $managementpage = false): string {
+    public function render_import_actions(): string {
         $areaid = $this->get_areaid();
         $importurl = new \moodle_url('/grade/grading/form/checklist/import.php', ['areaid' => $areaid]);
         $downloadlinks = [
@@ -142,26 +137,17 @@ class gradingform_checklist_controller extends gradingform_controller {
         ];
 
         $importicon = \html_writer::tag('span', '', ['class' => 'fa fa-upload fa-4x', 'aria-hidden' => 'true']);
-        $importtext = \html_writer::tag('div', get_string('importchecklist', 'gradingform_checklist'), [
+        $importtext = \html_writer::tag('span', get_string('importchecklist', 'gradingform_checklist'), [
             'class' => 'action-text',
         ]);
         $importaction = \html_writer::link($importurl, $importicon . $importtext, [
-            'class' => 'action btn btn-lg gradingform-checklist-import-tile',
+            'class' => 'action btn btn-lg',
         ]);
 
-        $actions = \html_writer::div($importaction, 'gradingform-checklist-import-primary');
+        $actions = \html_writer::div($importaction, 'actions gradingform-checklist-import-primary');
         $actions .= \html_writer::div(implode(' ', $downloadlinks), 'gradingform-checklist-import-downloads');
 
-        $classes = 'gradingform-checklist-import-actions';
-        if ($managementpage) {
-            $classes .= ' gradingform-checklist-management-actions';
-        }
-        $summary = $this->is_form_defined() ? get_string('gradingformunavailable', 'grading') : '';
-        if ($summary !== '') {
-            $summary = \html_writer::div($summary, 'gradingform-checklist-import-status');
-        }
-
-        return \html_writer::div($summary . $actions, $classes);
+        return \html_writer::div($actions, 'gradingform-checklist-import-actions');
     }
 
     /**

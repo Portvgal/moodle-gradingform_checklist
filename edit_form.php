@@ -48,8 +48,6 @@ class gradingform_checklist_editchecklist extends moodleform {
         $form->addElement('hidden', 'returnurl');
         $form->setType('returnurl', PARAM_LOCALURL);
 
-        $this->add_import_links();
-
         // name
         $form->addElement('text', 'name', get_string('name', 'gradingform_checklist'), array('size'=>52));
         $form->addRule('name', get_string('required'), 'required');
@@ -175,48 +173,6 @@ require(['jquery'], function($) {
     setBenchmarkEnabled(useBenchmark.val() === '1', removeBenchmark.val() === '1');
 });
 JS);
-    }
-
-    /**
-     * Adds checklist import and template download links.
-     */
-    protected function add_import_links(): void {
-        $form = $this->_form;
-        $areaid = $this->_customdata['areaid'];
-        $params = [
-            'areaid' => $areaid,
-            'sesskey' => sesskey(),
-        ];
-        if (!empty($this->_customdata['returnurl'])) {
-            $params['returnurl'] = $this->_customdata['returnurl'];
-        }
-
-        $importurl = new \core\url('/grade/grading/form/checklist/import.php', [
-            'areaid' => $areaid,
-            'returnurl' => $this->_customdata['returnurl'] ?? '',
-        ]);
-        $importicon = \html_writer::tag('span', '', ['class' => 'fa fa-upload fa-4x', 'aria-hidden' => 'true']);
-        $importtext = \html_writer::tag('div', get_string('importchecklist', 'gradingform_checklist'), [
-            'class' => 'action-text',
-        ]);
-        $importaction = \html_writer::link($importurl, $importicon . $importtext, [
-            'class' => 'action btn btn-lg gradingform-checklist-import-tile',
-        ]);
-        $downloadlinks = [
-            \html_writer::link(new \core\url('/grade/grading/form/checklist/template.php', $params),
-                get_string('downloadwordtemplate', 'gradingform_checklist'), ['class' => 'btn btn-secondary']),
-            \html_writer::link(new \core\url('/grade/grading/form/checklist/jsonexample.php', $params),
-                get_string('downloadjsonexample', 'gradingform_checklist'), ['class' => 'btn btn-secondary']),
-            \html_writer::link(new \core\url('/grade/grading/form/checklist/jsonschema.php', $params),
-                get_string('downloadjsonschema', 'gradingform_checklist'), ['class' => 'btn btn-secondary']),
-        ];
-
-        $html = \html_writer::div(
-            \html_writer::div($importaction, 'gradingform-checklist-import-primary') .
-            \html_writer::div(implode(' ', $downloadlinks), 'gradingform-checklist-import-downloads'),
-            'gradingform-checklist-import-actions gradingform-checklist-edit-actions'
-        );
-        $form->addElement('html', $html);
     }
 
     /**
