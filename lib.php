@@ -105,6 +105,40 @@ class gradingform_checklist_controller extends gradingform_controller {
     }
 
     /**
+     * Returns a message and checklist import actions while the form is unavailable.
+     *
+     * @return string|null
+     */
+    public function form_unavailable_notification() {
+        if ($this->is_form_available()) {
+            return null;
+        }
+
+        $links = [
+            \html_writer::link(new \moodle_url('/grade/grading/form/checklist/import.php', [
+                'areaid' => $this->get_areaid(),
+            ]), get_string('importchecklist', 'gradingform_checklist'), ['class' => 'btn btn-secondary']),
+            \html_writer::link(new \moodle_url('/grade/grading/form/checklist/template.php', [
+                'areaid' => $this->get_areaid(),
+                'sesskey' => sesskey(),
+            ]), get_string('downloadwordtemplate', 'gradingform_checklist'), ['class' => 'btn btn-secondary']),
+            \html_writer::link(new \moodle_url('/grade/grading/form/checklist/jsonexample.php', [
+                'areaid' => $this->get_areaid(),
+                'sesskey' => sesskey(),
+            ]), get_string('downloadjsonexample', 'gradingform_checklist'), ['class' => 'btn btn-secondary']),
+            \html_writer::link(new \moodle_url('/grade/grading/form/checklist/jsonschema.php', [
+                'areaid' => $this->get_areaid(),
+                'sesskey' => sesskey(),
+            ]), get_string('downloadjsonschema', 'gradingform_checklist'), ['class' => 'btn btn-secondary']),
+        ];
+
+        return get_string('gradingformunavailable', 'grading') . \html_writer::div(
+            implode(' ', $links),
+            'gradingform-checklist-import-downloads mt-3'
+        );
+    }
+
+    /**
      * Deletes the checklist definition and all the associated information
      */
     protected function delete_plugin_definition() {
