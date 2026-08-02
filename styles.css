@@ -124,6 +124,43 @@
     margin: 1rem 0;
 }
 
+.gradingform_checklist .observationdate {
+    align-items: center;
+    background: #f5fbf3;
+    border: 1px solid #b3e5a1;
+    border-radius: .6rem;
+    box-shadow: 0 .25rem .8rem rgba(38, 130, 70, .08);
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    justify-content: center;
+    margin: 1.25rem auto;
+    max-width: 42rem;
+    padding: 1rem;
+    text-align: center;
+}
+
+.gradingform_checklist .observationdate-title {
+    font-weight: 700;
+    width: 100%;
+}
+
+.gradingform_checklist .observationdate-date,
+.gradingform_checklist .observationdate-time {
+    max-width: 13rem;
+    min-width: 11rem;
+}
+
+.gradingform_checklist .observationdate-value {
+    color: #1f2a35;
+    font-weight: 600;
+}
+
+.gradingform_checklist .observationdate-empty {
+    color: #6a737b;
+    font-weight: 400;
+}
+
 /* evaluation */
 .gradingform_checklist .group .items .item {
     border: 5px solid #fff;
@@ -249,6 +286,68 @@
     box-sizing: border-box;
     max-width: 100%;
     width: 100%;
+}
+
+.gradingform_checklist .options .observationoptions {
+    background: #f5fbf3;
+    border: 1px solid #c8e8bc;
+    border-radius: .5rem;
+    margin: .75rem 0 1.15rem;
+    max-width: 34rem;
+    padding: 1rem 1.15rem 1.1rem;
+}
+
+.gradingform_checklist .options .option.observationmode,
+.gradingform_checklist .options .option.observationdefault {
+    display: block;
+    margin: 0;
+    padding: 0;
+}
+
+.gradingform_checklist .options .option.observationmode + .option.observationdefault {
+    margin-top: 1.25rem;
+}
+
+.gradingform_checklist .options .option.observationmode {
+    max-width: 18rem;
+}
+
+.gradingform_checklist .options .option.observationdefault {
+    max-width: 30rem;
+}
+
+.gradingform_checklist .options .option.observationmode label,
+.gradingform_checklist .options .option.observationdefault label {
+    display: block;
+    font-weight: 600;
+    line-height: 1.25;
+    margin-bottom: .55rem;
+    margin-left: 0;
+}
+
+.gradingform_checklist .options .option.observationmode select,
+.gradingform_checklist .options .option.observationdefault select {
+    max-width: 100%;
+    width: 100%;
+}
+
+.gradingform_checklist .options .option.observationdefault select:disabled {
+    background-color: #eef2f5;
+    color: #6a737b;
+    cursor: not-allowed;
+    opacity: .72;
+}
+
+@media (max-width: 640px) {
+    .gradingform_checklist .options .observationoptions {
+        max-width: none;
+        padding: .9rem;
+    }
+
+    .gradingform_checklist .options .option.observationmode,
+    .gradingform_checklist .options .option.observationdefault {
+        max-width: none;
+    }
 }
 
 .gradingform_checklist .options .option .value {

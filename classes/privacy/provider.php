@@ -57,6 +57,12 @@ class provider implements
             'remarkformat' => 'privacy:metadata:remarkformat',
         ], 'privacy:metadata:fillingssummary');
 
+        $collection->add_database_table('gradingform_checklist_obs', [
+            'instanceid' => 'privacy:metadata:instanceid',
+            'observationdate' => 'privacy:metadata:observationdate',
+            'observationmode' => 'privacy:metadata:observationmode',
+        ], 'privacy:metadata:observationsummary');
+
         return $collection;
     }
 
@@ -87,9 +93,16 @@ class provider implements
               ORDER BY cg.sortorder, ci.sortorder, cf.itemid";
         $records = $DB->get_records_sql($sql, $params);
 
+        $checklistsubcontext = array_merge($subcontext, [get_string('checklist', 'gradingform_checklist'), $instanceid]);
         if ($records) {
-            $subcontext = array_merge($subcontext, [get_string('checklist', 'gradingform_checklist'), $instanceid]);
-            writer::with_context($context)->export_data($subcontext, (object) $records);
+            writer::with_context($context)->export_data($checklistsubcontext, (object) $records);
+        }
+
+        $observation = $DB->get_record('gradingform_checklist_obs', ['instanceid' => $instanceid],
+            'observationdate, observationmode');
+        if ($observation) {
+            writer::with_context($context)->export_data(array_merge($checklistsubcontext,
+                [get_string('observationdate', 'gradingform_checklist')]), $observation);
         }
     }
 
@@ -102,5 +115,6 @@ class provider implements
         global $DB;
 
         $DB->delete_records_list('gradingform_checklist_fills', 'instanceid', $instanceids);
+        $DB->delete_records_list('gradingform_checklist_obs', 'instanceid', $instanceids);
     }
 }

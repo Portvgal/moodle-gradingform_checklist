@@ -83,6 +83,16 @@ Feature: Converting checklist score to grades
     And "//div[contains(@id, 'criteria-')]//div//textarea" "xpath" should not exist
     And "//div[contains(@id, 'criteria-')]//textarea[contains(@id, '-items-0-remark')]" "xpath" should exist
 
+  Scenario: Checklist import controls are available while editing the definition
+    Given I am on the "forum1" "forum activity editing" page
+    And I navigate to "Advanced grading" in current page administration
+    And I select "Checklist" from the "setmethod" singleselect
+    When I follow "Edit the current form definition"
+    Then I should see "Import checklist"
+    And I should see "Download Word template"
+    And I should see "Download JSON example"
+    And I should see "Download JSON schema"
+
   Scenario: Enable display of item points during evaluation and disable feedback of groups
     And I am on the "forum1" "forum activity editing" page
     And I navigate to "Advanced grading" in current page administration

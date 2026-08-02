@@ -184,6 +184,18 @@ class MoodleQuickForm_checklisteditor extends HTML_QuickForm_input {
                     }
                     continue;
                 }
+                if ($option == 'observationmode') {
+                    $return['options'][$option] = gradingform_checklist_controller::clean_observation_mode(
+                        $value['options'][$option] ?? null
+                    );
+                    continue;
+                }
+                if ($option == 'observationdefault') {
+                    $return['options'][$option] = gradingform_checklist_controller::clean_observation_default(
+                        $value['options'][$option] ?? null
+                    );
+                    continue;
+                }
                 // special treatment for checkboxes
                 if (!empty($value['options'][$option])) {
                     $return['options'][$option] = $value['options'][$option];

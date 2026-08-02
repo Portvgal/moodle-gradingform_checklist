@@ -38,6 +38,10 @@ This fork adds:
 - Grader panel option, validation, template, JavaScript, and styling updates.
 - Optional teacher-only checklist benchmarks with a configurable button that opens
   benchmark guidance in a panel or modal while grading.
+- Checklist definition import from Word `.docx` templates or canonical JSON.
+- Downloadable Word template, JSON example, and JSON Schema from the checklist
+  edit/import area.
+- Optional JSON web service import endpoint for integrations and automation.
 - A Moodle privacy provider declaration for checklist fillings and benchmark
   metadata.
 - Expanded PHPUnit and Behat coverage.
@@ -61,6 +65,37 @@ Checklist authors can:
 - Reorder checklist groups.
 - Reorder individual checklist items with move up and move down controls.
 - Configure a custom heading for group-level comments.
+- Import a replacement checklist definition from a Word `.docx` template or JSON
+  file.
+- Download the Word authoring template, JSON example, and JSON Schema from the
+  checklist edit page.
+
+## Checklist Import
+
+Teachers can use **Import checklist** from the checklist definition edit page to
+upload either:
+
+- a Word `.docx` file based on `docs/checklist-import-template.docx`; or
+- a canonical JSON file using the `gradingform_checklist_import` format.
+
+The importer previews the parsed checklist before replacing the current
+definition. New or unused definitions are saved as draft by default so teachers
+can review them before making them ready. If the checklist has already been used
+for grading, the replacement is saved as ready and existing grades are marked for
+review.
+
+The Word importer reads only the template tables above the
+`Reference Only - Do Not Import` heading. Group and item cells are treated as
+plain text. Benchmark guidance supports richer HTML converted from the Word
+content, including embedded images.
+
+The JSON importer is intended for integrations, API use, bulk generation, and
+automation. JSON benchmark guidance accepts HTML. Embedded files in JSON are out
+of scope for import format version 1.
+
+The plugin also exposes the web service function
+`gradingform_checklist_import_definition`, which accepts canonical JSON and uses
+the same validation and save pipeline as the web importer.
 
 ## Grading Option Changes
 
@@ -96,6 +131,10 @@ teacher-only benchmark guidance attached to checklist definitions, including the
 benchmark text and configured benchmark button label/icon. The plugin implements
 Moodle privacy metadata and exports/deletes checklist grading instance data
 through Moodle's privacy API.
+
+Imported Word and JSON files are used only to create or replace checklist
+definitions. The uploaded source file is not retained by the plugin after the
+import flow completes.
 
 ## License
 Copyright (c) 2021 Open LMS (https://www.openlms.net)

@@ -110,5 +110,20 @@ function xmldb_gradingform_checklist_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026073100, 'gradingform', 'checklist');
     }
 
+    if ($oldversion < 2026080200) {
+        $table = new xmldb_table('gradingform_checklist_obs');
+        if (!$dbman->table_exists($table)) {
+            $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+            $table->add_field('instanceid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+            $table->add_field('observationdate', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+            $table->add_field('observationmode', XMLDB_TYPE_CHAR, '10', null, XMLDB_NOTNULL, null, 'date');
+            $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+            $table->add_key('instanceid', XMLDB_KEY_FOREIGN_UNIQUE, ['instanceid'], 'grading_instances', ['id']);
+            $dbman->create_table($table);
+        }
+
+        upgrade_plugin_savepoint(true, 2026080200, 'gradingform', 'checklist');
+    }
+
     return true;
 }

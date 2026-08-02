@@ -70,6 +70,9 @@ class restore_gradingform_checklist_plugin extends restore_gradingform_plugin {
         $paths[] = new restore_path_element('gradingform_checklist_filling',
             $this->get_pathfor('/fillings/filling'));
 
+        $paths[] = new restore_path_element('gradingform_checklist_observation',
+            $this->get_pathfor('/observations/observation'));
+
         return $paths;
     }
 
@@ -140,5 +143,20 @@ class restore_gradingform_checklist_plugin extends restore_gradingform_plugin {
         $data->itemid = $this->get_mappingid('gradingform_checklist_item', $data->itemid);
 
         $DB->insert_record('gradingform_checklist_fills', $data);
+    }
+
+    /**
+     * Processes observation element data.
+     *
+     * @param stdClass $data
+     */
+    public function process_gradingform_checklist_observation($data) {
+        global $DB;
+
+        $data = (object)$data;
+        $data->instanceid = $this->get_new_parentid('grading_instance');
+        unset($data->id);
+
+        $DB->insert_record('gradingform_checklist_obs', $data);
     }
 }

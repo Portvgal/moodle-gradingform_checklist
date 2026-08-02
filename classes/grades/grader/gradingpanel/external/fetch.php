@@ -176,6 +176,7 @@ class fetch extends external_api {
         $templateoptions->enablebulkcheck = $isgrading && !empty($options['enablebulkcheck']);
         $templateoptions->groupremarkheading = \gradingform_checklist_controller::get_group_remark_heading($options);
         $templateoptions->isgrading = $isgrading;
+        $templateoptions->showobservationdate = \gradingform_checklist_controller::observation_enabled($options);
 
         // Set up some items we need to return on other interfaces.
         $gradegrade = \grade_grade::fetch(['itemid' => $gradeitem->get_grade_item()->id, 'userid' => $gradeduser->id]);
@@ -265,6 +266,30 @@ class fetch extends external_api {
             }, $definition->checklist_groups);
         }
 
+        $observation = null;
+        if (\gradingform_checklist_controller::observation_enabled($options)) {
+            $observationmode = \gradingform_checklist_controller::clean_observation_mode($options['observationmode']);
+            $savedobservation = $fillings['observation'] ?? [];
+            $timestamp = !empty($savedobservation['observationdate']) ? (int)$savedobservation['observationdate'] : 0;
+            if ($timestamp <= 0 && $isgrading
+                    && $options['observationdefault'] === \gradingform_checklist_controller::OBSERVATION_DEFAULT_NOW) {
+                $timestamp = time();
+            }
+            if ($timestamp > 0 || $isgrading) {
+                $observation = [
+                    'mode' => $observationmode,
+                    'date' => $timestamp > 0 ? \gradingform_checklist_controller::format_observation_date_input($timestamp) : '',
+                    'time' => $timestamp > 0 ? \gradingform_checklist_controller::format_observation_time_input($timestamp) : '',
+                    'showtime' => $observationmode === \gradingform_checklist_controller::OBSERVATION_MODE_DATETIME,
+                    'isgrading' => $isgrading,
+                    'displayvalue' => $timestamp > 0
+                        ? \gradingform_checklist_controller::format_observation_date($timestamp,
+                            $savedobservation['observationmode'] ?? $observationmode)
+                        : '',
+                ];
+            }
+        }
+
         $gradecontext = [
             'instanceid' => $instance->get_id(),
             'options' => $templateoptions,
@@ -277,6 +302,9 @@ class fetch extends external_api {
             'timecreated' => $grade->timecreated,
             'timemodified' => $grade->timemodified,
         ];
+        if ($observation !== null) {
+            $gradecontext['observation'] = $observation;
+        }
         if ($isgrading) {
             $benchmark = $controller->get_formatted_benchmark();
             if (!empty($benchmark)) {
@@ -313,7 +341,16 @@ class fetch extends external_api {
                     'enablebulkcheck' => new external_value(PARAM_BOOL, 'Bulk check controls should be displayed'),
                     'groupremarkheading' => new external_value(PARAM_TEXT, 'The group feedback heading'),
                     'isgrading' => new external_value(PARAM_BOOL, 'Whether the current user is grading'),
+                    'showobservationdate' => new external_value(PARAM_BOOL, 'Observation date should be displayed'),
                 ]),
+                'observation' => new external_single_structure([
+                    'mode' => new external_value(PARAM_ALPHA, 'Observation date selector mode'),
+                    'date' => new external_value(PARAM_TEXT, 'Observation date value for date inputs'),
+                    'time' => new external_value(PARAM_TEXT, 'Observation time value for time inputs'),
+                    'showtime' => new external_value(PARAM_BOOL, 'Whether the observation time input should be displayed'),
+                    'isgrading' => new external_value(PARAM_BOOL, 'Whether the observation date should be editable'),
+                    'displayvalue' => new external_value(PARAM_TEXT, 'Localized observation date display value'),
+                ], 'Observation date metadata', VALUE_OPTIONAL),
                 'criteria' => new external_multiple_structure(
                     new external_single_structure([
                         'id' => new external_value(PARAM_INT, 'ID of the Criteria'),

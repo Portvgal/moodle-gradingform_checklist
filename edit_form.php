@@ -48,6 +48,8 @@ class gradingform_checklist_editchecklist extends moodleform {
         $form->addElement('hidden', 'returnurl');
         $form->setType('returnurl', PARAM_LOCALURL);
 
+        $this->add_import_links();
+
         // name
         $form->addElement('text', 'name', get_string('name', 'gradingform_checklist'), array('size'=>52));
         $form->addRule('name', get_string('required'), 'required');
@@ -62,6 +64,9 @@ class gradingform_checklist_editchecklist extends moodleform {
         $form->addElement('hidden', 'usebenchmark', 0);
         $form->setType('usebenchmark', PARAM_BOOL);
         $form->setDefault('usebenchmark', 0);
+        $form->addElement('hidden', 'removebenchmark', 0);
+        $form->setType('removebenchmark', PARAM_BOOL);
+        $form->setDefault('removebenchmark', 0);
 
         $benchmarkbuttons = \core\output\html_writer::start_div('form-group row fitem');
         $benchmarkbuttons .= \core\output\html_writer::div('', 'col-md-3 col-form-label d-flex pb-0 pr-md-0');
@@ -144,27 +149,66 @@ class gradingform_checklist_editchecklist extends moodleform {
 
         $PAGE->requires->js_init_code(<<<JS
 require(['jquery'], function($) {
-    const useBenchmark = $('#id_usebenchmark');
+    const useBenchmark = $('#id_usebenchmark, input[name="usebenchmark"]').first();
+    const removeBenchmark = $('#id_removebenchmark, input[name="removebenchmark"]').first();
     const addButton = $('#gradingform-checklist-add-benchmark');
     const removeButton = $('#gradingform-checklist-remove-benchmark');
     const benchmarkFields = $('#fitem_id_benchmark_editor, #fitem_id_benchmarkbuttonlabel, #fitem_id_benchmarkbuttonicon');
 
-    function setBenchmarkEnabled(enabled) {
+    function setBenchmarkEnabled(enabled, remove) {
         useBenchmark.val(enabled ? 1 : 0);
+        removeBenchmark.val(remove ? 1 : 0);
         benchmarkFields.toggleClass('d-none', !enabled);
         addButton.toggleClass('d-none', enabled);
         removeButton.toggleClass('d-none', !enabled);
     }
 
     addButton.on('click', function() {
-        setBenchmarkEnabled(true);
+        setBenchmarkEnabled(true, false);
     });
     removeButton.on('click', function() {
-        setBenchmarkEnabled(false);
+        setBenchmarkEnabled(false, true);
     });
-    setBenchmarkEnabled(useBenchmark.val() === '1');
+    if (!useBenchmark.length || !removeBenchmark.length) {
+        return;
+    }
+    setBenchmarkEnabled(useBenchmark.val() === '1', removeBenchmark.val() === '1');
 });
 JS);
+    }
+
+    /**
+     * Adds checklist import and template download links.
+     */
+    protected function add_import_links(): void {
+        $form = $this->_form;
+        $areaid = $this->_customdata['areaid'];
+        $params = [
+            'areaid' => $areaid,
+            'sesskey' => sesskey(),
+        ];
+        if (!empty($this->_customdata['returnurl'])) {
+            $params['returnurl'] = $this->_customdata['returnurl'];
+        }
+
+        $links = [
+            \html_writer::link(new \core\url('/grade/grading/form/checklist/import.php', [
+                'areaid' => $areaid,
+                'returnurl' => $this->_customdata['returnurl'] ?? '',
+            ]), get_string('importchecklist', 'gradingform_checklist'), ['class' => 'btn btn-secondary']),
+            \html_writer::link(new \core\url('/grade/grading/form/checklist/template.php', $params),
+                get_string('downloadwordtemplate', 'gradingform_checklist'), ['class' => 'btn btn-secondary']),
+            \html_writer::link(new \core\url('/grade/grading/form/checklist/jsonexample.php', $params),
+                get_string('downloadjsonexample', 'gradingform_checklist'), ['class' => 'btn btn-secondary']),
+            \html_writer::link(new \core\url('/grade/grading/form/checklist/jsonschema.php', $params),
+                get_string('downloadjsonschema', 'gradingform_checklist'), ['class' => 'btn btn-secondary']),
+        ];
+
+        $html = \html_writer::start_div('form-group row fitem');
+        $html .= \html_writer::div('', 'col-md-3 col-form-label d-flex pb-0 pr-md-0');
+        $html .= \html_writer::div(implode(' ', $links), 'col-md-9 form-inline align-items-start felement pt-1 pb-1');
+        $html .= \html_writer::end_div();
+        $form->addElement('html', $html);
     }
 
     /**

@@ -247,6 +247,145 @@ class generator_test extends advanced_testcase {
         $this->assertSame(0, $options['showitempointstudent']);
         $this->assertSame(0, $options['showgrouppointseval']);
         $this->assertSame(0, $options['showgrouppointstudent']);
+        $this->assertSame(
+            gradingform_checklist_controller::OBSERVATION_MODE_DISABLED,
+            $options['observationmode']
+        );
+        $this->assertSame(
+            gradingform_checklist_controller::OBSERVATION_DEFAULT_NOW,
+            $options['observationdefault']
+        );
+    }
+
+    /**
+     * Test observation option cleaners only accept supported values.
+     */
+    public function test_observation_option_cleaners(): void {
+        $this->assertSame(
+            gradingform_checklist_controller::OBSERVATION_MODE_DATE,
+            gradingform_checklist_controller::clean_observation_mode(gradingform_checklist_controller::OBSERVATION_MODE_DATE)
+        );
+        $this->assertSame(
+            gradingform_checklist_controller::OBSERVATION_MODE_DISABLED,
+            gradingform_checklist_controller::clean_observation_mode('invalid')
+        );
+        $this->assertSame(
+            gradingform_checklist_controller::OBSERVATION_DEFAULT_BLANK,
+            gradingform_checklist_controller::clean_observation_default(gradingform_checklist_controller::OBSERVATION_DEFAULT_BLANK)
+        );
+        $this->assertSame(
+            gradingform_checklist_controller::OBSERVATION_DEFAULT_NOW,
+            gradingform_checklist_controller::clean_observation_default('invalid')
+        );
+    }
+
+    /**
+     * Test observation date/time input values use browser-safe formats.
+     */
+    public function test_observation_date_time_input_formatters(): void {
+        $timestamp = make_timestamp(2026, 8, 2, 14, 30);
+
+        $this->assertSame('2026-08-02', gradingform_checklist_controller::format_observation_date_input($timestamp));
+        $this->assertSame('14:30', gradingform_checklist_controller::format_observation_time_input($timestamp));
+    }
+
+    /**
+     * Test observation date validation and storage for a grading instance.
+     */
+    public function test_observation_datetime_is_required_and_stored(): void {
+        global $DB;
+
+        $this->resetAfterTest(true);
+
+        $generator = \testing_util::get_data_generator();
+        $checklistgenerator = $generator->get_plugin_generator('gradingform_checklist');
+
+        $course = $generator->create_course();
+        $module = $generator->create_module('assign', ['course' => $course]);
+        $user = $generator->create_user();
+        $context = context_module::instance($module->cmid);
+
+        $this->setUser($user);
+        $controller = $checklistgenerator->create_instance($context, 'mod_assign', 'submission', 'checklist',
+            'Description', [
+                'Group 1' => [
+                    'Observed skill' => 1,
+                ],
+            ], [
+                'observationmode' => gradingform_checklist_controller::OBSERVATION_MODE_DATETIME,
+                'observationdefault' => gradingform_checklist_controller::OBSERVATION_DEFAULT_BLANK,
+            ]);
+        $instance = $controller->create_instance($user->id, 1);
+
+        $data = $checklistgenerator->get_submitted_form_data($controller, 1, [
+            'Group 1' => [
+                'score' => 1,
+                'remark' => '',
+                'checked' => true,
+            ],
+        ]);
+
+        $this->assertFalse($instance->validate_grading_element($data));
+        $this->assertTrue($instance->has_observation_date_validation_error());
+        $this->assertContains(get_string('err_observationdate', 'gradingform_checklist'),
+            $instance->get_grading_validation_error_messages());
+
+        $data['observation'] = [
+            'date' => '2026-08-02',
+            'time' => '14:30',
+        ];
+        $this->assertTrue($instance->validate_grading_element($data));
+        $instance->update($data);
+
+        $record = $DB->get_record('gradingform_checklist_obs', ['instanceid' => $instance->get_id()], '*', MUST_EXIST);
+        $this->assertSame(make_timestamp(2026, 8, 2, 14, 30), (int)$record->observationdate);
+        $this->assertSame(gradingform_checklist_controller::OBSERVATION_MODE_DATETIME, $record->observationmode);
+    }
+
+    /**
+     * Test observation date-only mode stores a date without requiring a time.
+     */
+    public function test_observation_date_only_does_not_require_time(): void {
+        global $DB;
+
+        $this->resetAfterTest(true);
+
+        $generator = \testing_util::get_data_generator();
+        $checklistgenerator = $generator->get_plugin_generator('gradingform_checklist');
+
+        $course = $generator->create_course();
+        $module = $generator->create_module('assign', ['course' => $course]);
+        $user = $generator->create_user();
+        $context = context_module::instance($module->cmid);
+
+        $this->setUser($user);
+        $controller = $checklistgenerator->create_instance($context, 'mod_assign', 'submission', 'checklist',
+            'Description', [
+                'Group 1' => [
+                    'Observed skill' => 1,
+                ],
+            ], [
+                'observationmode' => gradingform_checklist_controller::OBSERVATION_MODE_DATE,
+            ]);
+        $instance = $controller->create_instance($user->id, 1);
+
+        $data = $checklistgenerator->get_submitted_form_data($controller, 1, [
+            'Group 1' => [
+                'score' => 1,
+                'remark' => '',
+                'checked' => true,
+            ],
+        ]);
+        $data['observation'] = [
+            'date' => '2026-08-02',
+        ];
+
+        $this->assertTrue($instance->validate_grading_element($data));
+        $instance->update($data);
+
+        $record = $DB->get_record('gradingform_checklist_obs', ['instanceid' => $instance->get_id()], '*', MUST_EXIST);
+        $this->assertSame(make_timestamp(2026, 8, 2, 0, 0), (int)$record->observationdate);
+        $this->assertSame(gradingform_checklist_controller::OBSERVATION_MODE_DATE, $record->observationmode);
     }
 
     /**
@@ -255,6 +394,7 @@ class generator_test extends advanced_testcase {
     public function test_required_item_comment_validation(): void {
         $groups = $this->get_required_comment_test_groups();
         $options = gradingform_checklist_controller::get_default_options();
+        $options['enableitemremarks'] = 1;
         $options['requireitemcommentschecked'] = 1;
 
         $value = $this->get_required_comment_test_value('', '');
@@ -274,6 +414,7 @@ class generator_test extends advanced_testcase {
     public function test_required_at_least_one_item_comment_validation(): void {
         $groups = $this->get_required_comment_test_groups();
         $options = gradingform_checklist_controller::get_default_options();
+        $options['enableitemremarks'] = 1;
         $options['requireatleastoneitemcomment'] = 1;
 
         $value = $this->get_required_comment_test_value('', '');
@@ -330,9 +471,9 @@ class generator_test extends advanced_testcase {
     }
 
     /**
-     * Test required-comment options enable the matching remark fields.
+     * Test required-comment options do not enable the matching remark fields.
      */
-    public function test_required_comment_options_enable_remark_fields(): void {
+    public function test_required_comment_options_do_not_enable_remark_fields(): void {
         $options = gradingform_checklist_controller::get_default_options();
         $options['enableitemremarks'] = 0;
         $options['enablegroupremarks'] = 0;
@@ -340,18 +481,50 @@ class generator_test extends advanced_testcase {
         $this->assertFalse(gradingform_checklist_controller::group_remarks_enabled($options));
 
         $options['requireitemcommentschecked'] = 1;
-        $this->assertTrue(gradingform_checklist_controller::item_remarks_enabled($options));
+        $this->assertFalse(gradingform_checklist_controller::item_remarks_enabled($options));
 
         $options['requireitemcommentschecked'] = 0;
         $options['requireatleastoneitemcomment'] = 1;
-        $this->assertTrue(gradingform_checklist_controller::item_remarks_enabled($options));
+        $this->assertFalse(gradingform_checklist_controller::item_remarks_enabled($options));
 
         $options['requiregroupcommentschecked'] = 1;
-        $this->assertTrue(gradingform_checklist_controller::group_remarks_enabled($options));
+        $this->assertFalse(gradingform_checklist_controller::group_remarks_enabled($options));
 
         $options['requiregroupcommentschecked'] = 0;
         $options['requireatleastonegroupcomment'] = 1;
+        $this->assertFalse(gradingform_checklist_controller::group_remarks_enabled($options));
+
+        $options['enableitemremarks'] = 1;
+        $options['enablegroupremarks'] = 1;
+        $this->assertTrue(gradingform_checklist_controller::item_remarks_enabled($options));
         $this->assertTrue(gradingform_checklist_controller::group_remarks_enabled($options));
+    }
+
+    /**
+     * Test required-comment validation ignores stale required options when remarks are disabled.
+     */
+    public function test_required_comment_validation_ignores_disabled_remark_options(): void {
+        $groups = $this->get_required_comment_test_groups();
+        $options = gradingform_checklist_controller::get_default_options();
+        $options['enableitemremarks'] = 0;
+        $options['enablegroupremarks'] = 0;
+        $options['requireitemcommentschecked'] = 1;
+        $options['requireatleastoneitemcomment'] = 1;
+        $options['requiregroupcommentschecked'] = 1;
+        $options['requireatleastonegroupcomment'] = 1;
+
+        $errors = gradingform_checklist_controller::get_required_comment_errors(
+            $groups,
+            $options,
+            $this->get_required_comment_test_value('', '')
+        );
+
+        $this->assertEmpty($errors);
+        $options = gradingform_checklist_controller::normalise_comment_option_dependencies($options);
+        $this->assertSame(0, $options['requireitemcommentschecked']);
+        $this->assertSame(0, $options['requireatleastoneitemcomment']);
+        $this->assertSame(0, $options['requiregroupcommentschecked']);
+        $this->assertSame(0, $options['requireatleastonegroupcomment']);
     }
 
     /**
@@ -458,6 +631,147 @@ class generator_test extends advanced_testcase {
         $item = reset($group['items']);
 
         $this->assertEquals(1.5, $item['score']);
+    }
+
+    /**
+     * Test removing benchmark content deletes the benchmark record.
+     */
+    public function test_update_definition_removes_benchmark(): void {
+        global $DB;
+
+        $this->resetAfterTest(true);
+
+        $generator = \testing_util::get_data_generator();
+        $checklistgenerator = $generator->get_plugin_generator('gradingform_checklist');
+
+        $course = $generator->create_course();
+        $module = $generator->create_module('assign', ['course' => $course]);
+        $user = $generator->create_user();
+        $context = context_module::instance($module->cmid);
+
+        $this->setUser($user);
+        $controller = $checklistgenerator->create_instance($context, 'mod_assign', 'submission', 'benchmarkchecklist',
+            'Description', [
+                'Group 1' => [
+                    'Has title' => 1,
+                ],
+            ], [
+                'benchmark' => '<p>Teacher benchmark for checklist</p>',
+            ]);
+
+        $definition = $controller->get_definition();
+        $this->assertTrue($DB->record_exists('gradingform_checklist_bench', ['definitionid' => $definition->id]));
+
+        $updateddefinition = $controller->get_definition_for_editing();
+        $updateddefinition->usebenchmark = 0;
+        $updateddefinition->removebenchmark = 1;
+        $controller->update_definition($updateddefinition);
+
+        $definition = $controller->get_definition(true);
+        $this->assertFalse($DB->record_exists('gradingform_checklist_bench', ['definitionid' => $definition->id]));
+        $this->assertEmpty($definition->benchmark['benchmark']);
+    }
+
+    /**
+     * Test existing benchmark content keeps the benchmark editor active when reopening the definition.
+     */
+    public function test_existing_benchmark_is_active_when_editing_definition(): void {
+        $this->resetAfterTest(true);
+
+        $generator = \testing_util::get_data_generator();
+        $checklistgenerator = $generator->get_plugin_generator('gradingform_checklist');
+
+        $course = $generator->create_course();
+        $module = $generator->create_module('assign', ['course' => $course]);
+        $user = $generator->create_user();
+        $context = context_module::instance($module->cmid);
+
+        $this->setUser($user);
+        $controller = $checklistgenerator->create_instance($context, 'mod_assign', 'submission', 'benchmarkchecklist',
+            'Description', [
+                'Group 1' => [
+                    'Has title' => 1,
+                ],
+            ], [
+                'benchmark' => '<p>Teacher benchmark for checklist</p>',
+            ]);
+
+        $definition = $controller->get_definition_for_editing();
+
+        $this->assertSame(1, $definition->usebenchmark);
+        $this->assertSame(0, $definition->removebenchmark);
+        $this->assertStringContainsString('Teacher benchmark for checklist', $definition->benchmark_editor['text']);
+    }
+
+    /**
+     * Test saving an existing benchmark without changing benchmark controls preserves it.
+     */
+    public function test_update_definition_preserves_existing_benchmark(): void {
+        global $DB;
+
+        $this->resetAfterTest(true);
+
+        $generator = \testing_util::get_data_generator();
+        $checklistgenerator = $generator->get_plugin_generator('gradingform_checklist');
+
+        $course = $generator->create_course();
+        $module = $generator->create_module('assign', ['course' => $course]);
+        $user = $generator->create_user();
+        $context = context_module::instance($module->cmid);
+
+        $this->setUser($user);
+        $controller = $checklistgenerator->create_instance($context, 'mod_assign', 'submission', 'benchmarkchecklist',
+            'Description', [
+                'Group 1' => [
+                    'Has title' => 1,
+                ],
+            ], [
+                'benchmark' => '<p>Teacher benchmark for checklist</p>',
+            ]);
+
+        $updateddefinition = $controller->get_definition_for_editing();
+        $controller->update_definition($updateddefinition);
+
+        $definition = $controller->get_definition(true);
+        $this->assertTrue($DB->record_exists('gradingform_checklist_bench', ['definitionid' => $definition->id]));
+        $this->assertStringContainsString('Teacher benchmark for checklist', $definition->benchmark['benchmark']);
+    }
+
+    /**
+     * Test hidden benchmark form state does not remove an existing benchmark without explicit remove intent.
+     */
+    public function test_update_definition_without_benchmark_editor_preserves_existing_benchmark(): void {
+        global $DB;
+
+        $this->resetAfterTest(true);
+
+        $generator = \testing_util::get_data_generator();
+        $checklistgenerator = $generator->get_plugin_generator('gradingform_checklist');
+
+        $course = $generator->create_course();
+        $module = $generator->create_module('assign', ['course' => $course]);
+        $user = $generator->create_user();
+        $context = context_module::instance($module->cmid);
+
+        $this->setUser($user);
+        $controller = $checklistgenerator->create_instance($context, 'mod_assign', 'submission', 'benchmarkchecklist',
+            'Description', [
+                'Group 1' => [
+                    'Has title' => 1,
+                ],
+            ], [
+                'benchmark' => '<p>Teacher benchmark for checklist</p>',
+            ]);
+
+        $updateddefinition = $controller->get_definition_for_editing();
+        $updateddefinition->usebenchmark = 0;
+        $updateddefinition->removebenchmark = 0;
+        unset($updateddefinition->benchmark_editor);
+        $controller->update_definition($updateddefinition);
+
+        $definition = $controller->get_definition(true);
+        $this->assertTrue($DB->record_exists('gradingform_checklist_bench', ['definitionid' => $definition->id]));
+        $this->assertStringContainsString('Teacher benchmark for checklist', $definition->benchmark['benchmark']);
     }
 
     /**

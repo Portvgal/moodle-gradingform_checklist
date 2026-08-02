@@ -47,7 +47,7 @@ final class provider_test extends provider_testcase {
         $collection = provider::get_metadata($collection);
         $metadata = $collection->get_collection();
 
-        $this->assertCount(2, $metadata);
+        $this->assertCount(3, $metadata);
 
         $tables = [];
         foreach ($metadata as $table) {
@@ -76,6 +76,15 @@ final class provider_test extends provider_testcase {
         $this->assertArrayHasKey('checked', $privacyfields);
         $this->assertArrayHasKey('remark', $privacyfields);
         $this->assertArrayHasKey('remarkformat', $privacyfields);
+
+        $this->assertArrayHasKey('gradingform_checklist_obs', $tables);
+        $observationtable = $tables['gradingform_checklist_obs'];
+        $this->assertEquals('privacy:metadata:observationsummary', $observationtable->get_summary());
+
+        $observationfields = $observationtable->get_privacy_fields();
+        $this->assertArrayHasKey('instanceid', $observationfields);
+        $this->assertArrayHasKey('observationdate', $observationfields);
+        $this->assertArrayHasKey('observationmode', $observationfields);
     }
 
     /**

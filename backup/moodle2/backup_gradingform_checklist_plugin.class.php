@@ -105,14 +105,24 @@ class backup_gradingform_checklist_plugin extends backup_gradingform_plugin {
         $filling = new backup_nested_element('filling', array('id'), array(
             'groupid', 'itemid', 'checked', 'remark', 'remarkformat'));
 
+        $observations = new backup_nested_element('observations');
+
+        $observation = new backup_nested_element('observation', array('id'), array(
+            'observationdate', 'observationmode'));
+
         // Build elements hierarchy
 
         $pluginwrapper->add_child($fillings);
         $fillings->add_child($filling);
+        $pluginwrapper->add_child($observations);
+        $observations->add_child($observation);
 
         // Set sources to populate the data
 
         $filling->set_source_table('gradingform_checklist_fills',
+            array('instanceid' => backup::VAR_PARENTID));
+
+        $observation->set_source_table('gradingform_checklist_obs',
             array('instanceid' => backup::VAR_PARENTID));
 
         // no need to annotate ids or files yet (one day when remark field supports

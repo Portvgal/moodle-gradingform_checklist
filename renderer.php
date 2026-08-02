@@ -454,6 +454,75 @@ JS;
     }
 
     /**
+     * Returns the observation date selector or read-only observation date display.
+     *
+     * @param int $mode checklist display mode
+     * @param array $options checklist definition options
+     * @param string $elementname grading element name
+     * @param array|null $values submitted or saved grading values
+     * @return string
+     */
+    protected function observation_date_control($mode, array $options, string $elementname, ?array $values): string {
+        if (!gradingform_checklist_controller::observation_enabled($options)) {
+            return '';
+        }
+
+        $observation = $values['observation'] ?? array();
+        $timestamp = !empty($observation['observationdate']) ? (int)$observation['observationdate'] : 0;
+        $observationmode = gradingform_checklist_controller::clean_observation_mode($options['observationmode']);
+        $submitteddate = !empty($observation['date']) ? clean_param($observation['date'], PARAM_TEXT) : '';
+        $submittedtime = !empty($observation['time']) ? clean_param($observation['time'], PARAM_TEXT) : '';
+        if ($timestamp <= 0 && $submitteddate === '' && $submittedtime === ''
+                && $mode == gradingform_checklist_controller::DISPLAY_EVAL
+                && $options['observationdefault'] === gradingform_checklist_controller::OBSERVATION_DEFAULT_NOW) {
+            $timestamp = time();
+        }
+        if ($timestamp <= 0 && $mode != gradingform_checklist_controller::DISPLAY_EVAL) {
+            return '';
+        }
+
+        $html = \core\output\html_writer::start_tag('div', array('class' => 'observationdate'));
+        $html .= \core\output\html_writer::tag('div', get_string('observationdate', 'gradingform_checklist'),
+            array('class' => 'observationdate-title'));
+
+        if ($mode == gradingform_checklist_controller::DISPLAY_EVAL) {
+            $datevalue = $submitteddate !== '' ? $submitteddate
+                : ($timestamp > 0 ? gradingform_checklist_controller::format_observation_date_input($timestamp) : '');
+            $html .= \core\output\html_writer::tag('label', get_string('observationdate', 'gradingform_checklist'),
+                array('class' => 'hiddenelement', 'for' => $elementname.'-observation-date'));
+            $html .= \core\output\html_writer::empty_tag('input', array(
+                'type' => 'date',
+                'id' => $elementname.'-observation-date',
+                'name' => $elementname.'[observation][date]',
+                'value' => $datevalue,
+                'class' => 'form-control observationdate-date',
+                'required' => 'required',
+            ));
+            if ($observationmode === gradingform_checklist_controller::OBSERVATION_MODE_DATETIME) {
+                $timevalue = $submittedtime !== '' ? $submittedtime
+                    : ($timestamp > 0 ? gradingform_checklist_controller::format_observation_time_input($timestamp) : '');
+                $html .= \core\output\html_writer::tag('label', get_string('observationtime', 'gradingform_checklist'),
+                    array('class' => 'hiddenelement', 'for' => $elementname.'-observation-time'));
+                $html .= \core\output\html_writer::empty_tag('input', array(
+                    'type' => 'time',
+                    'id' => $elementname.'-observation-time',
+                    'name' => $elementname.'[observation][time]',
+                    'value' => $timevalue,
+                    'class' => 'form-control observationdate-time',
+                    'required' => 'required',
+                ));
+            }
+        } else if ($timestamp > 0) {
+            $html .= \core\output\html_writer::tag('div',
+                gradingform_checklist_controller::format_observation_date($timestamp, $observation['observationmode'] ?? $observationmode),
+                array('class' => 'observationdate-value'));
+        }
+
+        $html .= \core\output\html_writer::end_tag('div');
+        return $html;
+    }
+
+    /**
      * This function returns html code for displaying checklist template (content before and after
      * groups list). Depending on $mode it may be the code to edit checklist, to preview the checklist,
      * to evaluate somebody or to review the evaluation.
@@ -473,7 +542,7 @@ JS;
      * @param string $totalpointsstr the total points string
      * @return string
      */
-    protected function checklist_template($mode, $options, $elementname, $groupsstr, $totalpointsstr) {
+    protected function checklist_template($mode, $options, $elementname, $groupsstr, $totalpointsstr, $observationdatestr) {
         $classsuffix = ''; // CSS suffix for class of the main div. Depends on the mode
         switch ($mode) {
             case gradingform_checklist_controller::DISPLAY_EDIT_FULL:
@@ -511,6 +580,7 @@ JS;
             $checklisttemplate .= $this->bulk_check_controls();
         }
         $checklisttemplate .= $totalpointsstr;
+        $checklisttemplate .= $observationdatestr;
         $checklisttemplate .= $this->checklist_edit_options($mode, $options);
         $checklisttemplate .= \core\output\html_writer::end_tag('div');
 
@@ -544,21 +614,29 @@ JS;
             'showgrouppointseval',
             'showgrouppointstudent',
             'enablegroupremarks',
-            'requiregroupcommentschecked',
-            array('option' => 'requireatleastonegroupcomment', 'class' => 'childoption'),
+            array('option' => 'requiregroupcommentschecked', 'parent' => 'enablegroupremarks'),
+            array('option' => 'requireatleastonegroupcomment', 'class' => 'childoption', 'parent' => 'enablegroupremarks'),
             array('heading' => 'optionsectionitems'),
             'showitempointseval',
             'showitempointstudent',
             'enableitemremarks',
-            'requireitemcommentschecked',
-            array('option' => 'requireatleastoneitemcomment', 'class' => 'childoption'),
+            array('option' => 'requireitemcommentschecked', 'parent' => 'enableitemremarks'),
+            array('option' => 'requireatleastoneitemcomment', 'class' => 'childoption', 'parent' => 'enableitemremarks'),
             'groupremarkheading',
+            array('heading' => 'optionsectionobservation'),
+            'observationmode',
+            'observationdefault',
         );
 
+        $observationoptionsopen = false;
         foreach ($optionorder as $optioninfo) {
             if (is_array($optioninfo) && isset($optioninfo['heading'])) {
                 $html .= \core\output\html_writer::tag('div', get_string($optioninfo['heading'], 'gradingform_checklist'),
                     array('class' => 'optionssectionheading'));
+                if ($optioninfo['heading'] == 'optionsectionobservation') {
+                    $html .= \core\output\html_writer::start_tag('div', array('class' => 'observationoptions'));
+                    $observationoptionsopen = true;
+                }
                 continue;
             }
 
@@ -571,8 +649,10 @@ JS;
             if (is_array($optioninfo) && !empty($optioninfo['class'])) {
                 $optionclass .= ' '.$optioninfo['class'];
             }
+            $parentoption = is_array($optioninfo) && !empty($optioninfo['parent']) ? $optioninfo['parent'] : null;
+            $parentenabled = $parentoption === null || !empty($options[$parentoption]);
 
-            $value = $options[$option];
+            $value = $parentenabled ? $options[$option] : 0;
             $html .= \core\output\html_writer::start_tag('div', array('class' => $optionclass));
             $attrs = array('name' => '{NAME}[options]['.$option.']', 'id' => '{NAME}-options-'.$option);
 
@@ -595,23 +675,127 @@ JS;
                 continue;
             }
 
+            if ($option == 'observationmode' || $option == 'observationdefault') {
+                $observationdisabled = gradingform_checklist_controller::clean_observation_mode($options['observationmode'])
+                    === gradingform_checklist_controller::OBSERVATION_MODE_DISABLED;
+                if ($option == 'observationmode') {
+                    $choices = array(
+                        gradingform_checklist_controller::OBSERVATION_MODE_DISABLED => get_string('observationmodedisabled', 'gradingform_checklist'),
+                        gradingform_checklist_controller::OBSERVATION_MODE_DATE => get_string('observationmodedate', 'gradingform_checklist'),
+                        gradingform_checklist_controller::OBSERVATION_MODE_DATETIME => get_string('observationmodedatetime', 'gradingform_checklist'),
+                    );
+                    $value = gradingform_checklist_controller::clean_observation_mode($value);
+                    $attrs['data-observation-mode'] = 1;
+                } else {
+                    $choices = array(
+                        gradingform_checklist_controller::OBSERVATION_DEFAULT_NOW => get_string('observationdefaultnow', 'gradingform_checklist'),
+                        gradingform_checklist_controller::OBSERVATION_DEFAULT_BLANK => get_string('observationdefaultblank', 'gradingform_checklist'),
+                    );
+                    $value = gradingform_checklist_controller::clean_observation_default($value);
+                    $attrs['data-observation-default'] = 1;
+                    if ($observationdisabled) {
+                        $attrs['disabled'] = 'disabled';
+                    }
+                }
+                if ($mode == gradingform_checklist_controller::DISPLAY_EDIT_FROZEN && $value !== '') {
+                    $html .= \core\output\html_writer::empty_tag('input', $attrs + array('type' => 'hidden', 'value' => $value));
+                }
+                if ($mode == gradingform_checklist_controller::DISPLAY_EDIT_FROZEN || $mode == gradingform_checklist_controller::DISPLAY_PREVIEW) {
+                    unset($attrs['name']);
+                    $attrs['disabled'] = 'disabled';
+                }
+                $html .= \core\output\html_writer::tag('label', get_string($option, 'gradingform_checklist'), array('for' => $attrs['id']));
+                $select = \core\output\html_writer::start_tag('select', $attrs + array('class' => 'custom-select'));
+                foreach ($choices as $choicevalue => $choicelabel) {
+                    $choiceattrs = array('value' => $choicevalue);
+                    if ($choicevalue === $value) {
+                        $choiceattrs['selected'] = 'selected';
+                    }
+                    $select .= \core\output\html_writer::tag('option', $choicelabel, $choiceattrs);
+                }
+                $select .= \core\output\html_writer::end_tag('select');
+                $html .= $select;
+                $html .= \core\output\html_writer::end_tag('div'); // .option
+                if ($option == 'observationdefault' && $observationoptionsopen) {
+                    $html .= \core\output\html_writer::end_tag('div'); // .observationoptions
+                    $observationoptionsopen = false;
+                }
+                continue;
+            }
+
             if ($mode == gradingform_checklist_controller::DISPLAY_EDIT_FROZEN && $value) {
                 $html .= \core\output\html_writer::empty_tag('input', $attrs + array('type' => 'hidden', 'value' => $value));
             }
             // Display option as checkbox
             $attrs['type'] = 'checkbox';
             $attrs['value'] = 1;
+            if ($parentoption !== null) {
+                $attrs['data-required-parent'] = '{NAME}-options-'.$parentoption;
+            }
             if ($value) {
                 $attrs['checked'] = 'checked';
             }
-            if ($mode == gradingform_checklist_controller::DISPLAY_EDIT_FROZEN || $mode == gradingform_checklist_controller::DISPLAY_PREVIEW) {
+            if (!$parentenabled || $mode == gradingform_checklist_controller::DISPLAY_EDIT_FROZEN
+                    || $mode == gradingform_checklist_controller::DISPLAY_PREVIEW) {
                 $attrs['disabled'] = 'disabled';
-                unset($attrs['name']);
+                if ($mode == gradingform_checklist_controller::DISPLAY_EDIT_FROZEN
+                        || $mode == gradingform_checklist_controller::DISPLAY_PREVIEW) {
+                    unset($attrs['name']);
+                }
             }
             $html .= \core\output\html_writer::empty_tag('input', $attrs);
             $html .= \core\output\html_writer::tag('label', get_string($option, 'gradingform_checklist'), array('for' => $attrs['id']));
 
             $html .= \core\output\html_writer::end_tag('div'); // .option
+        }
+        if ($observationoptionsopen) {
+            $html .= \core\output\html_writer::end_tag('div'); // .observationoptions
+        }
+        if ($mode == gradingform_checklist_controller::DISPLAY_EDIT_FULL) {
+            $html .= \core\output\html_writer::tag('script', <<<JS
+(function() {
+    const checklist = document.getElementById('checklist-{NAME}');
+    if (!checklist) {
+        return;
+    }
+    const updateDependentOptions = function(parent) {
+        const enabled = parent.checked;
+        checklist.querySelectorAll('[data-required-parent]').forEach(function(option) {
+            if (option.getAttribute('data-required-parent') !== parent.id) {
+                return;
+            }
+            option.disabled = !enabled;
+            if (!enabled) {
+                option.checked = false;
+            }
+        });
+    };
+    [
+        document.getElementById('{NAME}-options-enablegroupremarks'),
+        document.getElementById('{NAME}-options-enableitemremarks')
+    ].forEach(function(parent) {
+        if (!parent) {
+            return;
+        }
+        updateDependentOptions(parent);
+        parent.addEventListener('change', function() {
+            updateDependentOptions(parent);
+        });
+    });
+    const observationMode = checklist.querySelector('[data-observation-mode]');
+    const observationDefault = checklist.querySelector('[data-observation-default]');
+    const updateObservationDefault = function() {
+        if (!observationMode || !observationDefault) {
+            return;
+        }
+        observationDefault.disabled = observationMode.value === 'disabled';
+    };
+    updateObservationDefault();
+    if (observationMode) {
+        observationMode.addEventListener('change', updateObservationDefault);
+    }
+}());
+JS);
         }
         $html .= \core\output\html_writer::end_tag('div'); // .options
         return $html;
@@ -687,7 +871,8 @@ JS;
             // add to the template
             $totalpointsstr = \core\output\html_writer::tag('div', get_string('overallpoints', 'gradingform_checklist') . ": $checkedpts/$totalpts", array('class' => 'pointstotals'));
         }
-        return $this->checklist_template($mode, $options, $elementname, $groupsstr, $totalpointsstr);
+        $observationdatestr = $this->observation_date_control($mode, $options, $elementname, $values);
+        return $this->checklist_template($mode, $options, $elementname, $groupsstr, $totalpointsstr, $observationdatestr);
     }
 
     /**

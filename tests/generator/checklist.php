@@ -24,6 +24,7 @@
 
 namespace tests\gradingform_checklist\generator;
 
+use gradingform_checklist_controller;
 use gradingform_controller;
 use stdClass;
 
@@ -80,6 +81,8 @@ class checklist {
         $this->set_option('showremarksstudent', 1);
         $this->set_option('enablebulkcheck', 1);
         $this->set_option('groupremarkheading', '');
+        $this->set_option('observationmode', gradingform_checklist_controller::OBSERVATION_MODE_DISABLED);
+        $this->set_option('observationdefault', gradingform_checklist_controller::OBSERVATION_DEFAULT_NOW);
 
     }
 
@@ -100,6 +103,7 @@ class checklist {
                 'itemid' => 0,
             ],
             'usebenchmark' => trim($this->benchmark) === '' ? 0 : 1,
+            'removebenchmark' => 0,
             'benchmarkbuttonlabel' => $this->benchmarkbuttonlabel,
             'benchmarkbuttonicon' => $this->benchmarkbuttonicon,
             'checklist' => [

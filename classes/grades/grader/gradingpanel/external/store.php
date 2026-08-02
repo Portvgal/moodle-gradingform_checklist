@@ -163,7 +163,7 @@ class store extends external_api {
             $gradinginstance = $gradeitem->get_advanced_grading_instance($USER, $grade, (int) $data['instanceid']);
             if ($gradinginstance instanceof \gradingform_checklist_instance
                     && !$gradinginstance->validate_grading_element($data['advancedgrading'])) {
-                $errors = $gradinginstance->get_required_comment_validation_error_messages();
+                $errors = $gradinginstance->get_grading_validation_error_messages();
                 if (empty($errors)) {
                     $errors[] = get_string('checklistnotcompleted', 'gradingform_checklist');
                 }
