@@ -191,11 +191,18 @@ JS);
             $params['returnurl'] = $this->_customdata['returnurl'];
         }
 
-        $links = [
-            \html_writer::link(new \core\url('/grade/grading/form/checklist/import.php', [
-                'areaid' => $areaid,
-                'returnurl' => $this->_customdata['returnurl'] ?? '',
-            ]), get_string('importchecklist', 'gradingform_checklist'), ['class' => 'btn btn-secondary']),
+        $importurl = new \core\url('/grade/grading/form/checklist/import.php', [
+            'areaid' => $areaid,
+            'returnurl' => $this->_customdata['returnurl'] ?? '',
+        ]);
+        $importicon = \html_writer::tag('span', '', ['class' => 'fa fa-upload fa-4x', 'aria-hidden' => 'true']);
+        $importtext = \html_writer::tag('div', get_string('importchecklist', 'gradingform_checklist'), [
+            'class' => 'action-text',
+        ]);
+        $importaction = \html_writer::link($importurl, $importicon . $importtext, [
+            'class' => 'action btn btn-lg gradingform-checklist-import-tile',
+        ]);
+        $downloadlinks = [
             \html_writer::link(new \core\url('/grade/grading/form/checklist/template.php', $params),
                 get_string('downloadwordtemplate', 'gradingform_checklist'), ['class' => 'btn btn-secondary']),
             \html_writer::link(new \core\url('/grade/grading/form/checklist/jsonexample.php', $params),
@@ -204,10 +211,11 @@ JS);
                 get_string('downloadjsonschema', 'gradingform_checklist'), ['class' => 'btn btn-secondary']),
         ];
 
-        $html = \html_writer::start_div('form-group row fitem');
-        $html .= \html_writer::div('', 'col-md-3 col-form-label d-flex pb-0 pr-md-0');
-        $html .= \html_writer::div(implode(' ', $links), 'col-md-9 form-inline align-items-start felement pt-1 pb-1');
-        $html .= \html_writer::end_div();
+        $html = \html_writer::div(
+            \html_writer::div($importaction, 'gradingform-checklist-import-primary') .
+            \html_writer::div(implode(' ', $downloadlinks), 'gradingform-checklist-import-downloads'),
+            'gradingform-checklist-import-actions gradingform-checklist-edit-actions'
+        );
         $form->addElement('html', $html);
     }
 

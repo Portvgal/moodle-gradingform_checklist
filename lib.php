@@ -114,28 +114,54 @@ class gradingform_checklist_controller extends gradingform_controller {
             return null;
         }
 
-        $links = [
-            \html_writer::link(new \moodle_url('/grade/grading/form/checklist/import.php', [
-                'areaid' => $this->get_areaid(),
-            ]), get_string('importchecklist', 'gradingform_checklist'), ['class' => 'btn btn-secondary']),
+        return $this->render_import_actions(!$this->is_form_defined());
+    }
+
+    /**
+     * Renders checklist import and template download actions.
+     *
+     * @param bool $managementpage whether the actions are rendered on the core management page
+     * @return string
+     */
+    public function render_import_actions(bool $managementpage = false): string {
+        $areaid = $this->get_areaid();
+        $importurl = new \moodle_url('/grade/grading/form/checklist/import.php', ['areaid' => $areaid]);
+        $downloadlinks = [
             \html_writer::link(new \moodle_url('/grade/grading/form/checklist/template.php', [
-                'areaid' => $this->get_areaid(),
+                'areaid' => $areaid,
                 'sesskey' => sesskey(),
             ]), get_string('downloadwordtemplate', 'gradingform_checklist'), ['class' => 'btn btn-secondary']),
             \html_writer::link(new \moodle_url('/grade/grading/form/checklist/jsonexample.php', [
-                'areaid' => $this->get_areaid(),
+                'areaid' => $areaid,
                 'sesskey' => sesskey(),
             ]), get_string('downloadjsonexample', 'gradingform_checklist'), ['class' => 'btn btn-secondary']),
             \html_writer::link(new \moodle_url('/grade/grading/form/checklist/jsonschema.php', [
-                'areaid' => $this->get_areaid(),
+                'areaid' => $areaid,
                 'sesskey' => sesskey(),
             ]), get_string('downloadjsonschema', 'gradingform_checklist'), ['class' => 'btn btn-secondary']),
         ];
 
-        return get_string('gradingformunavailable', 'grading') . \html_writer::div(
-            implode(' ', $links),
-            'gradingform-checklist-import-downloads mt-3'
-        );
+        $importicon = \html_writer::tag('span', '', ['class' => 'fa fa-upload fa-4x', 'aria-hidden' => 'true']);
+        $importtext = \html_writer::tag('div', get_string('importchecklist', 'gradingform_checklist'), [
+            'class' => 'action-text',
+        ]);
+        $importaction = \html_writer::link($importurl, $importicon . $importtext, [
+            'class' => 'action btn btn-lg gradingform-checklist-import-tile',
+        ]);
+
+        $actions = \html_writer::div($importaction, 'gradingform-checklist-import-primary');
+        $actions .= \html_writer::div(implode(' ', $downloadlinks), 'gradingform-checklist-import-downloads');
+
+        $classes = 'gradingform-checklist-import-actions';
+        if ($managementpage) {
+            $classes .= ' gradingform-checklist-management-actions';
+        }
+        $summary = $this->is_form_defined() ? get_string('gradingformunavailable', 'grading') : '';
+        if ($summary !== '') {
+            $summary = \html_writer::div($summary, 'gradingform-checklist-import-status');
+        }
+
+        return \html_writer::div($summary . $actions, $classes);
     }
 
     /**
