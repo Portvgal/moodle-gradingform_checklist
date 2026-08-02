@@ -167,6 +167,7 @@
     color: inherit;
     margin: 0 0 1.5rem;
     padding: 0;
+    position: static;
 }
 
 .alert:has(.gradingform-checklist-import-actions) .btn-close,
@@ -175,7 +176,27 @@
 }
 
 #region-main > div:has(> .actions + .alert .gradingform-checklist-import-actions) {
-    position: relative;
+    text-align: center;
+}
+
+#region-main > div:has(> .actions + .alert .gradingform-checklist-import-actions) > .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+}
+
+#region-main > div:has(> .actions + .alert .gradingform-checklist-import-actions) a.action.btn.btn-lg {
+    align-items: center;
+    display: inline-flex !important;
+    flex-direction: column;
+    height: 10rem !important;
+    justify-content: center;
+    margin: 0;
+    min-height: 10rem !important;
+    padding: 1rem;
+    vertical-align: top;
+    width: 10rem !important;
 }
 
 .gradingform-checklist-import-actions {
@@ -187,7 +208,7 @@
 }
 
 .gradingform-checklist-import-primary {
-    display: block;
+    display: flex;
     justify-content: center;
 }
 
@@ -198,20 +219,6 @@
     gap: .5rem;
     justify-content: center;
     margin-top: 1rem;
-}
-
-#region-main > div:has(> .actions + .alert .gradingform-checklist-import-actions) .gradingform-checklist-import-primary {
-    left: calc(50% + 263px);
-    position: absolute;
-    top: -202px;
-    width: 150px;
-}
-
-@media (max-width: 900px) {
-    #region-main > div:has(> .actions + .alert .gradingform-checklist-import-actions) .gradingform-checklist-import-primary {
-        position: static;
-        width: auto;
-    }
 }
 
 .gradingform-checklist-import-downloads .btn {

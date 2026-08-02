@@ -150,35 +150,24 @@ class gradingform_checklist_controller extends gradingform_controller {
 
         $PAGE->requires->js_init_code("
 (function() {
-    var attempts = 0;
-    var moveImportAction = function() {
-        attempts++;
-        var importAction = document.getElementById(" . json_encode($importid) . ");
-        if (!importAction) {
-            if (attempts < 40) {
-                window.setTimeout(moveImportAction, 50);
-            }
-            return;
-        }
-        var importBlock = importAction.closest('.gradingform-checklist-import-actions');
-        var notification = importBlock ? importBlock.closest('.alert') : null;
-        var actions = notification ? notification.previousElementSibling : null;
-        if (!actions || !actions.classList.contains('actions')) {
-            actions = document.querySelector('.path-grade-grading .actions');
-        }
-        if (actions && !actions.contains(importAction)) {
-            actions.appendChild(importAction);
-        }
-        var primary = importBlock ? importBlock.querySelector('.gradingform-checklist-import-primary') : null;
-        if (primary && !primary.querySelector('a')) {
+    var importAction = document.getElementById(" . json_encode($importid) . ");
+    if (!importAction) {
+        return;
+    }
+    var importBlock = importAction.closest('.gradingform-checklist-import-actions');
+    var notification = importBlock ? importBlock.closest('.alert') : null;
+    var actions = notification ? notification.previousElementSibling : null;
+    if (actions && actions.classList.contains('actions') && !actions.contains(importAction)) {
+        actions.appendChild(importAction);
+        var primary = importBlock.querySelector('.gradingform-checklist-import-primary');
+        if (primary) {
             primary.remove();
         }
-    };
-    moveImportAction();
+    }
 })();
 ");
 
-        $actions = \html_writer::div($importaction, 'actions gradingform-checklist-import-primary');
+        $actions = \html_writer::div($importaction, 'gradingform-checklist-import-primary');
         $actions .= \html_writer::div(implode(' ', $downloadlinks), 'gradingform-checklist-import-downloads');
         return \html_writer::div($actions, 'gradingform-checklist-import-actions');
     }
