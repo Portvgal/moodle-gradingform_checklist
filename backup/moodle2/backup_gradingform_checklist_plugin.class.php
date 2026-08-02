@@ -17,8 +17,7 @@
 /**
  * Support for backup API
  *
- * @package    gradingform
- * @subpackage checklist
+ * @package    gradingform_checklist
  * @author     Sam Chaffee
  * @copyright  2011 David Mudrak <david@moodle.com>
  * @copyright  Copyright (c) 2012 Open LMS (https://www.openlms.net)
@@ -48,17 +47,21 @@ class backup_gradingform_checklist_plugin extends backup_gradingform_plugin {
         $plugin->add_child($pluginwrapper);
 
         // Define our elements
+        $benchmark = new backup_nested_element('benchmark', array('id'), array(
+            'definitionid', 'benchmark', 'benchmarkformat', 'buttonlabel', 'buttonicon'));
+
         $groups = new backup_nested_element('groups');
 
         $group = new backup_nested_element('group', array('id'), array(
-                'sortorder', 'description', 'descriptionformat'));
+                'sortorder', 'description'));
 
         $items = new backup_nested_element('items');
 
         $item = new backup_nested_element('item', array('id'), array('sortorder',
-                'score', 'definition', 'definitionformat'));
+                'score', 'definition'));
 
         // Build elements hierarchy
+        $pluginwrapper->add_child($benchmark);
         $pluginwrapper->add_child($groups);
         $groups->add_child($group);
         $group->add_child($items);
@@ -66,11 +69,16 @@ class backup_gradingform_checklist_plugin extends backup_gradingform_plugin {
 
         // Set sources to populate the data
 
+        $benchmark->set_source_table('gradingform_checklist_bench',
+            array('definitionid' => backup::VAR_PARENTID));
+
         $group->set_source_table('gradingform_checklist_groups',
             array('definitionid' => backup::VAR_PARENTID));
 
         $item->set_source_table('gradingform_checklist_items',
             array('groupid' => backup::VAR_PARENTID));
+
+        $benchmark->annotate_files('gradingform_checklist', 'benchmark', 'definitionid');
 
         return $plugin;
     }

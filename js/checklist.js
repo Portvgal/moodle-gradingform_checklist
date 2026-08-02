@@ -7,6 +7,7 @@ M.gradingform_checklist.init = function(Y, options) {
     M.gradingform_checklist.Y = Y;
     Y.on('click', M.gradingform_checklist.itemclick, '#checklist-'+options.name+' .item', null, Y, options.name);
     Y.one('#checklist-' + options.name).delegate('click', M.gradingform_checklist.bulkcheckclick, '.bulkcheckcontrols button');
+    Y.one('#checklist-' + options.name).delegate('click', M.gradingform_checklist.benchmarkclick, '.benchmark-toggle');
     Y.all('#checklist-'+options.name+' .item').each(function (node) {
         if (node.one('input[type=checkbox]').get('checked')) {
             node.addClass('checked');
@@ -82,8 +83,8 @@ M.gradingform_checklist.updatebulkcheckbutton = function(checklist) {
         return;
     }
 
-    var button = checklist.one('.bulkcheckcontrols button');
-    if (!button) {
+    var buttons = checklist.all('.bulkcheckcontrols button');
+    if (!buttons.size()) {
         return;
     }
 
@@ -95,11 +96,11 @@ M.gradingform_checklist.updatebulkcheckbutton = function(checklist) {
     });
 
     if (allchecked) {
-        button.setAttribute('data-action', 'untickall');
-        button.set('text', M.str.gradingform_checklist.untickall);
+        buttons.setAttribute('data-action', 'untickall');
+        buttons.set('text', M.str.gradingform_checklist.untickall);
     } else {
-        button.setAttribute('data-action', 'tickall');
-        button.set('text', M.str.gradingform_checklist.tickall);
+        buttons.setAttribute('data-action', 'tickall');
+        buttons.set('text', M.str.gradingform_checklist.tickall);
     }
 };
 
@@ -149,4 +150,91 @@ M.gradingform_checklist.recalculatetotals = function(Y, name) {
     if (overallpoints) {
         overallpoints.set('innerHTML', overallscored);
     }
+};
+
+
+M.gradingform_checklist.benchmarkclick = function(e) {
+    e.preventDefault();
+    var Y = M.gradingform_checklist.Y;
+    var button = e.currentTarget;
+    var benchmarkid = button.getAttribute('data-benchmark-id');
+    var source = Y.one('[data-benchmark-content="' + benchmarkid + '"]');
+    if (!source) {
+        return;
+    }
+    var title = source.one('.benchmark-content-title') ? source.one('.benchmark-content-title').get('text') : M.str.gradingform_checklist.benchmark;
+    var body = source.one('.benchmark-content-body') ? source.one('.benchmark-content-body').get('innerHTML') : source.get('innerHTML');
+    Y.all('.benchmark-toggle').setAttribute('aria-expanded', 'false');
+    if (M.gradingform_checklist.showbenchmark(Y, title, body, benchmarkid)) {
+        button.setAttribute('aria-expanded', 'true');
+    }
+};
+
+M.gradingform_checklist.showbenchmark = function(Y, title, body, benchmarkid) {
+    var usemodal = M.gradingform_checklist.shouldusemodal(Y);
+    if (usemodal) {
+        var modal = Y.one('.gradingform_checklist-benchmark-modal');
+        if (modal && !modal.hasClass('hiddenelement') && modal.getAttribute('data-current-benchmark') === benchmarkid) {
+            modal.addClass('hiddenelement');
+            return false;
+        }
+        Y.one('body').removeClass('gradingform_checklist-benchmark-panel-open');
+        M.gradingform_checklist.showbenchmarkmodal(Y, title, body, benchmarkid);
+    } else {
+        var panel = Y.one('.gradingform_checklist-benchmark-panel');
+        if (panel && panel.hasClass('open') && panel.getAttribute('data-current-benchmark') === benchmarkid) {
+            panel.removeClass('open');
+            Y.one('body').removeClass('gradingform_checklist-benchmark-panel-open');
+            return false;
+        }
+        M.gradingform_checklist.showbenchmarkpanel(Y, title, body, benchmarkid);
+    }
+    return true;
+};
+
+M.gradingform_checklist.shouldusemodal = function(Y) {
+    if (window.innerWidth < 1100) {
+        return true;
+    }
+    return !!Y.one('[data-region="pdf"]') || !!Y.one('.assignfeedback_editpdf_widget') || !!Y.one('.drawingregion') ||
+        !!Y.one('[data-region="review-panel"]');
+};
+
+M.gradingform_checklist.showbenchmarkpanel = function(Y, title, body, benchmarkid) {
+    var panel = Y.one('.gradingform_checklist-benchmark-panel');
+    if (!panel) {
+        Y.one('body').append('<aside class="gradingform_checklist-benchmark-panel" role="complementary" aria-live="polite">' +
+            '<button type="button" class="benchmark-panel-close" aria-label="' + M.str.gradingform_checklist.closebenchmark + '">&times;</button>' +
+            '<h5 class="benchmark-display-title"></h5><div class="benchmark-panel-body"></div></aside>');
+        panel = Y.one('.gradingform_checklist-benchmark-panel');
+        panel.one('.benchmark-panel-close').on('click', function() {
+            panel.removeClass('open');
+            Y.all('.benchmark-toggle').setAttribute('aria-expanded', 'false');
+            Y.one('body').removeClass('gradingform_checklist-benchmark-panel-open');
+        });
+    }
+    panel.setAttribute('data-current-benchmark', benchmarkid);
+    panel.one('.benchmark-display-title').set('text', title);
+    panel.one('.benchmark-panel-body').set('innerHTML', body);
+    panel.addClass('open');
+    Y.one('body').addClass('gradingform_checklist-benchmark-panel-open');
+};
+
+M.gradingform_checklist.showbenchmarkmodal = function(Y, title, body, benchmarkid) {
+    var modal = Y.one('.gradingform_checklist-benchmark-modal');
+    if (!modal) {
+        Y.one('body').append('<div class="gradingform_checklist-benchmark-modal hiddenelement" role="dialog" aria-modal="true">' +
+            '<div class="benchmark-modal-dialog"><button type="button" class="benchmark-modal-close" aria-label="' + M.str.gradingform_checklist.closebenchmark + '">&times;</button>' +
+            '<h5 class="benchmark-display-title"></h5><div class="benchmark-modal-body"></div></div></div>');
+        modal = Y.one('.gradingform_checklist-benchmark-modal');
+        modal.one('.benchmark-modal-close').on('click', function() {
+            modal.addClass('hiddenelement');
+            Y.all('.benchmark-toggle').setAttribute('aria-expanded', 'false');
+            Y.one('body').removeClass('gradingform_checklist-benchmark-panel-open');
+        });
+    }
+    modal.setAttribute('data-current-benchmark', benchmarkid);
+    modal.one('.benchmark-display-title').set('text', title);
+    modal.one('.benchmark-modal-body').set('innerHTML', body);
+    modal.removeClass('hiddenelement');
 };

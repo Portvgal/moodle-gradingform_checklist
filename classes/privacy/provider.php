@@ -40,6 +40,14 @@ class provider implements
      * @return collection A listing of user data stored through this system.
      */
     public static function get_metadata(collection $collection): collection {
+        $collection->add_database_table('gradingform_checklist_bench', [
+            'definitionid' => 'privacy:metadata:definitionid',
+            'benchmark' => 'privacy:metadata:benchmark',
+            'benchmarkformat' => 'privacy:metadata:benchmarkformat',
+            'buttonlabel' => 'privacy:metadata:buttonlabel',
+            'buttonicon' => 'privacy:metadata:buttonicon',
+        ], 'privacy:metadata:benchmarksummary');
+
         $collection->add_database_table('gradingform_checklist_fills', [
             'instanceid' => 'privacy:metadata:instanceid',
             'groupid' => 'privacy:metadata:groupid',

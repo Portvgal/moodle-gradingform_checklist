@@ -36,7 +36,10 @@ This fork adds:
 - A custom heading for group-level comments.
 - Item-level move up and move down controls.
 - Grader panel option, validation, template, JavaScript, and styling updates.
-- A Moodle privacy provider declaration.
+- Optional teacher-only checklist benchmarks with a configurable button that opens
+  benchmark guidance in a panel or modal while grading.
+- A Moodle privacy provider declaration for checklist fillings and benchmark
+  metadata.
 - Expanded PHPUnit and Behat coverage.
 
 ## Installation
@@ -51,8 +54,10 @@ For more information about the configuration and usage, please see http://docs.m
 Checklist authors can:
 
 - Add group descriptions with up to 500 characters.
-- Add item definitions with up to 1000 characters.
+- Add item definitions with up to 1500 characters.
 - Use multiline text in group descriptions and item definitions.
+- Optionally add teacher-only benchmark guidance that graders can open from a
+  button while assessing submissions.
 - Reorder checklist groups.
 - Reorder individual checklist items with move up and move down controls.
 - Configure a custom heading for group-level comments.
@@ -64,6 +69,8 @@ Checklist definitions can enable these grading options:
 - Allow graders to select or unselect all checklist items in one action.
 - Show item points while grading.
 - Show item points to the user being graded.
+- Show group and overall points while grading.
+- Show group and overall points to the user being graded.
 - Allow item-level remarks.
 - Allow group-level remarks.
 - Show remarks to the user being graded.
@@ -83,8 +90,12 @@ headings, and required-comment validation before storing grades.
 
 ## Privacy
 
-This plugin declares a null privacy provider. It does not store personal data
-directly.
+This plugin stores checklist grading fillings, including checked item state and
+optional grader remarks, as part of Moodle advanced grading. It also stores
+teacher-only benchmark guidance attached to checklist definitions, including the
+benchmark text and configured benchmark button label/icon. The plugin implements
+Moodle privacy metadata and exports/deletes checklist grading instance data
+through Moodle's privacy API.
 
 ## License
 Copyright (c) 2021 Open LMS (https://www.openlms.net)

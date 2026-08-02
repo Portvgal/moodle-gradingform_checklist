@@ -133,6 +133,7 @@ M.gradingform_checklisteditor.editmode = function(el, editmode, focustb) {
 //            // this browser do not support 'computedStyle', leave the default size of the textbox
 //        }
         // hide/display textarea, textbox and plaintexts
+        el.all('.plainvalue').addClass('hiddenelement');
         taplain.addClass('hiddenelement');
         ta.removeClass('hiddenelement');
         if (tb) {
@@ -194,6 +195,23 @@ M.gradingform_checklisteditor.buttonclick = function(e, confirmed) {
         M.gradingform_checklisteditor.disablealleditors();
         M.gradingform_checklisteditor.assignclasses(elements_str);
         M.gradingform_checklisteditor.editmode(Y.one('#checklist-' + name + ' #' + name + '-groups-NEWID' + newid + '-description'),true);
+    } else if (chunks.length == 4 && action == 'addgroupafter') {
+        // ADD NEW GROUP AFTER CURRENT GROUP
+        var newscoreafter = 1, levidxafter = 0;
+        var currentgroup = Y.one('#' + name + '-groups-' + chunks[2]);
+
+        var itemsafter = '';
+        for (levidxafter = 0; levidxafter < 3; levidxafter++) {
+            itemsafter += M.gradingform_checklisteditor.templates[name]['item'].
+                replace(/\{ITEM-id\}/g, 'NEWID' + (newlevid + levidxafter)).
+                replace(/\{ITEM-score\}/g, newscoreafter);
+        }
+        var newgroupafter = M.gradingform_checklisteditor.templates[name]['group'].replace(/\{ITEMS\}/, itemsafter);
+        currentgroup.insert(newgroupafter.replace(/\{GROUP-id\}/g, 'NEWID' + newid).replace(/\{.+?\}/g, ''), 'after');
+        M.gradingform_checklisteditor.assignclasses('#checklist-' + name + ' #' + name + '-groups-NEWID' + newid + '-items .item');
+        M.gradingform_checklisteditor.disablealleditors();
+        M.gradingform_checklisteditor.assignclasses(elements_str);
+        M.gradingform_checklisteditor.editmode(Y.one('#checklist-' + name + ' #' + name + '-groups-NEWID' + newid + '-description'), true);
     } else if (chunks.length == 5 && action == 'additem') {
         // ADD NEW ITEM
         var newscore = 1;

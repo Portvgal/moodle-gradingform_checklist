@@ -18,8 +18,7 @@
 /**
  * Renderer for the Checklist plugin
  *
- * @package    gradingform
- * @subpackage checklist
+ * @package    gradingform_checklist
  * @author     Sam Chaffee
  * @copyright  2011 Marina Glancy
  * @copyright  2012 Open LMS (https://www.openlms.net)
@@ -29,12 +28,117 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/checklisteditor.php');
+require_once($CFG->libdir . '/editorlib.php');
 
 /**
  * Checklist grading method plugin renderer
  *
  */
 class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
+
+    /**
+     * Returns the single benchmark button and hidden content for teacher-only benchmarks.
+     *
+     * @param array $benchmark formatted benchmark data
+     * @return string
+     */
+    public function display_benchmark_button(array $benchmark): string {
+        if (empty($benchmark['content'])) {
+            return '';
+        }
+        $this->page->requires->js_init_code($this->benchmark_display_js());
+        $button = \core\output\html_writer::tag('button',
+            \core\output\html_writer::tag('i', '', ['class' => $benchmark['buttonicon'] . ' mr-2', 'aria-hidden' => 'true']).
+            \core\output\html_writer::tag('span', s($benchmark['buttonlabel']), ['class' => 'benchmark-button-label']),
+            [
+                'type' => 'button',
+                    'class' => 'benchmark-toggle btn btn-primary',
+                'aria-expanded' => 'false',
+                'data-benchmark-id' => $benchmark['id'],
+                'title' => s($benchmark['buttonlabel']),
+            ]
+        );
+        $content = \core\output\html_writer::tag('div',
+            \core\output\html_writer::tag('h5', $benchmark['title'], ['class' => 'benchmark-content-title']).
+            \core\output\html_writer::tag('div', $benchmark['content'], ['class' => 'benchmark-content-body']),
+            [
+                'class' => 'benchmark-content hiddenelement',
+                'data-benchmark-content' => $benchmark['id'],
+                'hidden' => 'hidden',
+            ]
+        );
+        return \core\output\html_writer::tag('div', $button.$content,
+            ['class' => 'benchmark-control benchmark-control-single d-flex justify-content-center w-100 py-3 my-2']);
+    }
+
+    /**
+     * Returns JavaScript used by review pages to open benchmark content in the panel or modal.
+     *
+     * @return string
+     */
+    protected function benchmark_display_js(): string {
+        $closelabel = json_encode(get_string('closebenchmark', 'gradingform_checklist'));
+        return <<<JS
+require(['jquery'], function($) {
+    $(document).off('click.gradingformChecklistBenchmark', '.benchmark-toggle');
+    $(document).on('click.gradingformChecklistBenchmark', '.benchmark-toggle', function() {
+        const button = $(this);
+        const benchmarkId = button.data('benchmark-id');
+        const source = $('[data-benchmark-content="' + benchmarkId + '"]').first();
+        const title = source.find('.benchmark-content-title').text();
+        const body = source.find('.benchmark-content-body').html();
+        const constrained = window.innerWidth < 1100 || $('[data-region="pdf"], .assignfeedback_editpdf_widget, .drawingregion, [data-region="review-panel"]').length > 0;
+        let target = $('.gradingform_checklist-benchmark-' + (constrained ? 'modal' : 'panel'));
+        const currentBenchmark = String(benchmarkId);
+
+        if (!target.length) {
+            if (constrained) {
+                $('body').append('<div class="gradingform_checklist-benchmark-modal hiddenelement" role="dialog" aria-modal="true"><div class="benchmark-modal-dialog"><button type="button" class="benchmark-modal-close" aria-label="' + $closelabel + '">&times;</button><h5 class="benchmark-display-title"></h5><div class="benchmark-modal-body"></div></div></div>');
+                target = $('.gradingform_checklist-benchmark-modal');
+                target.find('.benchmark-modal-close').on('click', function() {
+                    target.addClass('hiddenelement');
+                    $('.benchmark-toggle').attr('aria-expanded', 'false');
+                    $('body').removeClass('gradingform_checklist-benchmark-panel-open');
+                });
+            } else {
+                $('body').append('<aside class="gradingform_checklist-benchmark-panel" role="complementary"><button type="button" class="benchmark-panel-close" aria-label="' + $closelabel + '">&times;</button><h5 class="benchmark-display-title"></h5><div class="benchmark-panel-body"></div></aside>');
+                target = $('.gradingform_checklist-benchmark-panel');
+                target.find('.benchmark-panel-close').on('click', function() {
+                    target.removeClass('open');
+                    $('.benchmark-toggle').attr('aria-expanded', 'false');
+                    $('body').removeClass('gradingform_checklist-benchmark-panel-open');
+                });
+            }
+        }
+
+        const isOpen = constrained ? !target.hasClass('hiddenelement') : target.hasClass('open');
+        if (isOpen && target.attr('data-current-benchmark') === currentBenchmark) {
+            target.toggleClass('hiddenelement', constrained);
+            target.removeClass('open');
+            $('body').removeClass('gradingform_checklist-benchmark-panel-open');
+            button.attr('aria-expanded', 'false');
+            return;
+        }
+
+        $('.benchmark-toggle').attr('aria-expanded', 'false');
+        button.attr('aria-expanded', 'true');
+        target.attr('data-current-benchmark', currentBenchmark);
+        if (constrained) {
+            $('body').removeClass('gradingform_checklist-benchmark-panel-open');
+            target.find('.benchmark-display-title').text(title);
+            target.find('.benchmark-modal-body').html(body);
+            target.removeClass('hiddenelement');
+        } else {
+            target.find('.benchmark-display-title').text(title);
+            target.find('.benchmark-panel-body').html(body);
+            target.addClass('open');
+            $('body').addClass('gradingform_checklist-benchmark-panel-open');
+        }
+    });
+});
+JS;
+    }
+
     /**
      * This function returns html code for displaying group. Depending on $mode it may be the
      * code to edit checklist, to preview the checklist, to evaluate somebody or to review the evaluation.
@@ -101,7 +205,9 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
         if (isset($group['error_description'])) {
             $descriptionclass .= ' error';
         }
-        $grouptemplate .= \core\output\html_writer::tag('div', $description, array('class' => $descriptionclass, 'id' => '{NAME}-groups-{GROUP-id}-description'));
+        $groupheader = \core\output\html_writer::tag('div', $description,
+            array('class' => $descriptionclass, 'id' => '{NAME}-groups-{GROUP-id}-description'));
+        $grouptemplate .= \core\output\html_writer::tag('div', $groupheader, array('class' => 'group-header'));
         $grouptemplate .= $controls;
         $itemsstrdiv = \core\output\html_writer::tag('div', \core\output\html_writer::tag('div', $itemsstr, array('id' => '{NAME}-groups-{GROUP-id}-items')));
         $itemsclass = 'items';
@@ -112,8 +218,10 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
         if ($mode == gradingform_checklist_controller::DISPLAY_EDIT_FULL) {
             $value = get_string('groupadditem', 'gradingform_checklist');
             $labelforadditem = \core\output\html_writer::tag('label', $value, array('class' => 'hiddenelement', 'for' => '{NAME}-groups-{GROUP-id}-items-additem'));
-            $button = $labelforadditem . \core\output\html_writer::empty_tag('input', array('type' => 'submit', 'name' => '{NAME}[groups][{GROUP-id}][items][additem]',
-                    'id' => '{NAME}-groups-{GROUP-id}-items-additem', 'value' => $value, 'title' => $value));
+            $button = $labelforadditem . \core\output\html_writer::empty_tag('input', array('type' => 'submit',
+                    'name' => '{NAME}[groups][{GROUP-id}][items][additem]',
+                    'id' => '{NAME}-groups-{GROUP-id}-items-additem', 'value' => $value, 'title' => $value,
+                    'class' => 'btn btn-primary'));
             $grouptemplate .= \core\output\html_writer::tag('div', $button, array('class' => 'additem'));
         }
         $displayremark = (gradingform_checklist_controller::group_remarks_enabled($options)
@@ -139,9 +247,9 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
             }
         }
 
-        $displaypointseval = $options['showitempointseval'] && ($mode == gradingform_checklist_controller::DISPLAY_EVAL
+        $displaypointseval = $options['showgrouppointseval'] && ($mode == gradingform_checklist_controller::DISPLAY_EVAL
                 || $mode == gradingform_checklist_controller::DISPLAY_EVAL_FROZEN || $mode == gradingform_checklist_controller::DISPLAY_REVIEW);
-        $displaypointsrev  = $options['showitempointstudent'] && ($mode == gradingform_checklist_controller::DISPLAY_VIEW);
+        $displaypointsrev  = $options['showgrouppointstudent'] && ($mode == gradingform_checklist_controller::DISPLAY_VIEW);
 
         if ($displaypointseval || $displaypointsrev) {
             // tally the checked pts and total pts
@@ -332,6 +440,20 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
     }
 
     /**
+     * Returns the bulk select control used above and below long grading forms.
+     *
+     * @return string
+     */
+    protected function bulk_check_controls(): string {
+        $buttons = \core\output\html_writer::tag('button', get_string('tickall', 'gradingform_checklist'), array(
+            'type' => 'button',
+            'class' => 'btn btn-primary bulkchecktoggle',
+            'data-action' => 'tickall',
+        ));
+        return \core\output\html_writer::tag('div', $buttons, array('class' => 'bulkcheckcontrols'));
+    }
+
+    /**
      * This function returns html code for displaying checklist template (content before and after
      * groups list). Depending on $mode it may be the code to edit checklist, to preview the checklist,
      * to evaluate somebody or to review the evaluation.
@@ -372,21 +494,21 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
         }
 
         $checklisttemplate = \core\output\html_writer::start_tag('div', array('id' => 'checklist-{NAME}', 'class' => 'clearfix gradingform_checklist'.$classsuffix));
+        if ($mode == gradingform_checklist_controller::DISPLAY_EVAL && !empty($options['enablebulkcheck'])) {
+            $checklisttemplate .= $this->bulk_check_controls();
+        }
         $checklisttemplate .= \core\output\html_writer::tag('div', $groupsstr, array('class' => 'groups', 'id' => '{NAME}-groups'));
         if ($mode == gradingform_checklist_controller::DISPLAY_EDIT_FULL) {
             $value = get_string('addgroup', 'gradingform_checklist');
             $labelforaddgroup = \core\output\html_writer::tag('label', $value, array('class' => 'hiddenelement', 'for' => '{NAME}-groups-addgroup'));
-            $input = $labelforaddgroup . \core\output\html_writer::empty_tag('input', array('type' => 'submit', 'name' => '{NAME}[groups][addgroup]',
-                    'id' => '{NAME}-groups-addgroup', 'value' => $value, 'title' => $value));
+            $input = $labelforaddgroup . \core\output\html_writer::empty_tag('input', array('type' => 'submit',
+                    'name' => '{NAME}[groups][addgroup]',
+                    'id' => '{NAME}-groups-addgroup', 'value' => $value, 'title' => $value,
+                    'class' => 'btn btn-primary'));
             $checklisttemplate .= \core\output\html_writer::tag('div', $input, array('class' => 'addgroup'));
         }
         if ($mode == gradingform_checklist_controller::DISPLAY_EVAL && !empty($options['enablebulkcheck'])) {
-            $buttons = \core\output\html_writer::tag('button', get_string('tickall', 'gradingform_checklist'), array(
-                'type' => 'button',
-                'class' => 'btn btn-secondary bulkchecktoggle',
-                'data-action' => 'tickall',
-            ));
-            $checklisttemplate .= \core\output\html_writer::tag('div', $buttons, array('class' => 'bulkcheckcontrols'));
+            $checklisttemplate .= $this->bulk_check_controls();
         }
         $checklisttemplate .= $totalpointsstr;
         $checklisttemplate .= $this->checklist_edit_options($mode, $options);
@@ -419,12 +541,14 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
             'showremarksstudent',
             'enablebulkcheck',
             array('heading' => 'optionsectiongroups'),
-            'showitempointstudent',
+            'showgrouppointseval',
+            'showgrouppointstudent',
             'enablegroupremarks',
             'requiregroupcommentschecked',
             array('option' => 'requireatleastonegroupcomment', 'class' => 'childoption'),
             array('heading' => 'optionsectionitems'),
             'showitempointseval',
+            'showitempointstudent',
             'enableitemremarks',
             'requireitemcommentschecked',
             array('option' => 'requireatleastoneitemcomment', 'class' => 'childoption'),
@@ -552,9 +676,9 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
             $groupsstr .= $this->group_template($mode, $options, $elementname, $group, $itemsstr, $groupvalue);
         }
 
-        $displaypointseval = $options['showitempointseval'] && ($mode == gradingform_checklist_controller::DISPLAY_EVAL
+        $displaypointseval = $options['showgrouppointseval'] && ($mode == gradingform_checklist_controller::DISPLAY_EVAL
             || $mode == gradingform_checklist_controller::DISPLAY_EVAL_FROZEN || $mode == gradingform_checklist_controller::DISPLAY_REVIEW);
-        $displaypointsrev  = $options['showitempointstudent'] && ($mode == gradingform_checklist_controller::DISPLAY_VIEW);
+        $displaypointsrev  = $options['showgrouppointstudent'] && ($mode == gradingform_checklist_controller::DISPLAY_VIEW);
 
         if ($displaypointseval || $displaypointsrev) {
             $checkedpts = \core\output\html_writer::tag('span', $scoredpoints, array('class' => 'scoredpoints'));
@@ -627,8 +751,12 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
         } else {
             $mode = gradingform_checklist_controller::DISPLAY_VIEW;
         }
+        $description = $instance->get_controller()->get_formatted_description();
+        if ($cangrade) {
+            $description .= $this->display_benchmark_button($instance->get_controller()->get_formatted_benchmark());
+        }
         $output = '';
-        $output .= $this->box($instance->get_controller()->get_formatted_description(), 'gradingform_checklist-description');
+        $output .= $this->box($description, 'gradingform_checklist-description gradingform_checklist');
         $output .= $this->display_checklist($groups, $options, $mode, 'checklist'.$idx, $values);
 
         return $output;

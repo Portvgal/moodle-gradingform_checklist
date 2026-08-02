@@ -18,8 +18,7 @@
 /**
  * Grading method controller for the Checklist plugin
  *
- * @package    gradingform
- * @subpackage checklist
+ * @package    gradingform_checklist
  * @author     Sam Chaffee
  * @copyright  2011 Marina Glancy
  * @copyright  Copyright (c) 2012 Open LMS (https://www.openlms.net)
@@ -35,7 +34,7 @@ class MoodleQuickForm_checklisteditor extends HTML_QuickForm_input {
     public const GROUP_DESCRIPTION_MAX_LENGTH = 500;
 
     /** Maximum length for item definitions. */
-    public const ITEM_DEFINITION_MAX_LENGTH = 1000;
+    public const ITEM_DEFINITION_MAX_LENGTH = 1500;
 
     /** help message */
     public $_helpbutton = '';
@@ -208,22 +207,11 @@ class MoodleQuickForm_checklisteditor extends HTML_QuickForm_input {
         foreach ($value['groups'] as $id => $group) {
             if ($id == 'addgroup') {
                 $id = $this->get_next_id(array_keys($value['groups']));
-                $group = array('description' => '', 'items' => array());
-                $i = 0;
-
-                // score is 1 by default
-                $group['items']['NEWID'.($i++)]['score'] = 1;
-
-                // add more items so there are at least 3 in the new group. Score is 1 by default
-                for ($i= $i; $i < 3; $i++) {
-                    $group['items']['NEWID'.$i]['score'] = 1;
-                }
-                // set other necessary fields (definition) for the items in the new group
-                foreach (array_keys($group['items']) as $i) {
-                    $group['items'][$i]['definition'] = '';
-                }
+                $group = $this->get_empty_group();
                 $this->nonjsbuttonpressed = true;
             }
+            $addgroupafter = !empty($group['addgroupafter']);
+            unset($group['addgroupafter']);
             $items = array();
             $maxscore = null;
             if (array_key_exists('items', $group)) {
@@ -333,6 +321,12 @@ class MoodleQuickForm_checklisteditor extends HTML_QuickForm_input {
                 $return['groups'][$id] = $group;
                 $lastid = $id;
             }
+            if ($addgroupafter) {
+                $newid = $this->get_next_id(array_merge(array_keys($value['groups']), array_keys($return['groups'])));
+                $return['groups'][$newid] = $this->get_empty_group();
+                $lastid = $newid;
+                $this->nonjsbuttonpressed = true;
+            }
         }
 
         if ($totalscore <= 0) {
@@ -359,6 +353,22 @@ class MoodleQuickForm_checklisteditor extends HTML_QuickForm_input {
             $this->wasvalidated = true;
         }
         return $return;
+    }
+
+    /**
+     * Returns a new empty group with the default three checklist items.
+     *
+     * @return array
+     */
+    protected function get_empty_group(): array {
+        $group = array('description' => '', 'items' => array());
+        for ($i = 0; $i < 3; $i++) {
+            $group['items']['NEWID'.$i] = array(
+                'definition' => '',
+                'score' => 1,
+            );
+        }
+        return $group;
     }
 
     /**

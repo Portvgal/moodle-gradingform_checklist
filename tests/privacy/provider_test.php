@@ -47,13 +47,29 @@ final class provider_test extends provider_testcase {
         $collection = provider::get_metadata($collection);
         $metadata = $collection->get_collection();
 
-        $this->assertCount(1, $metadata);
+        $this->assertCount(2, $metadata);
 
-        $table = array_shift($metadata);
-        $this->assertEquals('gradingform_checklist_fills', $table->get_name());
-        $this->assertEquals('privacy:metadata:fillingssummary', $table->get_summary());
+        $tables = [];
+        foreach ($metadata as $table) {
+            $tables[$table->get_name()] = $table;
+        }
 
-        $privacyfields = $table->get_privacy_fields();
+        $this->assertArrayHasKey('gradingform_checklist_bench', $tables);
+        $benchmarktable = $tables['gradingform_checklist_bench'];
+        $this->assertEquals('privacy:metadata:benchmarksummary', $benchmarktable->get_summary());
+
+        $benchmarkfields = $benchmarktable->get_privacy_fields();
+        $this->assertArrayHasKey('definitionid', $benchmarkfields);
+        $this->assertArrayHasKey('benchmark', $benchmarkfields);
+        $this->assertArrayHasKey('benchmarkformat', $benchmarkfields);
+        $this->assertArrayHasKey('buttonlabel', $benchmarkfields);
+        $this->assertArrayHasKey('buttonicon', $benchmarkfields);
+
+        $this->assertArrayHasKey('gradingform_checklist_fills', $tables);
+        $filltable = $tables['gradingform_checklist_fills'];
+        $this->assertEquals('privacy:metadata:fillingssummary', $filltable->get_summary());
+
+        $privacyfields = $filltable->get_privacy_fields();
         $this->assertArrayHasKey('instanceid', $privacyfields);
         $this->assertArrayHasKey('groupid', $privacyfields);
         $this->assertArrayHasKey('itemid', $privacyfields);

@@ -125,17 +125,26 @@
 }
 
 /* evaluation */
+.gradingform_checklist .group .items .item {
+    border: 5px solid #fff;
+    border-radius: .6rem;
+}
+
 .gradingform_checklist .group .items .item.currentchecked {
-    background: #fff0f0;
+    background: #d9f2d0;
+    border-color: #fff;
 }
 
 .gradingform_checklist .group .items .item.checked {
-    background: #d0ffd0;
-    border: 1px solid #555;
+    background: #d9f2d0;
+    border-color: #fff;
 }
 
-.gradingform_checklist.evaluate .group .items .item:hover {
-    background: #30ff30;
+.gradingform_checklist.evaluate .group .items .item:hover,
+.gradingform_checklist.evaluate .group .items .item.checked:hover,
+.gradingform_checklist.evaluate .group .items .item.currentchecked:hover {
+    background: #b3e5a1;
+    border-color: #fff;
 }
 
 /* Make invisible the buttons 'Move up' for the first group and 'Move down' for the last. */
@@ -183,17 +192,12 @@
 
 .gradingform_checklist.editor .addgroup input,
 .gradingform_checklist.editor .additem input {
-    background: transparent url([[pix:t/add]]) no-repeat .5rem center;
-    background-size: .85rem .85rem;
-    color: #1d2125;
-    display: inline-flex;
-    font-size: .875rem;
-    font-weight: bold;
-    line-height: 1.4;
     margin: 0;
-    min-height: 1.9rem;
-    padding: .25rem .65rem .25rem 1.65rem;
-    text-decoration: none;
+}
+
+.gradingform_checklist.editor .group .additem,
+.gradingform_checklist.editor .addgroup {
+    padding-left: 0;
 }
 
 .gradingform_checklist.editor .addgroup input {
@@ -270,8 +274,9 @@
 }
 
 .gradingform_checklist-restored {
-    background: #ffd;
-    border: 1px solid #ff0;
+    background: #ffffd0;
+    border: 0;
+    border-radius: .6rem;
     margin-bottom: 10px;
     padding: 10px;
 }
@@ -413,11 +418,35 @@
 
 .gradingform_checklist .group .items .item .remark textarea,
 .gradingform_checklist .group > .remark textarea {
+    border: 2px solid #59cbe8;
+    border-radius: .6rem;
     box-sizing: border-box;
     display: block;
     max-width: none;
     min-height: 8rem;
+    transition: border-color .2s ease, box-shadow .2s ease;
     width: 100%;
+}
+
+.gradingform_checklist .group .items .item .remark textarea:hover,
+.gradingform_checklist .group .items .item .remark textarea:focus,
+.gradingform_checklist .group > .remark textarea:hover,
+.gradingform_checklist .group > .remark textarea:focus {
+    box-shadow: 0 0 0 .35rem rgb(89 203 232 / 20%);
+}
+
+.path-mod-assign [data-region="grade-panel"] .fitem.has-popout {
+    border: 2px solid rgb(89 203 232 / 48%);
+}
+
+.path-mod-assign [data-region="grade-panel"] .has-popout .col-md-3 {
+    border-bottom: 2px solid rgb(89 203 232 / 48%);
+}
+
+.path-mod-assign td.submissiongraded,
+.path-mod-assign div.submissiongraded {
+    border-radius: .6rem;
+    padding: 10px;
 }
 
 .gradingform_checklist.editor .group .description .checklisteditor-text,
@@ -444,6 +473,29 @@
     display: none;
 }
 
+#fitem_id_benchmark_editor .tox-tinymce {
+    min-height: 32rem;
+}
+
+#fitem_id_benchmark_editor .tox-edit-area__iframe {
+    min-height: 24rem;
+}
+
+.gradingform-checklist-benchmark-actions {
+    padding-bottom: 5px;
+    padding-top: 5px;
+}
+
+.gradingform-checklist-heading-row {
+    margin-bottom: .25rem;
+}
+
+.gradingform-checklist-section-heading {
+    font-size: 1.35rem;
+    font-weight: 600;
+    margin: 0;
+}
+
 .gradingform_checklist.editor .additem,
 .gradingform_checklist.editor .addgroup {
     margin-top: .75rem;
@@ -468,5 +520,111 @@
 
     .gradingform_checklist .group .items .item .remark {
         grid-column: 1 / -1;
+    }
+}
+
+
+.gradingform_checklist .group-header .description {
+    min-width: 0;
+}
+
+.gradingform_checklist .benchmark-control {
+    clear: both;
+    display: flex;
+    justify-content: center;
+    padding-bottom: 1rem;
+    padding-top: 1rem;
+    width: 100%;
+}
+
+.gradingform_checklist .benchmark-content,
+.benchmark-content[hidden] {
+    display: none;
+}
+
+.gradingform_checklist .benchmark-toggle {
+    align-items: center;
+    display: inline-flex;
+    justify-content: center;
+}
+
+.gradingform_checklist-benchmark-panel {
+    --benchmark-panel-width: min(42rem, 34vw);
+
+    background: #fff;
+    border-left: 1px solid #d7dfe7;
+    bottom: 0;
+    box-shadow: -.25rem 0 .75rem rgba(0, 0, 0, .12);
+    max-width: 42rem;
+    overflow: auto;
+    padding: 1rem;
+    position: fixed;
+    right: -44rem;
+    top: 0;
+    transition: right .18s ease-in-out;
+    width: var(--benchmark-panel-width);
+    z-index: 1050;
+}
+
+.gradingform_checklist-benchmark-panel.open {
+    right: 0;
+}
+
+.gradingform_checklist-benchmark-panel .benchmark-panel-close,
+.gradingform_checklist-benchmark-modal .benchmark-modal-close {
+    background: transparent;
+    border: 0;
+    float: right;
+    font-size: 1.6rem;
+    line-height: 1;
+}
+
+.gradingform_checklist-benchmark-panel .benchmark-display-title,
+.gradingform_checklist-benchmark-modal .benchmark-display-title {
+    border-bottom: 1px solid #dee2e6;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.35;
+    margin: 0 2rem 1rem 0;
+    padding: 0 0 .75rem;
+}
+
+.gradingform_checklist-benchmark-modal {
+    align-items: center;
+    background: rgba(0, 0, 0, .45);
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    left: 0;
+    padding: 1rem;
+    position: fixed;
+    right: 0;
+    top: 0;
+    z-index: 1060;
+}
+
+.gradingform_checklist-benchmark-modal.hiddenelement {
+    display: none;
+}
+
+.gradingform_checklist-benchmark-modal .benchmark-modal-dialog {
+    background: #fff;
+    max-height: 90vh;
+    max-width: 56rem;
+    overflow: auto;
+    padding: 1rem;
+    width: 96vw;
+}
+
+@media (max-width: 1100px) {
+    .gradingform_checklist-benchmark-panel {
+        width: 80vw;
+    }
+}
+
+@media (min-width: 1100px) {
+    body.gradingform_checklist-benchmark-panel-open #fitem_id_advancedgrading {
+        transform: translateX(calc(-1 * min(10rem, 8vw)));
+        transition: transform .18s ease-in-out;
     }
 }

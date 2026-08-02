@@ -187,6 +187,10 @@ class store_test extends advanced_testcase {
         $this->assertArrayHasKey('options', $result['grade']);
         $this->assertArrayHasKey('enablebulkcheck', $result['grade']['options']);
         $this->assertTrue($result['grade']['options']['enablebulkcheck']);
+        $this->assertArrayHasKey('showitempoints', $result['grade']['options']);
+        $this->assertFalse($result['grade']['options']['showitempoints']);
+        $this->assertArrayHasKey('showgrouppoints', $result['grade']['options']);
+        $this->assertFalse($result['grade']['options']['showgrouppoints']);
         $this->assertArrayHasKey('groupremarkheading', $result['grade']['options']);
         $this->assertEquals(get_string('groupremarkheadingdefault', 'gradingform_checklist'),
             $result['grade']['options']['groupremarkheading']);

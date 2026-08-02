@@ -17,8 +17,7 @@
 /**
  * Language file for the Checklist plugin
  *
- * @package    gradingform
- * @subpackage checklist
+ * @package    gradingform_checklist
  * @author     Sam Chaffee
  * @copyright  2011 David Mudrak <david@moodle.com>
  * @copyright  Copyright (c) 2012 Open LMS (https://www.openlms.net)
@@ -28,6 +27,20 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['addgroup'] = 'Add group';
+$string['addbenchmark'] = '+ Add benchmarks';
+$string['benchmark'] = 'Benchmark';
+$string['benchmarkbuttondefault'] = 'Open to view Benchmarks';
+$string['benchmarkbuttonicon'] = 'Benchmark button icon';
+$string['benchmarkbuttonlabel'] = 'Benchmark button label';
+$string['closebenchmark'] = 'Close benchmark';
+$string['editbenchmark'] = 'Edit benchmark';
+$string['removebenchmark'] = 'Remove benchmarks';
+$string['showbenchmark'] = 'Show benchmark';
+$string['usebenchmark'] = 'Use benchmarks';
+$string['privacy:metadata:benchmark'] = 'Teacher-only benchmark guidance attached to a checklist definition.';
+$string['privacy:metadata:benchmarkformat'] = 'The text format of the checklist benchmark.';
+$string['privacy:metadata:buttonicon'] = 'The Font Awesome icon class configured for the benchmark button.';
+$string['privacy:metadata:buttonlabel'] = 'The label configured for the benchmark button.';
 $string['alwaysshowdefinition'] = 'Allow users to preview checklist used in the module (otherwise checklist will only become visible after grading)';
 $string['backtoediting'] = 'Back to editing';
 $string['checked'] = 'Checked';
@@ -45,15 +58,16 @@ $string['confirmdeleteitem'] = 'Are you sure you want to delete this item?';
 $string['definechecklist'] = 'Define checklist';
 $string['description'] = 'Description';
 $string['enablebulkcheck'] = 'Allow grader to select or unselect all checklist items';
-$string['err_definitionmax'] = 'Item definition cannot be more than 1000 characters';
+$string['err_definitionmax'] = 'Item definition cannot be more than 1500 characters';
 $string['err_descriptionmax'] = 'Group description cannot be more than 500 characters';
 $string['err_nodefinition'] = 'Item definition cannot be empty';
 $string['err_nodescription'] = 'Group description cannot be empty';
 $string['err_nogroups'] = 'Checklist must contain at least one group';
-$string['err_requireatleastonegroupcomment'] = 'Add at least one group comment for the checked checklist items.';
-$string['err_requireatleastoneitemcomment'] = 'Add at least one item comment for the checked checklist items.';
-$string['err_requiregroupcommentschecked'] = 'Add a group comment for each group with checked checklist items.';
-$string['err_requireitemcommentschecked'] = 'Add a comment for each checked checklist item.';
+$string['err_minoneitems'] = 'Each group must contain at least one checklist item.';
+$string['err_requireatleastonegroupcomment'] = 'Add at least one group comment. First checked group: "{$a->group}".';
+$string['err_requireatleastoneitemcomment'] = 'Add at least one item comment. First checked item: "{$a->item}" in "{$a->group}".';
+$string['err_requiregroupcommentschecked'] = 'Add a group comment for "{$a->group}".';
+$string['err_requireitemcommentschecked'] = 'Add a comment for "{$a->item}" in "{$a->group}".';
 $string['err_scoreformat'] = 'Enter a valid non-negative number for each item. Use a period (.) for decimals.';
 $string['err_scoremax'] = 'Number of points for each item must not be greater than 1000';
 $string['err_totalscore'] = 'Maximum number of points possible when graded by the checklist must be more than zero';
@@ -101,6 +115,8 @@ $string['savechecklistdraft'] = 'Save as draft';
 $string['scorepostfix'] = '{$a} points';
 $string['showitempointseval'] = 'Display points for each item during evaluation';
 $string['showitempointstudent'] = 'Display points for each item to those being graded';
+$string['showgrouppointseval'] = 'Display group and overall points during evaluation';
+$string['showgrouppointstudent'] = 'Display group and overall points to those being graded';
 $string['enableitemremarks'] = 'Allow grader to add text remarks for each checklist item';
 $string['enablegroupremarks'] = 'Allow grader to add text remarks for each checklist group';
 $string['showremarksstudent'] = 'Show all remarks to those being graded';
@@ -109,6 +125,8 @@ $string['unchecked'] = 'Unchecked';
 $string['untickall'] = 'Unselect All';
 $string['maxlengthalert'] = 'This input field has a maximum length of {$a} characters';
 $string['privacy:metadata:checked'] = 'Whether the checklist item was selected during grading.';
+$string['privacy:metadata:benchmarksummary'] = 'Stores teacher-only benchmark guidance attached to checklist definitions.';
+$string['privacy:metadata:definitionid'] = 'The grading definition identifier for the checklist benchmark.';
 $string['privacy:metadata:fillingssummary'] = 'Stores checklist grading selections and remarks for an advanced grading instance.';
 $string['privacy:metadata:groupid'] = 'An identifier for a checklist group being graded.';
 $string['privacy:metadata:instanceid'] = 'An identifier relating to a grade in an activity.';

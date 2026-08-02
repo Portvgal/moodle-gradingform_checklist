@@ -73,6 +73,12 @@ class gradingform_checklist_generator extends component_generator_base {
 
         // Generate a definition for the supplied checklist.
         $checklist = $this->get_checklist($name, $description);
+        $benchmark = $options['benchmark'] ?? '';
+        $benchmarkformat = $options['benchmarkformat'] ?? FORMAT_HTML;
+        $benchmarkbuttonlabel = $options['benchmarkbuttonlabel'] ?? 'Open to view Benchmarks';
+        $benchmarkbuttonicon = $options['benchmarkbuttonicon'] ?? 'fa-solid fa-file-circle-check';
+        unset($options['benchmark'], $options['benchmarkformat'], $options['benchmarkbuttonlabel'], $options['benchmarkbuttonicon']);
+        $checklist->set_benchmark($benchmark, $benchmarkformat, $benchmarkbuttonlabel, $benchmarkbuttonicon);
         foreach ($options as $key => $value) {
             $checklist->set_option($key, $value);
         }
@@ -203,7 +209,9 @@ class gradingform_checklist_generator extends component_generator_base {
     public function get_test_checklist(context $context, string $component, string $area): gradingform_checklist_controller {
         $criteria = [
             'Group 1' => [
-                'Has title' => 1
+                'items' => [
+                    'Has title' => 1,
+                ],
             ],
             'Group 2' => [
                 'Has references' => 1
@@ -211,7 +219,7 @@ class gradingform_checklist_generator extends component_generator_base {
         ];
 
         return $this->create_instance($context, $component, $area, 'testchecklist', 'Description text', $criteria,
-            ['enableitemremarks' => 1]);
+            ['enableitemremarks' => 1, 'benchmark' => '<p>Teacher benchmark for checklist</p>']);
     }
 
     /**

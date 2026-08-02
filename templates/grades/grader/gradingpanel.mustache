@@ -60,6 +60,27 @@
 <form id="gradingform_checklist-{{uniqid}}">
     <input type="hidden" name="instanceid" value="{{instanceid}}">
     <div id="checklist-advancedgrading-{{uniqid}}" class="gradingform_checklist">
+        {{#benchmark}}
+            <div class="benchmark-control benchmark-control-single d-flex justify-content-center w-100 py-3 my-2">
+                <button type="button"
+                        class="benchmark-toggle btn btn-primary"
+                        data-benchmark-id="{{id}}"
+                        aria-expanded="false"
+                        title="{{buttonlabel}}">
+                    <i class="{{buttonicon}} mr-2" aria-hidden="true"></i>
+                    <span class="benchmark-button-label">{{buttonlabel}}</span>
+                </button>
+                <div class="benchmark-content hiddenelement" data-benchmark-content="{{id}}" hidden>
+                    <h5 class="benchmark-content-title">{{title}}</h5>
+                    <div class="benchmark-content-body">{{{content}}}</div>
+                </div>
+            </div>
+        {{/benchmark}}
+        {{#options.enablebulkcheck}}
+            <div class="bulkcheckcontrols">
+                <button type="button" class="btn btn-primary" data-action="tickall">{{#str}} tickall, gradingform_checklist {{/str}}</button>
+            </div>
+        {{/options.enablebulkcheck}}
         {{#criteria}}
             <div class="mb-3">
                 <div class="d-flex align-items-center mb-2">
@@ -97,11 +118,11 @@
                                 <span>
                                     {{{definition}}}
                                 </span>
-                                {{#options.showpoints}}
+                                {{#options.showitempoints}}
                                     <span class="pull-right">
                                         {{#str}}scorepostfix, gradingform_checklist, {{score}}{{/str}}
                                     </span>
-                                {{/options.showpoints}}
+                                {{/options.showitempoints}}
                             </label>
                         </div>
                         {{#options.showitemfeedback}}
@@ -131,33 +152,84 @@
                                   data-auto-rows="true"
                         >{{{groupfeedback}}}</textarea>
                     {{/options.showgroupfeedback}}
-                {{#options.showpoints}}
+                {{#options.showgrouppoints}}
                     <div id="pointsgroup-{{id}}" class="pointsgroup">
                         <strong>
                             <span>{{#str}} grouppoints, gradingform_checklist {{/str}}: <span class="scoredpoints">{{grouppoints}}</span>/<span class="outofpoints">{{maxgrouppoints}}</span></span>
                         </strong>
                     </div>
-                {{/options.showpoints}}
+                {{/options.showgrouppoints}}
                 </div>
             </div>
         {{/criteria}}
         {{#options.enablebulkcheck}}
             <div class="bulkcheckcontrols">
-                <button type="button" class="btn btn-secondary" data-action="tickall">{{#str}} tickall, gradingform_checklist {{/str}}</button>
+                <button type="button" class="btn btn-primary" data-action="tickall">{{#str}} tickall, gradingform_checklist {{/str}}</button>
             </div>
         {{/options.enablebulkcheck}}
-        {{#options.showpoints}}
+        {{#options.showgrouppoints}}
             <div id="pointstotals">
                 <strong>
                     <span>{{#str}} overallpoints, gradingform_checklist {{/str}}: <span class="scoredpoints">{{points}}</span>/<span class="outofpoints">{{maxpoints}}</span></span>
                 </strong>
             </div>
-        {{/options.showpoints}}
+        {{/options.showgrouppoints}}
     </div>
 </form>
 {{#js}}
     require(['core/auto_rows', 'jquery'], function(AutoRows, $) {
         AutoRows.init(document.getElementById('gradingform_checklist-{{uniqid}}'));
+
+        $('#gradingform_checklist-{{uniqid}} .benchmark-toggle').on('click', function() {
+            const benchmarkId = $(this).data('benchmark-id');
+            const source = $('#gradingform_checklist-{{uniqid}} [data-benchmark-content="' + benchmarkId + '"]');
+            const title = source.find('.benchmark-content-title').text();
+            const body = source.find('.benchmark-content-body').html();
+            const constrained = window.innerWidth < 1100 || $('[data-region="pdf"], .assignfeedback_editpdf_widget, .drawingregion, [data-region="review-panel"]').length > 0;
+            let target = $('.gradingform_checklist-benchmark-' + (constrained ? 'modal' : 'panel'));
+            const currentBenchmark = String(benchmarkId);
+            if (!target.length) {
+                if (constrained) {
+                    $('body').append('<div class="gradingform_checklist-benchmark-modal" role="dialog" aria-modal="true"><div class="benchmark-modal-dialog"><button type="button" class="benchmark-modal-close" aria-label="{{#str}} closebenchmark, gradingform_checklist {{/str}}">&times;</button><h5 class="benchmark-display-title"></h5><div class="benchmark-modal-body"></div></div></div>');
+                    target = $('.gradingform_checklist-benchmark-modal');
+                    target.find('.benchmark-modal-close').on('click', () => {
+                        target.addClass('hiddenelement');
+                        $('#gradingform_checklist-{{uniqid}} .benchmark-toggle').attr('aria-expanded', 'false');
+                        $('body').removeClass('gradingform_checklist-benchmark-panel-open');
+                    });
+                } else {
+                    $('body').append('<aside class="gradingform_checklist-benchmark-panel" role="complementary"><button type="button" class="benchmark-panel-close" aria-label="{{#str}} closebenchmark, gradingform_checklist {{/str}}">&times;</button><h5 class="benchmark-display-title"></h5><div class="benchmark-panel-body"></div></aside>');
+                    target = $('.gradingform_checklist-benchmark-panel');
+                    target.find('.benchmark-panel-close').on('click', () => {
+                        target.removeClass('open');
+                        $('#gradingform_checklist-{{uniqid}} .benchmark-toggle').attr('aria-expanded', 'false');
+                        $('body').removeClass('gradingform_checklist-benchmark-panel-open');
+                    });
+                }
+            }
+            const isOpen = constrained ? !target.hasClass('hiddenelement') : target.hasClass('open');
+            if (isOpen && target.attr('data-current-benchmark') === currentBenchmark) {
+                target.toggleClass('hiddenelement', constrained);
+                target.removeClass('open');
+                $('body').removeClass('gradingform_checklist-benchmark-panel-open');
+                $('#gradingform_checklist-{{uniqid}} .benchmark-toggle').attr('aria-expanded', 'false');
+                return;
+            }
+            $('#gradingform_checklist-{{uniqid}} .benchmark-toggle').attr('aria-expanded', 'false');
+            $(this).attr('aria-expanded', 'true');
+            target.attr('data-current-benchmark', currentBenchmark);
+            if (constrained) {
+                $('body').removeClass('gradingform_checklist-benchmark-panel-open');
+                target.find('.benchmark-display-title').text(title);
+                target.find('.benchmark-modal-body').html(body);
+                target.removeClass('hiddenelement');
+            } else {
+                target.find('.benchmark-display-title').text(title);
+                target.find('.benchmark-panel-body').html(body);
+                target.addClass('open');
+                $('body').addClass('gradingform_checklist-benchmark-panel-open');
+            }
+        });
 
         /**
          * Formats numeric points for display based on decimal precision.

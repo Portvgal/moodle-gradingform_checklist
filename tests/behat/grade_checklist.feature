@@ -41,7 +41,7 @@ Feature: Converting checklist score to grades
     And "//textarea[@id='checklist-groups-NEWID1-description-input'][@maxlength='500']" "xpath" should exist
     And I set the field "checklist-groups-NEWID1-description-input" to "Group 1"
     And I click on "#checklist-groups-NEWID1-items-NEWID0-definition" "css_element"
-    And "//textarea[@id='checklist-groups-NEWID1-items-NEWID0-definition-input'][@maxlength='1000']" "xpath" should exist
+    And "//textarea[@id='checklist-groups-NEWID1-items-NEWID0-definition-input'][@maxlength='1500']" "xpath" should exist
     And I set the field "checklist-groups-NEWID1-items-NEWID0-definition-input" to "Has title"
     And I click on "#checklist-groups-NEWID1-items-NEWID0-score" "css_element"
     And I set the field "checklist-groups-NEWID1-items-NEWID0-score-input" to "1.5"
@@ -83,7 +83,7 @@ Feature: Converting checklist score to grades
     And "//div[contains(@id, 'criteria-')]//div//textarea" "xpath" should not exist
     And "//div[contains(@id, 'criteria-')]//textarea[contains(@id, '-items-0-remark')]" "xpath" should exist
 
-  Scenario: Enable display of points during evaluation and disable feedback of groups
+  Scenario: Enable display of item points during evaluation and disable feedback of groups
     And I am on the "forum1" "forum activity editing" page
     And I navigate to "Advanced grading" in current page administration
     And I select "Checklist" from the "setmethod" singleselect
@@ -95,8 +95,9 @@ Feature: Converting checklist score to grades
     When I click on "Grade users" "button"
     And I click on "[data-direction='1'][data-action='change-user']" "css_element"
     And I should see "Student 1"
-    Then I should see "Group points: 0/3.5"
-    And I should see "Overall points: 0/3.5"
+    Then I should not see "Group points: 0/3.5"
+    And I should not see "Overall points: 0/3.5"
+    And I should see "1.5 points"
     And "//div[contains(@id, 'criteria-')]//div//textarea" "xpath" should not exist
     And "//div[contains(@id, 'criteria-')]//textarea[contains(@id, '-items-0-remark')]" "xpath" should not exist
     And I log out
@@ -127,7 +128,22 @@ Feature: Converting checklist score to grades
     And I log out
     And I am on the "forum1" "forum activity" page logged in as "student1"
     And I click on "View grades" "button"
-    Then I should see "Group points: 0/3.5"
-    And I should see "Overall points: 0/3.5"
+    Then I should not see "Group points: 0/3.5"
+    And I should not see "Overall points: 0/3.5"
     And "//div[contains(@id, 'criteria-')]//div//textarea" "xpath" should not exist
     And "//div[contains(@id, 'criteria-')]//textarea[contains(@id, '-items-0-remark')]" "xpath" should not exist
+
+  Scenario: Enable display of group points independently from item points
+    And I am on the "forum1" "forum activity editing" page
+    And I navigate to "Advanced grading" in current page administration
+    And I select "Checklist" from the "setmethod" singleselect
+    And I follow "Edit the current form definition"
+    And I click on "Display group and overall points during evaluation" "checkbox"
+    And I press "Save"
+    And I am on the "forum1" "forum activity" page
+    When I click on "Grade users" "button"
+    And I click on "[data-direction='1'][data-action='change-user']" "css_element"
+    And I should see "Student 1"
+    Then I should see "Group points: 0/3.5"
+    And I should see "Overall points: 0/3.5"
+    And I should not see "1.5 points"

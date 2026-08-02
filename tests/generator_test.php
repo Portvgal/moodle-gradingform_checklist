@@ -123,6 +123,48 @@ class generator_test extends advanced_testcase {
     }
 
     /**
+     * Test checklist editor can add a group after an existing group without JavaScript.
+     */
+    public function test_checklist_editor_adds_group_after_existing_group_without_javascript(): void {
+        $this->resetAfterTest(true);
+
+        $editor = new \MoodleQuickForm_checklisteditor('checklist', 'Checklist');
+        $submittedvalues = [
+            'checklist' => [
+                'groups' => [
+                    'NEWID1' => [
+                        'description' => 'Group 1',
+                        'addgroupafter' => 1,
+                        'items' => [
+                            'NEWID1' => [
+                                'definition' => 'First item',
+                                'score' => 1,
+                            ],
+                        ],
+                    ],
+                    'NEWID2' => [
+                        'description' => 'Group 2',
+                        'items' => [
+                            'NEWID2' => [
+                                'definition' => 'Second item',
+                                'score' => 1,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $value = $editor->exportValue($submittedvalues, true);
+        $groups = array_values($value['checklist']['groups']);
+
+        $this->assertCount(3, $groups);
+        $this->assertSame('Group 1', $groups[0]['description']);
+        $this->assertSame('', $groups[1]['description']);
+        $this->assertSame('Group 2', $groups[2]['description']);
+    }
+
+    /**
      * Test checklist creation with max-length group descriptions and item definitions.
      */
     public function test_checklist_creation_with_long_group_and_item_text(): void {
@@ -203,6 +245,8 @@ class generator_test extends advanced_testcase {
         $this->assertSame(0, $options['enableitemremarks']);
         $this->assertSame(0, $options['showitempointseval']);
         $this->assertSame(0, $options['showitempointstudent']);
+        $this->assertSame(0, $options['showgrouppointseval']);
+        $this->assertSame(0, $options['showgrouppointstudent']);
     }
 
     /**
@@ -215,11 +259,13 @@ class generator_test extends advanced_testcase {
 
         $value = $this->get_required_comment_test_value('', '');
         $errors = gradingform_checklist_controller::get_required_comment_errors($groups, $options, $value);
-        $this->assertContains('err_requireitemcommentschecked', $errors);
+        $this->assertContains('err_requireitemcommentschecked', $this->get_required_comment_error_rules($errors));
+        $this->assertSame('Group 1', $errors[0]['group']);
+        $this->assertSame('Item 1', $errors[0]['item']);
 
         $value = $this->get_required_comment_test_value('Item comment', '');
         $errors = gradingform_checklist_controller::get_required_comment_errors($groups, $options, $value);
-        $this->assertNotContains('err_requireitemcommentschecked', $errors);
+        $this->assertNotContains('err_requireitemcommentschecked', $this->get_required_comment_error_rules($errors));
     }
 
     /**
@@ -232,15 +278,15 @@ class generator_test extends advanced_testcase {
 
         $value = $this->get_required_comment_test_value('', '');
         $errors = gradingform_checklist_controller::get_required_comment_errors($groups, $options, $value);
-        $this->assertContains('err_requireatleastoneitemcomment', $errors);
+        $this->assertContains('err_requireatleastoneitemcomment', $this->get_required_comment_error_rules($errors));
 
         $value = $this->get_required_comment_test_value('', '', false);
         $errors = gradingform_checklist_controller::get_required_comment_errors($groups, $options, $value);
-        $this->assertNotContains('err_requireatleastoneitemcomment', $errors);
+        $this->assertNotContains('err_requireatleastoneitemcomment', $this->get_required_comment_error_rules($errors));
 
         $value = $this->get_required_comment_test_value('Item comment', '');
         $errors = gradingform_checklist_controller::get_required_comment_errors($groups, $options, $value);
-        $this->assertNotContains('err_requireatleastoneitemcomment', $errors);
+        $this->assertNotContains('err_requireatleastoneitemcomment', $this->get_required_comment_error_rules($errors));
     }
 
     /**
@@ -253,11 +299,13 @@ class generator_test extends advanced_testcase {
 
         $value = $this->get_required_comment_test_value('', '');
         $errors = gradingform_checklist_controller::get_required_comment_errors($groups, $options, $value);
-        $this->assertContains('err_requiregroupcommentschecked', $errors);
+        $this->assertContains('err_requiregroupcommentschecked', $this->get_required_comment_error_rules($errors));
+        $this->assertSame('Group 1', $errors[0]['group']);
+        $this->assertSame('group', $errors[0]['fieldtype']);
 
         $value = $this->get_required_comment_test_value('', 'Group comment');
         $errors = gradingform_checklist_controller::get_required_comment_errors($groups, $options, $value);
-        $this->assertNotContains('err_requiregroupcommentschecked', $errors);
+        $this->assertNotContains('err_requiregroupcommentschecked', $this->get_required_comment_error_rules($errors));
     }
 
     /**
@@ -270,15 +318,15 @@ class generator_test extends advanced_testcase {
 
         $value = $this->get_required_comment_test_value('', '');
         $errors = gradingform_checklist_controller::get_required_comment_errors($groups, $options, $value);
-        $this->assertContains('err_requireatleastonegroupcomment', $errors);
+        $this->assertContains('err_requireatleastonegroupcomment', $this->get_required_comment_error_rules($errors));
 
         $value = $this->get_required_comment_test_value('', '', false);
         $errors = gradingform_checklist_controller::get_required_comment_errors($groups, $options, $value);
-        $this->assertNotContains('err_requireatleastonegroupcomment', $errors);
+        $this->assertNotContains('err_requireatleastonegroupcomment', $this->get_required_comment_error_rules($errors));
 
         $value = $this->get_required_comment_test_value('', 'Group comment');
         $errors = gradingform_checklist_controller::get_required_comment_errors($groups, $options, $value);
-        $this->assertNotContains('err_requireatleastonegroupcomment', $errors);
+        $this->assertNotContains('err_requireatleastonegroupcomment', $this->get_required_comment_error_rules($errors));
     }
 
     /**
@@ -627,5 +675,17 @@ class generator_test extends advanced_testcase {
                 ],
             ],
         ];
+    }
+
+    /**
+     * Returns validation rule ids from structured required-comment errors.
+     *
+     * @param array $errors structured errors
+     * @return array
+     */
+    protected function get_required_comment_error_rules(array $errors): array {
+        return array_map(static function(array $error): string {
+            return $error['rule'];
+        }, $errors);
     }
 }

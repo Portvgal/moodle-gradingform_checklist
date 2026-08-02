@@ -49,6 +49,9 @@ class criterion {
      */
     public function __construct(string $description, array $items = []) {
         $this->description = $description;
+        if (array_key_exists('items', $items)) {
+            $items = $items['items'];
+        }
         foreach ($items as $definition => $score) {
             $this->add_item($definition, $score, 1);
         }
