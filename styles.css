@@ -165,7 +165,7 @@
     background: transparent;
     border: 0;
     color: inherit;
-    margin: 1.5rem 0;
+    margin: 0 0 1.5rem;
     padding: 0;
 }
 
@@ -174,17 +174,20 @@
     display: none;
 }
 
+#region-main > div:has(> .actions + .alert .gradingform-checklist-import-actions) {
+    position: relative;
+}
+
 .gradingform-checklist-import-actions {
     align-items: center;
-    display: flex;
-    flex-direction: column;
+    display: block;
     flex-wrap: wrap;
     gap: 1rem;
     justify-content: center;
 }
 
 .gradingform-checklist-import-primary {
-    display: flex;
+    display: block;
     justify-content: center;
 }
 
@@ -193,6 +196,22 @@
     display: flex;
     flex-wrap: wrap;
     gap: .5rem;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+#region-main > div:has(> .actions + .alert .gradingform-checklist-import-actions) .gradingform-checklist-import-primary {
+    left: calc(50% + 263px);
+    position: absolute;
+    top: -202px;
+    width: 150px;
+}
+
+@media (max-width: 900px) {
+    #region-main > div:has(> .actions + .alert .gradingform-checklist-import-actions) .gradingform-checklist-import-primary {
+        position: static;
+        width: auto;
+    }
 }
 
 .gradingform-checklist-import-downloads .btn {
