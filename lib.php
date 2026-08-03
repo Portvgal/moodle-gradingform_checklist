@@ -139,7 +139,7 @@ class gradingform_checklist_controller extends gradingform_controller {
             ]), get_string('downloadjsonschema', 'gradingform_checklist'), ['class' => 'btn btn-secondary']),
         ];
 
-        $importicon = \html_writer::tag('span', '', ['class' => 'fa fa-upload fa-4x', 'aria-hidden' => 'true']);
+        $importicon = \html_writer::tag('span', '', ['class' => 'fa fa-upload', 'aria-hidden' => 'true']);
         $importtext = \html_writer::tag('span', get_string('importchecklist', 'gradingform_checklist'), [
             'class' => 'action-text',
         ]);
@@ -166,8 +166,14 @@ class gradingform_checklist_controller extends gradingform_controller {
         if (!actions || !actions.classList.contains('actions')) {
             actions = document.querySelector('.path-grade-grading .actions');
         }
-        if (actions && !actions.contains(importAction)) {
-            actions.appendChild(importAction);
+        if (actions) {
+            actions.classList.add('gradingform-checklist-action-row');
+            var firstAction = actions.querySelector('a.action.btn.btn-lg');
+            if (firstAction && firstAction.nextSibling !== importAction) {
+                actions.insertBefore(importAction, firstAction.nextSibling);
+            } else if (!actions.contains(importAction)) {
+                actions.appendChild(importAction);
+            }
         }
         var primary = importBlock ? importBlock.querySelector('.gradingform-checklist-import-primary') : null;
         if (primary && !primary.querySelector('a')) {
@@ -178,7 +184,7 @@ class gradingform_checklist_controller extends gradingform_controller {
 })();
 ");
 
-        $actions = \html_writer::div($importaction, 'actions gradingform-checklist-import-primary');
+        $actions = \html_writer::div($importaction, 'gradingform-checklist-import-primary');
         $actions .= \html_writer::div(implode(' ', $downloadlinks), 'gradingform-checklist-import-downloads');
         return \html_writer::div($actions, 'gradingform-checklist-import-actions');
     }
