@@ -119,8 +119,6 @@ class gradingform_checklist_controller extends gradingform_controller {
      * @return string
      */
     public function render_import_actions(): string {
-        global $PAGE;
-
         $areaid = $this->get_areaid();
         $importid = 'gradingform-checklist-import-action-' . $areaid;
         $importurl = new \moodle_url('/grade/grading/form/checklist/import.php', ['areaid' => $areaid]);
@@ -148,7 +146,7 @@ class gradingform_checklist_controller extends gradingform_controller {
             'id' => $importid,
         ]);
 
-        $PAGE->requires->js_init_code("
+        $movescript = "
 (function() {
     var attempts = 0;
     var findActions = function(notification) {
@@ -196,10 +194,11 @@ class gradingform_checklist_controller extends gradingform_controller {
     };
     moveImportAction();
 })();
-");
+";
 
         $actions = \html_writer::div($importaction, 'gradingform-checklist-import-primary');
         $actions .= \html_writer::div(implode(' ', $downloadlinks), 'gradingform-checklist-import-downloads');
+        $actions .= \html_writer::tag('script', $movescript);
         return \html_writer::div($actions, 'gradingform-checklist-import-actions');
     }
 
