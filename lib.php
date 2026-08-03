@@ -151,6 +151,19 @@ class gradingform_checklist_controller extends gradingform_controller {
         $PAGE->requires->js_init_code("
 (function() {
     var attempts = 0;
+    var findActions = function(notification) {
+        var actions = notification ? notification.previousElementSibling : null;
+        if (actions && actions.classList.contains('actions') && actions.querySelector('a.action.btn.btn-lg')) {
+            return actions;
+        }
+        var actionRows = document.querySelectorAll('#region-main .actions');
+        for (var i = 0; i < actionRows.length; i++) {
+            if (actionRows[i].querySelector('a.action.btn.btn-lg')) {
+                return actionRows[i];
+            }
+        }
+        return null;
+    };
     var moveImportAction = function() {
         attempts++;
         var importAction = document.getElementById(" . json_encode($importid) . ");
@@ -162,18 +175,19 @@ class gradingform_checklist_controller extends gradingform_controller {
         }
         var importBlock = importAction.closest('.gradingform-checklist-import-actions');
         var notification = importBlock ? importBlock.closest('.alert') : null;
-        var actions = notification ? notification.previousElementSibling : null;
-        if (!actions || !actions.classList.contains('actions')) {
-            actions = document.querySelector('.path-grade-grading .actions');
-        }
-        if (actions) {
-            actions.classList.add('gradingform-checklist-action-row');
-            var firstAction = actions.querySelector('a.action.btn.btn-lg');
-            if (firstAction && firstAction.nextSibling !== importAction) {
-                actions.insertBefore(importAction, firstAction.nextSibling);
-            } else if (!actions.contains(importAction)) {
-                actions.appendChild(importAction);
+        var actions = findActions(notification);
+        if (!actions) {
+            if (attempts < 40) {
+                window.setTimeout(moveImportAction, 50);
             }
+            return;
+        }
+        actions.classList.add('gradingform-checklist-action-row');
+        var firstAction = actions.querySelector('a.action.btn.btn-lg:not(#' + importAction.id + ')');
+        if (firstAction && firstAction.nextElementSibling !== importAction) {
+            actions.insertBefore(importAction, firstAction.nextElementSibling);
+        } else if (!actions.contains(importAction)) {
+            actions.appendChild(importAction);
         }
         var primary = importBlock ? importBlock.querySelector('.gradingform-checklist-import-primary') : null;
         if (primary && !primary.querySelector('a')) {
