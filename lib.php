@@ -119,6 +119,8 @@ class gradingform_checklist_controller extends gradingform_controller {
      * @return string
      */
     public function render_import_actions(): string {
+        global $PAGE;
+
         $areaid = $this->get_areaid();
         $importid = 'gradingform-checklist-import-action-' . $areaid;
         $importurl = new \moodle_url('/grade/grading/form/checklist/import.php', ['areaid' => $areaid]);
@@ -137,6 +139,7 @@ class gradingform_checklist_controller extends gradingform_controller {
             ]), get_string('downloadjsonschema', 'gradingform_checklist'), ['class' => 'btn btn-secondary']),
         ];
 
+        // fa-upload is available in both Moodle versions supported by the plugin.
         $importicon = \html_writer::tag('span', '', ['class' => 'fa fa-upload', 'aria-hidden' => 'true']);
         $importtext = \html_writer::tag('span', get_string('importchecklist', 'gradingform_checklist'), [
             'class' => 'action-text',
@@ -192,13 +195,18 @@ class gradingform_checklist_controller extends gradingform_controller {
             primary.remove();
         }
     };
-    moveImportAction();
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', moveImportAction);
+    } else {
+        moveImportAction();
+    }
 })();
 ";
 
+        $PAGE->requires->js_init_code($movescript);
+
         $actions = \html_writer::div($importaction, 'gradingform-checklist-import-primary');
         $actions .= \html_writer::div(implode(' ', $downloadlinks), 'gradingform-checklist-import-downloads');
-        $actions .= \html_writer::tag('script', $movescript);
         return \html_writer::div($actions, 'gradingform-checklist-import-actions');
     }
 
