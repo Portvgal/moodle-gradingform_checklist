@@ -205,9 +205,9 @@
     </div>
 </form>
 {{#js}}
-    require(['core/auto_rows', 'jquery', 'gradingform_checklist/grades/grader/gradingpanel'], function(AutoRows, $, GradingPanel) {
+    require(['core/auto_rows', 'jquery', 'gradingform_checklist/benchmark'], function(AutoRows, $, Benchmark) {
         AutoRows.init(document.getElementById('gradingform_checklist-{{uniqid}}'));
-        GradingPanel.initBenchmarkDisplay(
+        Benchmark.initBenchmarkDisplay(
             '#gradingform_checklist-{{uniqid}}',
             {{#quote}}{{#str}} closebenchmark, gradingform_checklist {{/str}}{{/quote}}
         );

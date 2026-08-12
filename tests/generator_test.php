@@ -297,6 +297,7 @@ class generator_test extends advanced_testcase {
         $this->assertStringContainsString('data-benchmark-content="42"', $html);
         $this->assertStringContainsString('hidden="hidden"', $html);
         $this->assertStringContainsString('aria-hidden="true"', $html);
+        $this->assertStringContainsString('gradingform_checklist/benchmark', $GLOBALS['PAGE']->requires->get_end_code());
     }
 
     /**

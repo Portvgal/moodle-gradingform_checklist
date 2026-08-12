@@ -47,7 +47,7 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
             return '';
         }
         $this->page->requires->js_call_amd(
-            'gradingform_checklist/grades/grader/gradingpanel',
+            'gradingform_checklist/benchmark',
             'initBenchmarkDisplay',
             [null, get_string('closebenchmark', 'gradingform_checklist')]
         );
