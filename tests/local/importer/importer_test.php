@@ -248,9 +248,11 @@ class importer_test extends advanced_testcase {
 
         $html = import_preview::render($data, $GLOBALS['PAGE']);
 
-        $this->assertStringContainsString('Open benchmark notes', $html);
+        $this->assertStringContainsString('gradingform-checklist-import-preview-benchmark', $html);
+        $this->assertStringContainsString(get_string('benchmark', 'gradingform_checklist'), $html);
         $this->assertStringContainsString('Compare against the exemplar.', $html);
-        $this->assertStringContainsString('data-benchmark-content="import-preview"', $html);
+        $this->assertStringNotContainsString('class="benchmark-toggle', $html);
+        $this->assertStringNotContainsString('data-benchmark-content="import-preview"', $html);
     }
 
     /**

@@ -539,6 +539,24 @@
     overflow-wrap: anywhere;
 }
 
+.gradingform-checklist-import-page .gradingform-checklist-import-preview-benchmark {
+    background: #fff;
+    border: 1px solid #d7dde5;
+    border-radius: .6rem;
+    margin: 0 0 1rem;
+    padding: 1rem;
+}
+
+.gradingform-checklist-import-page .gradingform-checklist-import-preview-benchmark > h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 .75rem;
+}
+
+.gradingform-checklist-import-page .gradingform-checklist-import-preview-benchmark-content > :last-child {
+    margin-bottom: 0;
+}
+
 .gradingform-checklist-import-page .gradingform-checklist-import-preview-checklist {
     margin-top: 1rem;
 }

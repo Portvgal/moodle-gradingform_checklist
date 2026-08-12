@@ -104,19 +104,26 @@ class import_preview {
             return '';
         }
 
-        $renderer = $page->get_renderer('gradingform_checklist');
-        return $renderer->display_benchmark_button([
-            'content' => format_text($benchmark['html'], FORMAT_HTML, [
-                'noclean' => false,
-                'trusted' => false,
-                'filter' => true,
-                'context' => $page->context,
-            ]),
-            'buttonlabel' => $benchmark['buttonlabel'] ?? get_string('benchmarkbuttondefault', 'gradingform_checklist'),
-            'buttonicon' => \gradingform_checklist_controller::clean_benchmark_button_icon($benchmark['buttonicon'] ?? ''),
-            'title' => get_string('benchmark', 'gradingform_checklist'),
-            'id' => 'import-preview',
+        $content = format_text($benchmark['html'], FORMAT_HTML, [
+            'noclean' => false,
+            'trusted' => false,
+            'filter' => true,
+            'context' => $page->context,
         ]);
+
+        $html = \html_writer::start_tag('section', [
+            'class' => 'gradingform-checklist-import-preview-benchmark',
+            'aria-labelledby' => 'gradingform-checklist-import-preview-benchmark-heading',
+        ]);
+        $html .= \html_writer::tag('h4', get_string('benchmark', 'gradingform_checklist'), [
+            'id' => 'gradingform-checklist-import-preview-benchmark-heading',
+        ]);
+        $html .= \html_writer::tag('div', $content, [
+            'class' => 'gradingform-checklist-import-preview-benchmark-content',
+        ]);
+        $html .= \html_writer::end_tag('section');
+
+        return $html;
     }
 
     /**

@@ -331,22 +331,20 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
         }
         if ($mode == gradingform_checklist_controller::DISPLAY_EDIT_FULL) {
             $movecontrols = '';
-            foreach (array('moveup', 'movedown') as $key) {
-                $value = get_string('item'.$key, 'gradingform_checklist');
-                $labelforctrl = \core\output\html_writer::tag('label', $value, array(
-                    'class' => 'hiddenelement',
-                    'for' => '{NAME}-groups-{GROUP-id}-items-{ITEM-id}-'.$key,
-                ));
-                $button = $labelforctrl . \core\output\html_writer::empty_tag('input', array(
-                    'type' => 'submit',
-                    'name' => '{NAME}[groups][{GROUP-id}][items][{ITEM-id}]['.$key.']',
-                    'id' => '{NAME}-groups-{GROUP-id}-items-{ITEM-id}-'.$key,
-                    'value' => $value,
-                    'title' => $value,
-                    'tabindex' => -1,
-                ));
-                $movecontrols .= \core\output\html_writer::tag('div', $button, array('class' => $key));
-            }
+            $value = get_string('itemmovedown', 'gradingform_checklist');
+            $labelforctrl = \core\output\html_writer::tag('label', $value, array(
+                'class' => 'hiddenelement',
+                'for' => '{NAME}-groups-{GROUP-id}-items-{ITEM-id}-movedown',
+            ));
+            $button = $labelforctrl . \core\output\html_writer::empty_tag('input', array(
+                'type' => 'submit',
+                'name' => '{NAME}[groups][{GROUP-id}][items][{ITEM-id}][movedown]',
+                'id' => '{NAME}-groups-{GROUP-id}-items-{ITEM-id}-movedown',
+                'value' => $value,
+                'title' => $value,
+                'tabindex' => -1,
+            ));
+            $movecontrols .= \core\output\html_writer::tag('div', $button, array('class' => 'movedown'));
             $itemtemplate .= \core\output\html_writer::tag('div', $movecontrols, array('class' => 'controls'));
 
             $value = get_string('itemdelete', 'gradingform_checklist');
@@ -513,15 +511,6 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
             $checklisttemplate .= $this->bulk_check_controls();
         }
         $checklisttemplate .= \core\output\html_writer::tag('div', $groupsstr, array('class' => 'groups', 'id' => '{NAME}-groups'));
-        if ($mode == gradingform_checklist_controller::DISPLAY_EDIT_FULL) {
-            $value = get_string('addgroup', 'gradingform_checklist');
-            $labelforaddgroup = \core\output\html_writer::tag('label', $value, array('class' => 'hiddenelement', 'for' => '{NAME}-groups-addgroup'));
-            $input = $labelforaddgroup . \core\output\html_writer::empty_tag('input', array('type' => 'submit',
-                    'name' => '{NAME}[groups][addgroup]',
-                    'id' => '{NAME}-groups-addgroup', 'value' => $value, 'title' => $value,
-                    'class' => 'btn btn-primary'));
-            $checklisttemplate .= \core\output\html_writer::tag('div', $input, array('class' => 'addgroup'));
-        }
         if ($mode == gradingform_checklist_controller::DISPLAY_EVAL && !empty($options['enablebulkcheck'])) {
             $checklisttemplate .= $this->bulk_check_controls();
         }
