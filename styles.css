@@ -1153,7 +1153,7 @@
 
 @media (min-width: 1100px) {
     body.gradingform_checklist-benchmark-panel-open #fitem_id_advancedgrading {
-        transform: translateX(calc(-1 * min(10rem, 8vw)));
+        transform: translateX(calc(-1 * min(14rem, 12vw)));
         transition: transform .18s ease-in-out;
     }
 }

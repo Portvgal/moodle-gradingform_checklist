@@ -122,6 +122,18 @@ const findSource = (button, root, benchmarkId) => {
 };
 
 /**
+ * Returns a clean title from the clicked benchmark button.
+ *
+ * @param {Object} button Button jQuery collection.
+ * @return {String}
+ */
+const getButtonTitle = button => {
+    const clone = button.clone();
+    clone.find('i, svg, .icon, [aria-hidden="true"]').remove();
+    return clone.text().replace(/\s+/g, ' ').trim();
+};
+
+/**
  * Initializes benchmark panel/modal controls inside a checklist root.
  *
  * @param {String|null} rootSelector Root selector, or null to bind to the document.
@@ -146,7 +158,7 @@ export const initBenchmarkDisplay = (rootSelector, closeLabel) => {
             return;
         }
 
-        const title = source.find('.benchmark-content-title').text();
+        const title = getButtonTitle(button) || source.find('.benchmark-content-title').text();
         const body = source.find('.benchmark-content-body').html();
         const constrained = window.innerWidth < 1100 ||
             jQuery('[data-region="pdf"], .assignfeedback_editpdf_widget, .drawingregion, [data-region="review-panel"]').length > 0;
