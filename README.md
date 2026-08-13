@@ -454,6 +454,35 @@ Before installing on a production-like site, verify:
 - Keyboard navigation, focus handling, Escape/close behaviour, responsive
   benchmark panel/modal layout, and RTL display where relevant.
 
+## Screenshots
+
+A fuller set of sanitized screenshots is available in
+[`docs/screenshots`](docs/screenshots). These examples show the main authoring,
+import, benchmark, and grading workflows.
+
+<table>
+  <tr>
+    <td width="50%">
+      <img src="docs/screenshots/advanced-grading-actions.png" alt="Advanced grading checklist actions" width="360">
+      <br><strong>Advanced grading actions</strong>
+    </td>
+    <td width="50%">
+      <img src="docs/screenshots/import-checklist-file.png" alt="Checklist import file page" width="360">
+      <br><strong>Checklist import</strong>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <img src="docs/screenshots/benchmark-editor.png" alt="Benchmark guidance editor" width="360">
+      <br><strong>Benchmark guidance editor</strong>
+    </td>
+    <td width="50%">
+      <img src="docs/screenshots/benchmark-panel.png" alt="Grading checklist with benchmark side panel" width="360">
+      <br><strong>Grader benchmark panel</strong>
+    </td>
+  </tr>
+</table>
+
 ## Known Limitations
 
 - JSON import format version 1 does not import embedded files.
