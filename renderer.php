@@ -160,16 +160,14 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
                     'class' => 'btn btn-primary'));
             $grouptemplate .= \core\output\html_writer::tag('div', $button, array('class' => 'additem'));
 
-            if (strpos($group['class'], ' last') === false) {
-                $value = get_string('addgroup', 'gradingform_checklist');
-                $labelforaddgroup = \core\output\html_writer::tag('label', $value, array('class' => 'hiddenelement',
-                        'for' => '{NAME}-groups-{GROUP-id}-addgroupafter'));
-                $button = $labelforaddgroup . \core\output\html_writer::empty_tag('input', array('type' => 'submit',
-                        'name' => '{NAME}[groups][{GROUP-id}][addgroupafter]',
-                        'id' => '{NAME}-groups-{GROUP-id}-addgroupafter', 'value' => $value, 'title' => $value,
-                        'class' => 'btn btn-primary'));
-                $grouptemplate .= \core\output\html_writer::tag('div', $button, array('class' => 'addgroup'));
-            }
+            $value = get_string('addgroup', 'gradingform_checklist');
+            $labelforaddgroup = \core\output\html_writer::tag('label', $value, array('class' => 'hiddenelement',
+                    'for' => '{NAME}-groups-{GROUP-id}-addgroupafter'));
+            $button = $labelforaddgroup . \core\output\html_writer::empty_tag('input', array('type' => 'submit',
+                    'name' => '{NAME}[groups][{GROUP-id}][addgroupafter]',
+                    'id' => '{NAME}-groups-{GROUP-id}-addgroupafter', 'value' => $value, 'title' => $value,
+                    'class' => 'btn btn-primary'));
+            $grouptemplate .= \core\output\html_writer::tag('div', $button, array('class' => 'addgroup'));
         }
         $displayremark = (gradingform_checklist_controller::group_remarks_enabled($options)
                 && ($mode != gradingform_checklist_controller::DISPLAY_VIEW || $options['showremarksstudent']));

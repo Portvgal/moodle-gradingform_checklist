@@ -210,7 +210,7 @@ class generator_test extends advanced_testcase {
     }
 
     /**
-     * Test non-final groups render an add-group-after control in the full editor.
+     * Test groups render an add-group-after control in the full editor.
      */
     public function test_checklist_editor_renders_add_group_after_controls_between_groups(): void {
         $this->resetAfterTest(true);
@@ -239,12 +239,13 @@ class generator_test extends advanced_testcase {
 
         $this->assertStringContainsString('id="checklist-groups-NEWID1-addgroupafter"', $html);
         $this->assertStringContainsString('name="checklist[groups][NEWID1][addgroupafter]"', $html);
+        $this->assertStringContainsString('id="checklist-groups-NEWID2-addgroupafter"', $html);
+        $this->assertStringContainsString('name="checklist[groups][NEWID2][addgroupafter]"', $html);
         $this->assertStringContainsString('id="checklist-groups-NEWID1-items-additem"', $html);
-        $this->assertStringNotContainsString('id="checklist-groups-NEWID2-addgroupafter"', $html);
-        $this->assertStringNotContainsString('name="checklist[groups][NEWID2][addgroupafter]"', $html);
+        $this->assertStringContainsString('id="checklist-groups-NEWID2-items-additem"', $html);
         $this->assertStringNotContainsString('id="checklist-groups-addgroup"', $html);
         $this->assertStringNotContainsString('name="checklist[groups][addgroup]"', $html);
-        $this->assertSame(3, substr_count($html, 'addgroupafter'));
+        $this->assertSame(6, substr_count($html, 'addgroupafter'));
     }
 
     /**
