@@ -44,6 +44,7 @@ const closeBenchmark = root => {
         return;
     }
     activeTarget.addClass('hiddenelement').removeClass('open').attr('aria-hidden', 'true');
+    activeTarget.find('.benchmark-modal-close, .benchmark-panel-close').attr('tabindex', '-1');
     activeTarget.find('.benchmark-modal-body, .benchmark-panel-body').empty();
     root.find('.benchmark-toggle').attr('aria-expanded', 'false');
     jQuery('body').removeClass('gradingform_checklist-benchmark-panel-open');
@@ -64,7 +65,8 @@ const closeBenchmark = root => {
  */
 const getDisplayTarget = (constrained, closeLabelAttribute, root) => {
     const body = jQuery('body');
-    let target = body.find('.gradingform_checklist-benchmark-' + (constrained ? 'modal' : 'panel')).first();
+    const container = root.length && root.get(0) !== document ? root.first() : body;
+    let target = container.find('.gradingform_checklist-benchmark-' + (constrained ? 'modal' : 'panel')).first();
     if (target.length) {
         return target;
     }
@@ -73,18 +75,20 @@ const getDisplayTarget = (constrained, closeLabelAttribute, root) => {
         const modal = '<div class="gradingform_checklist-benchmark-modal hiddenelement" ' +
             'role="dialog" aria-modal="true" aria-hidden="true" tabindex="-1">' +
             '<div class="benchmark-modal-dialog"><button type="button" ' +
-            'class="benchmark-modal-close" aria-label="' + closeLabelAttribute + '">&times;</button>' +
+            'class="benchmark-modal-close" aria-label="' + closeLabelAttribute + '">' +
+            '<span aria-hidden="true">&times;</span><span class="sr-only">' + closeLabelAttribute + '</span></button>' +
             '<h5 class="benchmark-display-title"></h5><div class="benchmark-modal-body"></div>' +
             '</div></div>';
-        body.append(modal);
-        target = body.find('.gradingform_checklist-benchmark-modal').first();
+        container.append(modal);
+        target = container.find('.gradingform_checklist-benchmark-modal').first();
     } else {
         const panel = '<aside class="gradingform_checklist-benchmark-panel hiddenelement" ' +
             'role="complementary" aria-hidden="true" tabindex="-1">' +
-            '<button type="button" class="benchmark-panel-close" aria-label="' + closeLabelAttribute + '">&times;</button>' +
+            '<button type="button" class="benchmark-panel-close" aria-label="' + closeLabelAttribute + '">' +
+            '<span aria-hidden="true">&times;</span><span class="sr-only">' + closeLabelAttribute + '</span></button>' +
             '<h5 class="benchmark-display-title"></h5><div class="benchmark-panel-body"></div></aside>';
-        body.append(panel);
-        target = body.find('.gradingform_checklist-benchmark-panel').first();
+        container.append(panel);
+        target = container.find('.gradingform_checklist-benchmark-panel').first();
     }
 
     target.find('.benchmark-modal-close, .benchmark-panel-close').on('click', () => closeBenchmark(root));
@@ -180,6 +184,7 @@ export const initBenchmarkDisplay = (rootSelector, closeLabel) => {
         activeTarget = target;
         target.attr('data-current-benchmark', currentBenchmark);
         target.attr('aria-hidden', 'false');
+        target.find('.benchmark-modal-close, .benchmark-panel-close').removeAttr('tabindex');
 
         if (constrained) {
             jQuery('body').removeClass('gradingform_checklist-benchmark-panel-open');
@@ -193,15 +198,16 @@ export const initBenchmarkDisplay = (rootSelector, closeLabel) => {
             jQuery('body').addClass('gradingform_checklist-benchmark-panel-open');
         }
 
-        const focusBenchmarkClose = () => {
+        const focusBenchmarkClose = () => window.setTimeout(() => {
             const closeButton = target.find('.benchmark-modal-close, .benchmark-panel-close').get(0);
-            if (closeButton) {
+            if (closeButton && target.attr('aria-hidden') === 'false') {
                 closeButton.focus();
             }
-        };
+        }, 0);
         focusBenchmarkClose();
         window.requestAnimationFrame(focusBenchmarkClose);
         window.setTimeout(focusBenchmarkClose, 100);
         window.setTimeout(focusBenchmarkClose, 300);
+        window.setTimeout(focusBenchmarkClose, 500);
     });
 };
