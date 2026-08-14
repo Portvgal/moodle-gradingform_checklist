@@ -94,11 +94,20 @@ or visit `admin/upgrade.php` as a site administrator.
 After installation, go to:
 
 ```text
-Site administration > Plugins > Grading methods > Checklist
+Site administration > Grades > Grading methods > Checklist
 ```
 
 Configure feature availability, text limits, and defaults for new checklist
 definitions before teachers start authoring production checklists.
+
+Some Moodle versions do not load `settings.php` files from advanced grading form
+plugins. If the Checklist settings page is not available after installation,
+install the optional
+[`local_checklistsettings`](https://github.com/Portvgal/moodle-local_checklistsettings)
+companion plugin. It exposes the same settings through
+`local/checklistsettings` while storing values in the `gradingform_checklist`
+configuration namespace. It is not needed if the Checklist settings page already
+appears.
 
 ## Upgrading from Open LMS Checklist
 
