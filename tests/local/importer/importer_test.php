@@ -5,6 +5,14 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
  * Checklist importer tests.
@@ -16,6 +24,8 @@
  */
 
 namespace gradingform_checklist\local\importer;
+
+defined('MOODLE_INTERNAL') || die();
 
 use advanced_testcase;
 use gradingform_checklist\external\import_definition;
@@ -29,7 +39,6 @@ require_once($CFG->dirroot . '/grade/grading/form/checklist/lib.php');
  * Checklist importer tests.
  */
 class importer_test extends advanced_testcase {
-
     /**
      * Administrator limits are used by both import validation and the schema.
      */
@@ -54,8 +63,7 @@ class importer_test extends advanced_testcase {
 
         $schema = canonical_import_data::json_schema();
         $this->assertSame(12, $schema['properties']['groups']['items']['properties']['description']['maxLength']);
-        $this->assertSame(13, $schema['properties']['groups']['items']['properties']['items']['items']
-            ['properties']['definition']['maxLength']);
+        $this->assertSame(13, $schema['properties']['groups']['items']['properties']['items']['items']['properties']['definition']['maxLength']);
     }
 
     /**
@@ -410,8 +418,10 @@ class importer_test extends advanced_testcase {
      * The published JSON example is valid according to the shared importer contract.
      */
     public function test_json_example_is_valid_import_payload(): void {
-        $result = (new json_importer())->parse(json_encode(canonical_import_data::json_example(),
-            JSON_THROW_ON_ERROR));
+        $result = (new json_importer())->parse(json_encode(
+            canonical_import_data::json_example(),
+            JSON_THROW_ON_ERROR
+        ));
 
         $this->assertFalse($result->has_errors(), implode(' ', $result->get_errors()));
         $this->assertSame([], $result->get_data()['benchmark']['files']);

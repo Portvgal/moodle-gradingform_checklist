@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -31,13 +30,12 @@ require_once($CFG->dirroot . '/lib/formslib.php');
 require_once($CFG->dirroot . '/grade/grading/form/checklist/checklisteditor.php');
 
 use gradingform_checklist\local\config;
-MoodleQuickForm::registerElementType('checklisteditor', $CFG->dirroot.'/grade/grading/form/checklist/checklisteditor.php', 'MoodleQuickForm_checklisteditor');
+MoodleQuickForm::registerElementType('checklisteditor', $CFG->dirroot . '/grade/grading/form/checklist/checklisteditor.php', 'MoodleQuickForm_checklisteditor');
 
 /**
  * Defines the checklist edit form
  */
 class gradingform_checklist_editchecklist extends moodleform {
-
     /**
      * Form element definition
      */
@@ -51,7 +49,7 @@ class gradingform_checklist_editchecklist extends moodleform {
         $form->setType('returnurl', PARAM_LOCALURL);
 
         // name
-        $form->addElement('text', 'name', get_string('name', 'gradingform_checklist'), array('size'=>52));
+        $form->addElement('text', 'name', get_string('name', 'gradingform_checklist'), ['size' => 52]);
         $form->addRule('name', get_string('required'), 'required');
         $form->setType('name', PARAM_TEXT);
 
@@ -91,30 +89,42 @@ class gradingform_checklist_editchecklist extends moodleform {
         $form->addElement('editor', 'benchmark_editor', get_string('benchmark', 'gradingform_checklist'), null, $benchmarkoptions);
         $form->setType('benchmark_editor', PARAM_RAW);
 
-        $form->addElement('text', 'benchmarkbuttonlabel', get_string('benchmarkbuttonlabel', 'gradingform_checklist'),
-            ['size' => 52]);
+        $form->addElement(
+            'text',
+            'benchmarkbuttonlabel',
+            get_string('benchmarkbuttonlabel', 'gradingform_checklist'),
+            ['size' => 52]
+        );
         $form->setType('benchmarkbuttonlabel', PARAM_TEXT);
         $form->setDefault('benchmarkbuttonlabel', get_string('benchmarkbuttondefault', 'gradingform_checklist'));
 
-        $form->addElement('text', 'benchmarkbuttonicon', get_string('benchmarkbuttonicon', 'gradingform_checklist'),
-            ['size' => 52]);
+        $form->addElement(
+            'text',
+            'benchmarkbuttonicon',
+            get_string('benchmarkbuttonicon', 'gradingform_checklist'),
+            ['size' => 52]
+        );
         $form->setType('benchmarkbuttonicon', PARAM_TEXT);
         $form->setDefault('benchmarkbuttonicon', 'fa-solid fa-file-circle-check');
 
         $this->add_benchmark_toggle_script();
 
         // checklist editor
-        $form->addElement('html',
+        $form->addElement(
+            'html',
             \core\output\html_writer::div(
-                \core\output\html_writer::tag('h3', get_string('checklist', 'gradingform_checklist'),
-                    ['class' => 'gradingform-checklist-section-heading']),
+                \core\output\html_writer::tag(
+                    'h3',
+                    get_string('checklist', 'gradingform_checklist'),
+                    ['class' => 'gradingform-checklist-section-heading']
+                ),
                 'form-group row fitem gradingform-checklist-heading-row'
             )
         );
         $element = $form->addElement('checklisteditor', 'checklist', '');
         $form->setType('checklist', PARAM_RAW);
 
-        $buttonarray = array();
+        $buttonarray = [];
         $buttonarray[] = &$form->createElement('submit', 'savechecklist', get_string('savechecklist', 'gradingform_checklist'));
         if ($this->_customdata['allowdraft']) {
             $buttonarray[] = &$form->createElement('submit', 'savechecklistdraft', get_string('savechecklistdraft', 'gradingform_checklist'));
@@ -123,7 +133,7 @@ class gradingform_checklist_editchecklist extends moodleform {
         $editbutton->freeze();
         $buttonarray[] = &$editbutton;
         $buttonarray[] = &$form->createElement('cancel');
-        $form->addGroup($buttonarray, 'buttonar', '', array(' '), false);
+        $form->addGroup($buttonarray, 'buttonar', '', [' '], false);
         $form->closeHeaderBefore('buttonar');
     }
 
@@ -140,7 +150,9 @@ class gradingform_checklist_editchecklist extends moodleform {
         }
         if (!config::enabled('enablebenchmarks') && empty($this->_defaultValues['usebenchmark'])) {
             $this->_form->addElement('html', \html_writer::div(
-                get_string('benchmarkdisabled', 'gradingform_checklist'), 'alert alert-info'));
+                get_string('benchmarkdisabled', 'gradingform_checklist'),
+                'alert alert-info'
+            ));
         }
     }
 
@@ -201,11 +213,13 @@ JS);
      */
     public function validation($data, $files) {
         $err = parent::validation($data, $files);
-        $err = array();
+        $err = [];
 
-        if (!config::enabled('enablebenchmarks')
+        if (
+            !config::enabled('enablebenchmarks')
                 && !empty($data['usebenchmark'])
-                && empty($this->_defaultValues['usebenchmark'])) {
+                && empty($this->_defaultValues['usebenchmark'])
+        ) {
             $err['benchmark_editor'] = get_string('benchmarkdisabled', 'gradingform_checklist');
         }
         $form = $this->_form;
@@ -271,7 +285,7 @@ JS);
 
         // Freeze form elements and pass the values in hidden fields.
         $form = $this->_form;
-        foreach (array('checklist', 'name'/*, 'description_editor'*/) as $fieldname) {
+        foreach (['checklist', 'name'/*, 'description_editor'*/] as $fieldname) {
             $el =& $form->getElement($fieldname);
             $el->freeze();
             $el->setPersistantFreeze(true);
@@ -295,7 +309,7 @@ JS);
      * @param string $elementname
      * @return HTML_QuickForm_element
      */
-    protected function &findButton($elementname) {
+    protected function &findButton($elementname) { // phpcs:ignore moodle.NamingConventions.ValidFunctionName.LowercaseMethod
         $form = $this->_form;
         $buttonar =& $form->getElement('buttonar');
         $elements =& $buttonar->getElements();

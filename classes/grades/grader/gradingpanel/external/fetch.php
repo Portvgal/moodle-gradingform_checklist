@@ -22,13 +22,15 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace gradingform_checklist\grades\grader\gradingpanel\external;
 
+defined('MOODLE_INTERNAL') || die();
+
 global $CFG;
 
-use \core\exception\coding_exception;
+use core\exception\coding_exception;
 use context;
 use core_grades\component_gradeitem as gradeitem;
 use core_grades\component_gradeitems;
@@ -41,8 +43,8 @@ use core_external\external_value;
 use core_external\external_warnings;
 use core_external\util;
 use stdClass;
-use \core\exception\moodle_exception;
-require_once($CFG->dirroot.'/grade/grading/form/checklist/lib.php');
+use core\exception\moodle_exception;
+require_once($CFG->dirroot . '/grade/grading/form/checklist/lib.php');
 
 /**
  * Web services relating to fetching of a checklist for the grading panel.
@@ -52,7 +54,6 @@ require_once($CFG->dirroot.'/grade/grading/form/checklist/lib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class fetch extends external_api {
-
     /**
      * Describes the parameters for fetching the grading panel for a simple grade.
      *
@@ -60,7 +61,7 @@ class fetch extends external_api {
      * @since Moodle 3.8
      */
     public static function execute_parameters(): external_function_parameters {
-        return new external_function_parameters ([
+        return new external_function_parameters([
             'component' => new external_value(
                 PARAM_ALPHANUMEXT,
                 'The name of the component',
@@ -188,8 +189,15 @@ class fetch extends external_api {
         $points = 0;
         if ($definition->checklist_groups) {
             // Iterate over the defined criterion in the checklist and map out what we need to render each item.
-            $criterion = array_map(function ($criterion) use ($definitionid, $fillings, $context, $hasgrade, $templateoptions,
-                &$maxpoints, &$points) {
+            $criterion = array_map(function ($criterion) use (
+                $definitionid,
+                $fillings,
+                $context,
+                $hasgrade,
+                $templateoptions,
+                &$maxpoints,
+                &$points
+) {
                 // The general structure we'll be returning, we still need to get the remark (if any) and the levels associated.
                 $maxgrouppoints = 0;
                 $grouppoints = 0;
@@ -205,8 +213,15 @@ class fetch extends external_api {
                     'maxgrouppoints' => 0,
                     'grouppoints' => 0,
                 ];
-                $result['items'] = array_map(function ($items) use ($criterion, $fillings, $context, $definitionid,
-                    $templateoptions, &$maxgrouppoints, &$grouppoints) {
+                $result['items'] = array_map(function ($items) use (
+                    $criterion,
+                    $fillings,
+                    $context,
+                    $definitionid,
+                    $templateoptions,
+                    &$maxgrouppoints,
+                    &$grouppoints
+) {
                     $result = [
                         'id' => $items['id'],
                         'criterionid' => $criterion['id'],
@@ -225,7 +240,8 @@ class fetch extends external_api {
                     if (!empty($fillings['groups'][$criterion['id']]['items'][$items['id']])) {
                         $filling = $fillings['groups'][$criterion['id']]['items'][$items['id']];
                         if ($templateoptions->showitemfeedback) {
-                            $result['remark'] = self::get_formatted_text($context,
+                            $result['remark'] = self::get_formatted_text(
+                                $context,
                                 $definitionid,
                                 'remark',
                                 $filling['remark'],
@@ -246,10 +262,15 @@ class fetch extends external_api {
                     $maxgrouppoints += $items['score'];
                     return $result;
                 }, $criterion['items']);
-                if ($templateoptions->showgroupfeedback && !empty($fillings['groups'][$criterion['id']]['items'][0])){
+                if ($templateoptions->showgroupfeedback && !empty($fillings['groups'][$criterion['id']]['items'][0])) {
                     $groupfeedbackfill = $fillings['groups'][$criterion['id']]['items'][0];
-                    $result['groupfeedback'] = self::get_formatted_text($context, $definitionid, 'remark',
-                        $groupfeedbackfill['remark'], (int) $groupfeedbackfill['remarkformat']);
+                    $result['groupfeedback'] = self::get_formatted_text(
+                        $context,
+                        $definitionid,
+                        'remark',
+                        $groupfeedbackfill['remark'],
+                        (int) $groupfeedbackfill['remarkformat']
+                    );
                 }
                 // Add the item counts to the criterion structure.
                 if ($templateoptions->showgrouppoints) {
@@ -271,8 +292,10 @@ class fetch extends external_api {
             $observationmode = \gradingform_checklist_controller::clean_observation_mode($options['observationmode']);
             $savedobservation = $fillings['observation'] ?? [];
             $timestamp = !empty($savedobservation['observationdate']) ? (int)$savedobservation['observationdate'] : 0;
-            if ($timestamp <= 0 && $isgrading
-                    && $options['observationdefault'] === \gradingform_checklist_controller::OBSERVATION_DEFAULT_NOW) {
+            if (
+                $timestamp <= 0 && $isgrading
+                    && $options['observationdefault'] === \gradingform_checklist_controller::OBSERVATION_DEFAULT_NOW
+            ) {
                 $timestamp = time();
             }
             if ($timestamp > 0 || $isgrading) {
@@ -283,8 +306,10 @@ class fetch extends external_api {
                     'showtime' => $observationmode === \gradingform_checklist_controller::OBSERVATION_MODE_DATETIME,
                     'isgrading' => $isgrading,
                     'displayvalue' => $timestamp > 0
-                        ? \gradingform_checklist_controller::format_observation_date($timestamp,
-                            $savedobservation['observationmode'] ?? $observationmode)
+                        ? \gradingform_checklist_controller::format_observation_date(
+                            $timestamp,
+                            $savedobservation['observationmode'] ?? $observationmode
+                        )
                         : '',
                 ];
             }

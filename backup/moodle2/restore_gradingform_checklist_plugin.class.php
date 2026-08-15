@@ -37,16 +37,22 @@ class restore_gradingform_checklist_plugin extends restore_gradingform_plugin {
      */
     protected function define_definition_plugin_structure() {
 
-        $paths = array();
+        $paths = [];
 
-        $paths[] = new restore_path_element('gradingform_checklist_benchmark',
-            $this->get_pathfor('/benchmark'));
+        $paths[] = new restore_path_element(
+            'gradingform_checklist_benchmark',
+            $this->get_pathfor('/benchmark')
+        );
 
-        $paths[] = new restore_path_element('gradingform_checklist_group',
-            $this->get_pathfor('/groups/group'));
+        $paths[] = new restore_path_element(
+            'gradingform_checklist_group',
+            $this->get_pathfor('/groups/group')
+        );
 
-        $paths[] = new restore_path_element('gradingform_checklist_item',
-            $this->get_pathfor('/groups/group/items/item'));
+        $paths[] = new restore_path_element(
+            'gradingform_checklist_item',
+            $this->get_pathfor('/groups/group/items/item')
+        );
 
         return $paths;
     }
@@ -65,13 +71,17 @@ class restore_gradingform_checklist_plugin extends restore_gradingform_plugin {
      */
     protected function define_instance_plugin_structure() {
 
-        $paths = array();
+        $paths = [];
 
-        $paths[] = new restore_path_element('gradingform_checklist_filling',
-            $this->get_pathfor('/fillings/filling'));
+        $paths[] = new restore_path_element(
+            'gradingform_checklist_filling',
+            $this->get_pathfor('/fillings/filling')
+        );
 
-        $paths[] = new restore_path_element('gradingform_checklist_observation',
-            $this->get_pathfor('/observations/observation'));
+        $paths[] = new restore_path_element(
+            'gradingform_checklist_observation',
+            $this->get_pathfor('/observations/observation')
+        );
 
         return $paths;
     }

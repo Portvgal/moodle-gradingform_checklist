@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -86,7 +85,8 @@ if ($hassiteconfig) {
         new lang_string('admindefaultsheading', 'gradingform_checklist'),
         new lang_string('admindefaultsdescription', 'gradingform_checklist')
     ));
-    foreach ([
+    foreach (
+        [
         'alwaysshowdefinition' => 'adminalwaysshowdefinition',
         'showitempointseval' => 'adminshowitempointseval',
         'showitempointstudent' => 'adminshowitempointstudent',
@@ -100,7 +100,8 @@ if ($hassiteconfig) {
         'requireatleastoneitemcomment' => 'adminrequireatleastoneitemcomment',
         'requiregroupcommentschecked' => 'adminrequiregroupcommentschecked',
         'requireatleastonegroupcomment' => 'adminrequireatleastonegroupcomment',
-    ] as $name => $label) {
+        ] as $name => $label
+    ) {
         $settings->add(new admin_setting_configcheckbox(
             'gradingform_checklist/' . $name,
             new lang_string($label, 'gradingform_checklist'),

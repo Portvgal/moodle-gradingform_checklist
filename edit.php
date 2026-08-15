@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -25,7 +24,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(dirname(dirname(dirname(dirname(dirname(__FILE__))))).'/config.php');
+require_once(dirname(dirname(dirname(dirname(dirname(__FILE__))))) . '/config.php');
 require_once($CFG->dirroot . '/grade/grading/form/checklist/lib.php');
 require_once($CFG->dirroot . '/grade/grading/form/checklist/edit_form.php');
 require_once($CFG->dirroot . '/grade/grading/lib.php');
@@ -34,14 +33,14 @@ $areaid = required_param('areaid', PARAM_INT);
 
 $manager = get_grading_manager($areaid);
 
-list($context, $course, $cm) = get_context_info_array($manager->get_context()->id);
+[$context, $course, $cm] = get_context_info_array($manager->get_context()->id);
 
 require_login($course, true, $cm);
 require_capability('moodle/grade:managegradingforms', $context);
 
 $controller = $manager->get_controller('checklist');
 
-$PAGE->set_url(new \core\url('/grade/grading/form/checklist/edit.php', array('areaid' => $areaid)));
+$PAGE->set_url(new \core\url('/grade/grading/form/checklist/edit.php', ['areaid' => $areaid]));
 $PAGE->set_title(get_string('definechecklist', 'gradingform_checklist'));
 $PAGE->set_heading(get_string('definechecklist', 'gradingform_checklist'));
 

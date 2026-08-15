@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -16,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Upgrade steps for the Checklist grading form plugin.
+ *
  * @package    gradingform_checklist
  * @author     Sam Chaffee
  * @copyright  2011 David Mudrak <david@moodle.com>
@@ -32,8 +33,11 @@ defined('MOODLE_INTERNAL') || die();
  * @param int $legacyitemid The legacy group id used as file itemid.
  * @param int $definitionid The new definition id used as file itemid.
  */
-function xmldb_gradingform_checklist_copy_legacy_benchmark_files(int $contextid, int $legacyitemid,
-        int $definitionid): void {
+function xmldb_gradingform_checklist_copy_legacy_benchmark_files(
+    int $contextid,
+    int $legacyitemid,
+    int $definitionid
+): void {
     $fs = get_file_storage();
     $files = $fs->get_area_files(
         $contextid,
@@ -182,7 +186,6 @@ function xmldb_gradingform_checklist_upgrade($oldversion) {
     $dbman = $DB->get_manager();
 
     if ($oldversion < 2012051001) {
-
         // Changing type of field description on table gradingform_checklist_groups to text
         $table = new xmldb_table('gradingform_checklist_groups');
         $field = new xmldb_field('description', XMLDB_TYPE_TEXT, 'big', null, null, null, null, 'sortorder');
@@ -200,7 +203,6 @@ function xmldb_gradingform_checklist_upgrade($oldversion) {
         // checklist savepoint reached
         upgrade_plugin_savepoint(true, 2012051001, 'gradingform', 'checklist');
     }
-
 
     if ($oldversion < 2026073000) {
         $table = new xmldb_table('gradingform_checklist_groups');

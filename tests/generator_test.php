@@ -25,6 +25,8 @@
 
 namespace gradingform_checklist;
 
+defined('MOODLE_INTERNAL') || die();
+
 use advanced_testcase;
 use context_module;
 use gradingform_checklist_controller;
@@ -42,7 +44,6 @@ require_once($CFG->dirroot . '/grade/grading/form/checklist/lib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class generator_test extends advanced_testcase {
-
     /**
      * Test checklist editor validation accepts the configured long-text limits.
      */
@@ -75,8 +76,11 @@ class generator_test extends advanced_testcase {
         $groupvalidation = $editor->validate($invalidgroupvalue);
 
         $this->assertNotFalse($groupvalidation);
-        $this->assertStringContainsString(get_string('err_descriptionmax', 'gradingform_checklist',
-            \MoodleQuickForm_checklisteditor::get_group_description_max_length()), $groupvalidation);
+        $this->assertStringContainsString(get_string(
+            'err_descriptionmax',
+            'gradingform_checklist',
+            \MoodleQuickForm_checklisteditor::get_group_description_max_length()
+        ), $groupvalidation);
 
         $editor = new \MoodleQuickForm_checklisteditor('checklist', 'Checklist');
         $invaliditemvalue = $validvalue;
@@ -84,8 +88,11 @@ class generator_test extends advanced_testcase {
         $itemvalidation = $editor->validate($invaliditemvalue);
 
         $this->assertNotFalse($itemvalidation);
-        $this->assertStringContainsString(get_string('err_definitionmax', 'gradingform_checklist',
-            \MoodleQuickForm_checklisteditor::get_item_definition_max_length()), $itemvalidation);
+        $this->assertStringContainsString(get_string(
+            'err_definitionmax',
+            'gradingform_checklist',
+            \MoodleQuickForm_checklisteditor::get_item_definition_max_length()
+        ), $itemvalidation);
     }
 
     /**
@@ -234,8 +241,12 @@ class generator_test extends advanced_testcase {
             ],
         ];
 
-        $html = $renderer->display_checklist($groups, $options,
-                gradingform_checklist_controller::DISPLAY_EDIT_FULL, 'checklist');
+        $html = $renderer->display_checklist(
+            $groups,
+            $options,
+            gradingform_checklist_controller::DISPLAY_EDIT_FULL,
+            'checklist'
+        );
 
         $this->assertStringContainsString('id="checklist-groups-NEWID1-addgroupafter"', $html);
         $this->assertStringContainsString('name="checklist[groups][NEWID1][addgroupafter]"', $html);
@@ -267,8 +278,12 @@ class generator_test extends advanced_testcase {
             ],
         ];
 
-        $html = $renderer->display_checklist($groups, $options,
-                gradingform_checklist_controller::DISPLAY_EDIT_FULL, 'checklist');
+        $html = $renderer->display_checklist(
+            $groups,
+            $options,
+            gradingform_checklist_controller::DISPLAY_EDIT_FULL,
+            'checklist'
+        );
 
         $this->assertStringContainsString('id="checklist-groups-NEWID1-moveup"', $html);
         $this->assertStringContainsString('id="checklist-groups-NEWID1-movedown"', $html);
@@ -375,12 +390,18 @@ class generator_test extends advanced_testcase {
         $itemdefinition = "Use typography techniques\n- hierarchy\n- spacing\n- contrast";
 
         $this->setUser($user);
-        $controller = $checklistgenerator->create_instance($context, 'mod_assign', 'submission', 'multilinechecklist',
-            'Description', [
+        $controller = $checklistgenerator->create_instance(
+            $context,
+            'mod_assign',
+            'submission',
+            'multilinechecklist',
+            'Description',
+            [
                 $groupdescription => [
                     $itemdefinition => 1,
                 ],
-            ]);
+            ]
+        );
 
         $definition = $controller->get_definition();
         $groupids = array_keys($definition->checklist_groups);
@@ -465,15 +486,22 @@ class generator_test extends advanced_testcase {
         $context = context_module::instance($module->cmid);
 
         $this->setUser($user);
-        $controller = $checklistgenerator->create_instance($context, 'mod_assign', 'submission', 'checklist',
-            'Description', [
+        $controller = $checklistgenerator->create_instance(
+            $context,
+            'mod_assign',
+            'submission',
+            'checklist',
+            'Description',
+            [
                 'Group 1' => [
                     'Observed skill' => 1,
                 ],
-            ], [
+            ],
+            [
                 'observationmode' => gradingform_checklist_controller::OBSERVATION_MODE_DATETIME,
                 'observationdefault' => gradingform_checklist_controller::OBSERVATION_DEFAULT_BLANK,
-            ]);
+            ]
+        );
         $instance = $controller->create_instance($user->id, 1);
 
         $data = $checklistgenerator->get_submitted_form_data($controller, 1, [
@@ -486,8 +514,10 @@ class generator_test extends advanced_testcase {
 
         $this->assertFalse($instance->validate_grading_element($data));
         $this->assertTrue($instance->has_observation_date_validation_error());
-        $this->assertContains(get_string('err_observationdate', 'gradingform_checklist'),
-            $instance->get_grading_validation_error_messages());
+        $this->assertContains(
+            get_string('err_observationdate', 'gradingform_checklist'),
+            $instance->get_grading_validation_error_messages()
+        );
 
         $data['observation'] = [
             'date' => '2026-08-02',
@@ -518,14 +548,21 @@ class generator_test extends advanced_testcase {
         $context = context_module::instance($module->cmid);
 
         $this->setUser($user);
-        $controller = $checklistgenerator->create_instance($context, 'mod_assign', 'submission', 'checklist',
-            'Description', [
+        $controller = $checklistgenerator->create_instance(
+            $context,
+            'mod_assign',
+            'submission',
+            'checklist',
+            'Description',
+            [
                 'Group 1' => [
                     'Observed skill' => 1,
                 ],
-            ], [
+            ],
+            [
                 'observationmode' => gradingform_checklist_controller::OBSERVATION_MODE_DATE,
-            ]);
+            ]
+        );
         $instance = $controller->create_instance($user->id, 1);
 
         $data = $checklistgenerator->get_submitted_form_data($controller, 1, [
@@ -707,10 +744,10 @@ class generator_test extends advanced_testcase {
         $description = 'My first checklist';
         $criteria = [
             'Group 1' => [
-                'Has title' => 1
+                'Has title' => 1,
             ],
             'Group 2' => [
-                'Has references' => 1
+                'Has references' => 1,
             ],
         ];
 
@@ -760,7 +797,6 @@ class generator_test extends advanced_testcase {
         $item = $items[$itemids[0]];
         $this->assertEquals(1, $item['score']);
         $this->assertEquals('Has references', $item['definition']);
-
     }
 
     /**
@@ -778,12 +814,18 @@ class generator_test extends advanced_testcase {
         $context = context_module::instance($module->cmid);
 
         $this->setUser($user);
-        $controller = $checklistgenerator->create_instance($context, 'mod_assign', 'submission', 'decimalchecklist',
-            'Description', [
+        $controller = $checklistgenerator->create_instance(
+            $context,
+            'mod_assign',
+            'submission',
+            'decimalchecklist',
+            'Description',
+            [
                 'Group 1' => [
                     'Has decimal score' => 1.5,
                 ],
-            ]);
+            ]
+        );
 
         $definition = $controller->get_definition();
         $group = reset($definition->checklist_groups);
@@ -809,14 +851,21 @@ class generator_test extends advanced_testcase {
         $context = context_module::instance($module->cmid);
 
         $this->setUser($user);
-        $controller = $checklistgenerator->create_instance($context, 'mod_assign', 'submission', 'benchmarkchecklist',
-            'Description', [
+        $controller = $checklistgenerator->create_instance(
+            $context,
+            'mod_assign',
+            'submission',
+            'benchmarkchecklist',
+            'Description',
+            [
                 'Group 1' => [
                     'Has title' => 1,
                 ],
-            ], [
+            ],
+            [
                 'benchmark' => '<p>Teacher benchmark for checklist</p>',
-            ]);
+            ]
+        );
 
         $definition = $controller->get_definition();
         $this->assertTrue($DB->record_exists('gradingform_checklist_bench', ['definitionid' => $definition->id]));
@@ -846,14 +895,21 @@ class generator_test extends advanced_testcase {
         $context = context_module::instance($module->cmid);
 
         $this->setUser($user);
-        $controller = $checklistgenerator->create_instance($context, 'mod_assign', 'submission', 'benchmarkchecklist',
-            'Description', [
+        $controller = $checklistgenerator->create_instance(
+            $context,
+            'mod_assign',
+            'submission',
+            'benchmarkchecklist',
+            'Description',
+            [
                 'Group 1' => [
                     'Has title' => 1,
                 ],
-            ], [
+            ],
+            [
                 'benchmark' => '<p>Teacher benchmark for checklist</p>',
-            ]);
+            ]
+        );
 
         $definition = $controller->get_definition_for_editing();
 
@@ -879,14 +935,21 @@ class generator_test extends advanced_testcase {
         $context = context_module::instance($module->cmid);
 
         $this->setUser($user);
-        $controller = $checklistgenerator->create_instance($context, 'mod_assign', 'submission', 'benchmarkchecklist',
-            'Description', [
+        $controller = $checklistgenerator->create_instance(
+            $context,
+            'mod_assign',
+            'submission',
+            'benchmarkchecklist',
+            'Description',
+            [
                 'Group 1' => [
                     'Has title' => 1,
                 ],
-            ], [
+            ],
+            [
                 'benchmark' => '<p>Teacher benchmark for checklist</p>',
-            ]);
+            ]
+        );
 
         $updateddefinition = $controller->get_definition_for_editing();
         $controller->update_definition($updateddefinition);
@@ -913,14 +976,21 @@ class generator_test extends advanced_testcase {
         $context = context_module::instance($module->cmid);
 
         $this->setUser($user);
-        $controller = $checklistgenerator->create_instance($context, 'mod_assign', 'submission', 'benchmarkchecklist',
-            'Description', [
+        $controller = $checklistgenerator->create_instance(
+            $context,
+            'mod_assign',
+            'submission',
+            'benchmarkchecklist',
+            'Description',
+            [
                 'Group 1' => [
                     'Has title' => 1,
                 ],
-            ], [
+            ],
+            [
                 'benchmark' => '<p>Teacher benchmark for checklist</p>',
-            ]);
+            ]
+        );
 
         $updateddefinition = $controller->get_definition_for_editing();
         $updateddefinition->usebenchmark = 0;
@@ -954,10 +1024,10 @@ class generator_test extends advanced_testcase {
         $description = 'My first checklist';
         $criteria = [
             'Group 1' => [
-                'Has title' => 1
+                'Has title' => 1,
             ],
             'Group 2' => [
-                'Has references' => 1
+                'Has references' => 1,
             ],
         ];
 
@@ -1079,8 +1149,10 @@ class generator_test extends advanced_testcase {
         $result = $checklistgenerator->get_test_form_data(
             $controller,
             9999,
-            1, 'This is the first comment',
-            1, 'This is the second comment'
+            1,
+            'This is the first comment',
+            1,
+            'This is the second comment'
         );
 
         $this->assertIsArray($result);
@@ -1157,7 +1229,7 @@ class generator_test extends advanced_testcase {
      * @return array
      */
     protected function get_required_comment_error_rules(array $errors): array {
-        return array_map(static function(array $error): string {
+        return array_map(static function (array $error): string {
             return $error['rule'];
         }, $errors);
     }

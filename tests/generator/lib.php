@@ -38,7 +38,6 @@ use tests\gradingform_checklist\generator\criterion;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class gradingform_checklist_generator extends component_generator_base {
-
     /**
      * Create an instance of a checklist.
      *
@@ -136,7 +135,7 @@ class gradingform_checklist_generator extends component_generator_base {
 
         $criterion = $item = null;
 
-        $criterion = array_reduce($criteria, function($carry, $criterion) use ($description) {
+        $criterion = array_reduce($criteria, function ($carry, $criterion) use ($description) {
             if ($criterion['description'] === $description) {
                 $carry = $criterion;
             }
@@ -146,7 +145,7 @@ class gradingform_checklist_generator extends component_generator_base {
 
         if ($criterion) {
             $criterion = (object) $criterion;
-            $item = array_reduce($criterion->items, function($carry, $item) use ($score) {
+            $item = array_reduce($criterion->items, function ($carry, $item) use ($score) {
                 if ($item['score'] == $score) {
                     $carry = $item;
                 }
@@ -192,7 +191,6 @@ class gradingform_checklist_generator extends component_generator_base {
                     'checked' => $checked,
                 ];
             }
-
         }
 
         return $result;
@@ -214,12 +212,19 @@ class gradingform_checklist_generator extends component_generator_base {
                 ],
             ],
             'Group 2' => [
-                'Has references' => 1
+                'Has references' => 1,
             ],
         ];
 
-        return $this->create_instance($context, $component, $area, 'testchecklist', 'Description text', $criteria,
-            ['enableitemremarks' => 1, 'benchmark' => '<p>Teacher benchmark for checklist</p>']);
+        return $this->create_instance(
+            $context,
+            $component,
+            $area,
+            'testchecklist',
+            'Description text',
+            $criteria,
+            ['enableitemremarks' => 1, 'benchmark' => '<p>Teacher benchmark for checklist</p>']
+        );
     }
 
     /**

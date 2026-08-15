@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -34,7 +33,7 @@ $areaid = required_param('areaid', PARAM_INT);
 
 $manager = get_grading_manager($areaid);
 
-list($context, $course, $cm) = get_context_info_array($manager->get_context()->id);
+[$context, $course, $cm] = get_context_info_array($manager->get_context()->id);
 
 require_login($course, true, $cm);
 
@@ -46,7 +45,7 @@ if (!$controller->is_form_defined() || empty($options['alwaysshowdefinition'])) 
 }
 
 $title = get_string('gradingof', 'gradingform_checklist', $manager->get_area_title());
-$PAGE->set_url(new \core\url('/grade/grading/form/checklist/preview.php', array('areaid' => $areaid)));
+$PAGE->set_url(new \core\url('/grade/grading/form/checklist/preview.php', ['areaid' => $areaid]));
 $PAGE->set_title($title);
 $PAGE->set_heading($title);
 
