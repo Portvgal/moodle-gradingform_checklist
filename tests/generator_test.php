@@ -260,9 +260,9 @@ class generator_test extends advanced_testcase {
     }
 
     /**
-     * Test checklist editor renders only down movement controls for items.
+     * Test checklist editor renders up and down movement controls for items.
      */
-    public function test_checklist_editor_renders_only_item_move_down_controls(): void {
+    public function test_checklist_editor_renders_item_move_controls(): void {
         $this->resetAfterTest(true);
 
         $renderer = $GLOBALS['PAGE']->get_renderer('gradingform_checklist');
@@ -287,10 +287,10 @@ class generator_test extends advanced_testcase {
 
         $this->assertStringContainsString('id="checklist-groups-NEWID1-moveup"', $html);
         $this->assertStringContainsString('id="checklist-groups-NEWID1-movedown"', $html);
+        $this->assertStringContainsString('id="checklist-groups-NEWID1-items-NEWID1-moveup"', $html);
         $this->assertStringContainsString('id="checklist-groups-NEWID1-items-NEWID1-movedown"', $html);
         $this->assertStringContainsString('id="checklist-groups-NEWID1-items-NEWID1-delete"', $html);
-        $this->assertStringNotContainsString('id="checklist-groups-NEWID1-items-NEWID1-moveup"', $html);
-        $this->assertStringNotContainsString('name="checklist[groups][NEWID1][items][NEWID1][moveup]"', $html);
+        $this->assertStringContainsString('name="checklist[groups][NEWID1][items][NEWID1][moveup]"', $html);
     }
 
     /**

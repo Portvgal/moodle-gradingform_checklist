@@ -59,7 +59,7 @@ Feature: Converting checklist score to grades
     And I should see "Student 1"
     Then I should not see "Group points: 0/3.5"
     And I should not see "Overall points: 0/3.5"
-    And I click on ".form-check-input" "css_element"
+    And I click on "input[type='checkbox'][name*='[items]'][name$='[id]']" "css_element"
     And I should see "Group 1"
     And I should see "Has title"
     And I should see "Has description"
