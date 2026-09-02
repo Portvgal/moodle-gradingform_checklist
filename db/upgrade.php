@@ -277,5 +277,10 @@ function xmldb_gradingform_checklist_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026081200, 'gradingform', 'checklist');
     }
 
+    // Version 2026090200 restores checklist item move controls in the editor.
+    if ($oldversion < 2026090200) {
+        upgrade_plugin_savepoint(true, 2026090200, 'gradingform', 'checklist');
+    }
+
     return true;
 }

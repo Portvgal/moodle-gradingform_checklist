@@ -1,6 +1,13 @@
 Checklist grading form upgrade notes
 =====================================
 
+2026090200
+----------
+
+This release restores checklist item move controls in the editor and aligns the
+item score, points label, move controls, and delete control columns. No database
+schema migration is required for this release.
+
 2026080700
 ----------
 
