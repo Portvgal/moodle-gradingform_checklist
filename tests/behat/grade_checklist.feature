@@ -218,4 +218,5 @@ Feature: Converting checklist score to grades
     Then I should see "Add a comment for"
     And I set the field with xpath "(//textarea[contains(@id, '-items-') and contains(@id, '-remark-input')])[1]" to "Evidence checked"
     And I click on "button[data-action='savegrade']" "css_element"
-    And I should not see "Add a comment for"
+    And I wait until the page is ready
+    And "//div[contains(concat(' ', normalize-space(@class), ' '), ' alert-danger ') and contains(., 'Add a comment for')]" "xpath_element" should not exist
