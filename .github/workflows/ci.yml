@@ -80,9 +80,9 @@ jobs:
         if: ${{ !cancelled() }}
         run: moodle-plugin-ci phpdoc --max-warnings 0
 
-      - name: Grunt build and lint
+      - name: Grunt AMD build and Behat lint
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci grunt --max-lint-warnings 0
+        run: moodle-plugin-ci grunt -t amd -t gherkinlint --max-lint-warnings 0
 
       - name: Verify committed AMD build output
         if: ${{ !cancelled() }}
@@ -91,4 +91,3 @@ jobs:
       - name: PHPUnit
         if: ${{ !cancelled() }}
         run: moodle-plugin-ci phpunit --fail-on-warning
-
