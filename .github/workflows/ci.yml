@@ -1,4 +1,5 @@
-name: Plugin CI
+name: Required Plugin Checks
+run-name: Required plugin checks on ${{ github.ref_name }}
 
 on:
   push:
@@ -10,7 +11,7 @@ permissions:
 
 jobs:
   plugin-ci:
-    name: Moodle 4.5 / PHP 8.3 / Postgres
+    name: Moodle 4.5 / PHP 8.3 / PostgreSQL
     runs-on: ubuntu-24.04
 
     services:

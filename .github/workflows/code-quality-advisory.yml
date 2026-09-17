@@ -1,4 +1,5 @@
-name: Code Quality Advisory
+name: Advisory Code Quality
+run-name: Advisory code quality report on ${{ github.ref_name }}
 
 on:
   push:
@@ -10,7 +11,7 @@ permissions:
 
 jobs:
   advisory:
-    name: Moodle static advisory checks
+    name: Moodle static analysis advisory
     runs-on: ubuntu-24.04
 
     services:

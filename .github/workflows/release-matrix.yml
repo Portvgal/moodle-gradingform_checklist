@@ -1,4 +1,5 @@
-name: Release Matrix
+name: Release Compatibility Matrix
+run-name: Release compatibility matrix on ${{ github.ref_name }}
 
 on:
   workflow_dispatch:
@@ -10,7 +11,7 @@ permissions:
 
 jobs:
   matrix:
-    name: PHP ${{ matrix.php }} / ${{ matrix.database }}
+    name: Moodle 4.5 / PHP ${{ matrix.php }} / ${{ matrix.database }}
     runs-on: ubuntu-24.04
 
     services:
