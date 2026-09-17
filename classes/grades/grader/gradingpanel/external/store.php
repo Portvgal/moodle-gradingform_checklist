@@ -99,8 +99,8 @@ class store extends external_api {
      * @param int $contextid
      * @param string $itemname
      * @param int $gradeduserid
-     * @param string $formdata
      * @param bool $notifyuser
+     * @param string $formdata
      * @return array
      * @throws \core\exception\coding_exception
      * @throws moodle_exception
