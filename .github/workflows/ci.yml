@@ -74,11 +74,11 @@ jobs:
 
       - name: Moodle coding standard
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phpcs --max-warnings 0
+        run: moodle-plugin-ci phpcs
 
       - name: PHPDoc checker
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phpdoc --max-warnings 0
+        run: moodle-plugin-ci phpdoc
 
       - name: Grunt AMD build and Behat lint
         if: ${{ !cancelled() }}

@@ -35,10 +35,6 @@ use core\exception\moodle_exception;
  *
  */
 class store_test extends advanced_testcase {
-    protected function setUp(): void {
-        global $CFG;
-    }
-
     /**
      * Ensure that an execute with an invalid component is rejected.
      */
