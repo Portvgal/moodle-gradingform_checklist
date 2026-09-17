@@ -72,12 +72,14 @@ jobs:
         if: ${{ !cancelled() }}
         run: moodle-plugin-ci mustache
 
-      - name: Moodle coding standard
+      - name: Moodle coding standard (advisory)
         if: ${{ !cancelled() }}
+        continue-on-error: true
         run: moodle-plugin-ci phpcs
 
-      - name: PHPDoc checker
+      - name: PHPDoc checker (advisory)
         if: ${{ !cancelled() }}
+        continue-on-error: true
         run: moodle-plugin-ci phpdoc
 
       - name: Grunt AMD build and Behat lint

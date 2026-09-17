@@ -231,13 +231,13 @@
             }
         }
 
-        $('#gradingform_checklist-{{uniqid}} .form-check-input.item').change(function () {
+        checklistRoot.find('.form-check-input.item').change(function() {
             updatePoints();
             updateBulkCheckButton();
         });
 
         function updatePoints() {
-            $('#gradingform_checklist-{{uniqid}} .checklist-criterion').each(function() {
+            checklistRoot.find('.checklist-criterion').each(function() {
                 const criterion = $(this);
                 let grouppointscents = 0;
 
@@ -250,27 +250,27 @@
             });
 
             let totalpointscents = 0;
-            $('#gradingform_checklist-{{uniqid}} .form-check-input.item:checked').each(function() {
+            checklistRoot.find('.form-check-input.item:checked').each(function() {
                 const score = parseFloat($(this).attr('data-score')) || 0;
                 totalpointscents += Math.round(score * 100);
             });
             const totalpoints = formatPoints(totalpointscents / 100);
-            $('#gradingform_checklist-{{uniqid}} #pointstotals').find('.scoredpoints').text(totalpoints);
+            checklistRoot.find('#pointstotals').find('.scoredpoints').text(totalpoints);
         }
 
-        $('#gradingform_checklist-{{uniqid}} .bulkcheckcontrols button').click(function() {
+        checklistRoot.find('.bulkcheckcontrols button').click(function() {
             const checked = $(this).data('action') === 'tickall';
-            $('#gradingform_checklist-{{uniqid}} .form-check-input.item').prop('checked', checked);
+            checklistRoot.find('.form-check-input.item').prop('checked', checked);
             updatePoints();
             updateBulkCheckButton();
         });
 
         function updateBulkCheckButton() {
-            const button = $('#gradingform_checklist-{{uniqid}} .bulkcheckcontrols button');
+            const button = checklistRoot.find('.bulkcheckcontrols button');
             if (!button.length) {
                 return;
             }
-            const items = $('#gradingform_checklist-{{uniqid}} .form-check-input.item');
+            const items = checklistRoot.find('.form-check-input.item');
             const allchecked = items.length > 0 && items.filter(':checked').length === items.length;
             if (allchecked) {
                 button.data('action', 'untickall');
