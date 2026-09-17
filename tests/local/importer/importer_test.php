@@ -111,6 +111,51 @@ class importer_test extends advanced_testcase {
     }
 
     /**
+     * The JSON import web service can create a definition when explicitly enabled.
+     */
+    public function test_external_import_creates_definition_when_enabled(): void {
+        $this->resetAfterTest(true);
+        set_config('enablejsonwebservice', 1, 'gradingform_checklist');
+
+        ['areaid' => $areaid, 'teacher' => $teacher] = $this->get_import_area();
+        $this->setUser($teacher);
+
+        $payload = canonical_import_data::json_example();
+        $payload['name'] = 'Imported checklist';
+        $payload['groups'][0]['description'] = 'Imported group';
+        $payload['groups'][0]['items'][0]['definition'] = 'Imported item';
+
+        $result = import_definition::execute($areaid, json_encode($payload, JSON_THROW_ON_ERROR), 'ready');
+
+        $this->assertGreaterThan(0, $result['definitionid']);
+        $this->assertSame('ready', $result['status']);
+        $this->assertSame([], $result['warnings']);
+
+        $manager = get_grading_manager($areaid);
+        $definition = $manager->get_controller('checklist')->get_definition(true);
+        $group = reset($definition->checklist_groups);
+        $item = reset($group['items']);
+
+        $this->assertSame('Imported checklist', $definition->name);
+        $this->assertSame('Imported group', $group['description']);
+        $this->assertSame('Imported item', $item['definition']);
+    }
+
+    /**
+     * The JSON import web service requires grading-form management permission.
+     */
+    public function test_external_import_requires_manage_grading_forms_capability(): void {
+        $this->resetAfterTest(true);
+        set_config('enablejsonwebservice', 1, 'gradingform_checklist');
+
+        ['areaid' => $areaid, 'student' => $student] = $this->get_import_area();
+        $this->setUser($student);
+
+        $this->expectException(\core\exception\required_capability_exception::class);
+        import_definition::execute($areaid, json_encode(canonical_import_data::json_example(), JSON_THROW_ON_ERROR), 'draft');
+    }
+
+    /**
      * JSON imports are normalised to the canonical structure.
      */
     public function test_json_importer_maps_example_to_canonical_data(): void {
@@ -438,5 +483,28 @@ class importer_test extends advanced_testcase {
             $this->assertStringContainsString('charset=utf-8', $source);
             $this->assertMatchesRegularExpression('/0,\s*0,\s*true,\s*true,/', $source);
         }
+    }
+
+    /**
+     * Creates a grading area with enrolled users for external import tests.
+     *
+     * @return array
+     */
+    protected function get_import_area(): array {
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $module = $generator->create_module('assign', ['course' => $course]);
+        $teacher = $generator->create_and_enrol($course, 'editingteacher');
+        $student = $generator->create_and_enrol($course, 'student');
+        $context = \context_module::instance($module->cmid);
+
+        $gradinggenerator = $generator->get_plugin_generator('core_grading');
+        $controller = $gradinggenerator->create_instance($context, 'mod_assign', 'submissions', 'checklist');
+
+        return [
+            'areaid' => $controller->get_areaid(),
+            'teacher' => $teacher,
+            'student' => $student,
+        ];
     }
 }
