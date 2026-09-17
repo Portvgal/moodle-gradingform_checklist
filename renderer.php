@@ -96,7 +96,7 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
      * Also JavaScript relies on the class names of elements and when developer changes them
      * script might stop working.
      *
-     * @param int $mode checklist display mode @see gradingform_checklist_controller
+     * @param int $mode checklist display mode. See gradingform_checklist_controller.
      * @param array $options
      * @param string $elementname the name of the form element (in editor mode) or the prefix for div ids (in view mode)
      * @param array|null $group group data
@@ -249,7 +249,7 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
      * Also JavaScript relies on the class names of elements and when developer changes them
      * script might stop working.
      *
-     * @param int $mode checklist display mode @see gradingform_checklist_controller
+     * @param int $mode checklist display mode. See gradingform_checklist_controller.
      * @param array $options
      * @param string $elementname the name of the form element (in editor mode) or the prefix for div ids (in view mode)
      * @param string|int $groupid either id of the nesting group or a macro for template
@@ -524,11 +524,12 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
      * Also JavaScript relies on the class names of elements and when developer changes them
      * script might stop working.
      *
-     * @param int $mode checklist display mode @see gradingform_checklist_controller
+     * @param int $mode checklist display mode. See gradingform_checklist_controller.
      * @param array $options
      * @param string $elementname the name of the form element (in editor mode) or the prefix for div ids (in view mode)
      * @param string $groupsstr evaluated templates for this checklist's groups
      * @param string $totalpointsstr the total points string
+     * @param string $observationdatestr the observation date string
      * @return string
      */
     protected function checklist_template($mode, $options, $elementname, $groupsstr, $totalpointsstr, $observationdatestr) {
@@ -804,11 +805,11 @@ JS);
      * It is very unlikely that this function needs to be overriden by theme. It does not produce
      * any html code, it just prepares data about checklist design and evaluation, adds the CSS
      * class to elements and calls the functions item_template, group_template and
-     * checklist_template
+     * checklist_template.
      *
      * @param array $groups data about the checklist design
      * @param array $options
-     * @param int $mode checklist display mode @see gradingform_checklist_controller
+     * @param int $mode checklist display mode. See gradingform_checklist_controller.
      * @param string $elementname the name of the form element (in editor mode) or the prefix for div ids (in view mode)
      * @param array $values evaluation result
      * @return string

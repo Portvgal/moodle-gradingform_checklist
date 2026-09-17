@@ -244,6 +244,13 @@ class fetch_test extends advanced_testcase {
 
     /**
      * Executes and performs all the assertions of the fetch method with the given parameters.
+     *
+     * @param \mod_forum\local\entities\forum $forum The forum being graded.
+     * @param gradingform_checklist_controller $controller The checklist controller.
+     * @param stdClass $definition The checklist definition.
+     * @param stdClass $fetcheruser The user fetching the grading data.
+     * @param stdClass $grader The user who stores the grade.
+     * @param stdClass $gradeduser The user being graded.
      */
     private function execute_and_assert_fetch($forum, $controller, $definition, $fetcheruser, $grader, $gradeduser) {
         $generator = \testing_util::get_data_generator();

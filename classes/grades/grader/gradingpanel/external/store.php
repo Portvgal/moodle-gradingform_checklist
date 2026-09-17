@@ -93,7 +93,7 @@ class store extends external_api {
     }
 
     /**
-     * Fetch the data required to build a grading panel for a simple grade.
+     * Store grading panel data for a simple grade.
      *
      * @param string $component
      * @param int $contextid

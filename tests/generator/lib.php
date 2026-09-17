@@ -232,10 +232,10 @@ class gradingform_checklist_generator extends component_generator_base {
      *
      * @param gradingform_checklist_controller $controller
      * @param int $itemid
-     * @param float $spellingscore
-     * @param string $spellingremark
-     * @param float $picturescore
-     * @param string $pictureremark
+     * @param float $group1itemcheck
+     * @param string $group1itemremark
+     * @param float $group2itemcheck
+     * @param string $group2itemremark
      * @return array
      */
     public function get_test_form_data(

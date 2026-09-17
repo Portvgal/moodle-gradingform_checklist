@@ -33,7 +33,7 @@ class restore_gradingform_checklist_plugin extends restore_gradingform_plugin {
     /**
      * Declares the checklist XML paths attached to the form definition element
      *
-     * @return array of {@link restore_path_element}
+     * @return restore_path_element[]
      */
     protected function define_definition_plugin_structure() {
 
@@ -67,7 +67,7 @@ class restore_gradingform_checklist_plugin extends restore_gradingform_plugin {
     /**
      * Declares the checklist XML paths attached to the form instance element
      *
-     * @return array of {@link restore_path_element}
+     * @return restore_path_element[]
      */
     protected function define_instance_plugin_structure() {
 
@@ -105,7 +105,7 @@ class restore_gradingform_checklist_plugin extends restore_gradingform_plugin {
      * Processes group element data
      *
      * Sets the mapping 'gradingform_checklist_group' to be used later by
-     * {@link self::process_gradinform_checklist_filling()}
+     * self::process_gradinform_checklist_filling().
      *
      * @param stdClass $data
      */
@@ -124,7 +124,7 @@ class restore_gradingform_checklist_plugin extends restore_gradingform_plugin {
      * Processes item element data
      *
      * Sets the mapping 'gradingform_checklist_item' to be used later by
-     * {@link self::process_gradinform_checklist_filling()}
+     * self::process_gradinform_checklist_filling().
      *
      * @param stdClass $data
      */
