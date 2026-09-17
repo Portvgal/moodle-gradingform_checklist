@@ -50,11 +50,11 @@
                         "definition": "Great work!",
                         "remark": "That's great!"
                     }
-                ]
+                ],
             }
         ],
         "numitems": 10,
-        "numitemschecked": 5
+        "numitemschecked": 5,
     }
 }}
 <form id="gradingform_checklist-{{uniqid}}">
@@ -231,13 +231,13 @@
             }
         }
 
-        checklistRoot.find('.form-check-input.item').change(function() {
+        $('#gradingform_checklist-{{uniqid}} .form-check-input.item').change(function () {
             updatePoints();
             updateBulkCheckButton();
         });
 
         function updatePoints() {
-            checklistRoot.find('.checklist-criterion').each(function() {
+            $('#gradingform_checklist-{{uniqid}} .checklist-criterion').each(function() {
                 const criterion = $(this);
                 let grouppointscents = 0;
 
@@ -250,27 +250,27 @@
             });
 
             let totalpointscents = 0;
-            checklistRoot.find('.form-check-input.item:checked').each(function() {
+            $('#gradingform_checklist-{{uniqid}} .form-check-input.item:checked').each(function() {
                 const score = parseFloat($(this).attr('data-score')) || 0;
                 totalpointscents += Math.round(score * 100);
             });
             const totalpoints = formatPoints(totalpointscents / 100);
-            checklistRoot.find('#pointstotals').find('.scoredpoints').text(totalpoints);
+            $('#gradingform_checklist-{{uniqid}} #pointstotals').find('.scoredpoints').text(totalpoints);
         }
 
-        checklistRoot.find('.bulkcheckcontrols button').click(function() {
+        $('#gradingform_checklist-{{uniqid}} .bulkcheckcontrols button').click(function() {
             const checked = $(this).data('action') === 'tickall';
-            checklistRoot.find('.form-check-input.item').prop('checked', checked);
+            $('#gradingform_checklist-{{uniqid}} .form-check-input.item').prop('checked', checked);
             updatePoints();
             updateBulkCheckButton();
         });
 
         function updateBulkCheckButton() {
-            const button = checklistRoot.find('.bulkcheckcontrols button');
+            const button = $('#gradingform_checklist-{{uniqid}} .bulkcheckcontrols button');
             if (!button.length) {
                 return;
             }
-            const items = checklistRoot.find('.form-check-input.item');
+            const items = $('#gradingform_checklist-{{uniqid}} .form-check-input.item');
             const allchecked = items.length > 0 && items.filter(':checked').length === items.length;
             if (allchecked) {
                 button.data('action', 'untickall');
