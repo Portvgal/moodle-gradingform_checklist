@@ -615,8 +615,8 @@
 }
 
 /* Make invisible the buttons 'Move up' for the first group and 'Move down' for the last. */
-.gradingform_checklist.editor .group.first .controls .moveup input,
-.gradingform_checklist.editor .group.last .controls .movedown input,
+.gradingform_checklist.editor .group.first > .controls > .moveup input,
+.gradingform_checklist.editor .group.last > .controls > .movedown input,
 .gradingform_checklist.editor .group .items .item.first > .item-wrapper > .controls .moveup input,
 .gradingform_checklist.editor .group .items .item.last > .item-wrapper > .controls .movedown input {
     display: none;
