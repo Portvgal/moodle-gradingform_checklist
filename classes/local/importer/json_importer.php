@@ -24,7 +24,6 @@
 
 namespace gradingform_checklist\local\importer;
 
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Parses canonical JSON imports.

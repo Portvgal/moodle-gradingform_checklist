@@ -356,11 +356,18 @@ class generator_test extends advanced_testcase {
         $itemdefinition = str_repeat('I', \MoodleQuickForm_checklisteditor::get_item_definition_max_length());
 
         $this->setUser($user);
-        $controller = $checklistgenerator->create_instance($context, 'mod_assign', 'submission', 'longtextchecklist', 'Description', [
-            $groupdescription => [
-                $itemdefinition => 1,
-            ],
-        ]);
+        $controller = $checklistgenerator->create_instance(
+            $context,
+            'mod_assign',
+            'submission',
+            'longtextchecklist',
+            'Description',
+            [
+                $groupdescription => [
+                    $itemdefinition => 1,
+                ],
+            ]
+        );
 
         $definition = $controller->get_definition();
         $groupids = array_keys($definition->checklist_groups);
@@ -1032,7 +1039,14 @@ class generator_test extends advanced_testcase {
         ];
 
         $this->setUser($user);
-        $controller = $checklistgenerator->create_instance($context, 'mod_assign', 'submission', 'checklist', $description, $criteria);
+        $controller = $checklistgenerator->create_instance(
+            $context,
+            'mod_assign',
+            'submission',
+            'checklist',
+            $description,
+            $criteria
+        );
 
         // Valid criterion and item.
         $result = $checklistgenerator->get_item_and_criterion_for_values($controller, 'Group 1', 1);
@@ -1118,12 +1132,18 @@ class generator_test extends advanced_testcase {
         $group1 = $checklistgenerator->get_item_and_criterion_for_values($controller, 'Group 1', 1);
         $this->assertIsArray($result['groups'][$group1['criterion']->id]);
         $this->assertArrayHasKey($group1['item']->id, $result['groups'][$group1['criterion']->id]['items']);
-        $this->assertEquals('This is the first comment', $result['groups'][$group1['criterion']->id]['items'][$group1['item']->id]['remark']);
+        $this->assertEquals(
+            'This is the first comment',
+            $result['groups'][$group1['criterion']->id]['items'][$group1['item']->id]['remark']
+        );
 
         $group2 = $checklistgenerator->get_item_and_criterion_for_values($controller, 'Group 2', 1);
         $this->assertIsArray($result['groups'][$group2['criterion']->id]);
         $this->assertArrayHasKey($group2['item']->id, $result['groups'][$group2['criterion']->id]['items']);
-        $this->assertEquals('This is the second comment', $result['groups'][$group2['criterion']->id]['items'][$group2['item']->id]['remark']);
+        $this->assertEquals(
+            'This is the second comment',
+            $result['groups'][$group2['criterion']->id]['items'][$group2['item']->id]['remark']
+        );
     }
 
     /**
@@ -1163,12 +1183,18 @@ class generator_test extends advanced_testcase {
         $group1 = $checklistgenerator->get_item_and_criterion_for_values($controller, 'Group 1', 1);
         $this->assertIsArray($result['groups'][$group1['criterion']->id]);
         $this->assertArrayHasKey($group1['item']->id, $result['groups'][$group1['criterion']->id]['items']);
-        $this->assertEquals('This is the first comment', $result['groups'][$group1['criterion']->id]['items'][$group1['item']->id]['remark']);
+        $this->assertEquals(
+            'This is the first comment',
+            $result['groups'][$group1['criterion']->id]['items'][$group1['item']->id]['remark']
+        );
 
         $group2 = $checklistgenerator->get_item_and_criterion_for_values($controller, 'Group 2', 1);
         $this->assertIsArray($result['groups'][$group2['criterion']->id]);
         $this->assertArrayHasKey($group2['item']->id, $result['groups'][$group2['criterion']->id]['items']);
-        $this->assertEquals('This is the second comment', $result['groups'][$group2['criterion']->id]['items'][$group2['item']->id]['remark']);
+        $this->assertEquals(
+            'This is the second comment',
+            $result['groups'][$group2['criterion']->id]['items'][$group2['item']->id]['remark']
+        );
     }
 
     /**

@@ -63,7 +63,10 @@ class importer_test extends advanced_testcase {
 
         $schema = canonical_import_data::json_schema();
         $this->assertSame(12, $schema['properties']['groups']['items']['properties']['description']['maxLength']);
-        $this->assertSame(13, $schema['properties']['groups']['items']['properties']['items']['items']['properties']['definition']['maxLength']);
+        $this->assertSame(
+            13,
+            $schema['properties']['groups']['items']['properties']['items']['items']['properties']['definition']['maxLength']
+        );
     }
 
     /**

@@ -1,18 +1,18 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - http://moodle.org/.
 //
-// Moodle is free software: you can redistribute it and/or modify
+// Moodle is free software: you can redistribute it and/or modify.
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// Moodle is distributed in the hope that it will be useful,
+// Moodle is distributed in the hope that it will be useful,.
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// You should have received a copy of the GNU General Public License.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
  * Checklist editor form
@@ -30,7 +30,11 @@ require_once($CFG->dirroot . '/lib/formslib.php');
 require_once($CFG->dirroot . '/grade/grading/form/checklist/checklisteditor.php');
 
 use gradingform_checklist\local\config;
-MoodleQuickForm::registerElementType('checklisteditor', $CFG->dirroot . '/grade/grading/form/checklist/checklisteditor.php', 'MoodleQuickForm_checklisteditor');
+MoodleQuickForm::registerElementType(
+    'checklisteditor',
+    $CFG->dirroot . '/grade/grading/form/checklist/checklisteditor.php',
+    'MoodleQuickForm_checklisteditor'
+);
 
 /**
  * Defines the checklist edit form
@@ -48,17 +52,17 @@ class gradingform_checklist_editchecklist extends moodleform {
         $form->addElement('hidden', 'returnurl');
         $form->setType('returnurl', PARAM_LOCALURL);
 
-        // name
+        // Name.
         $form->addElement('text', 'name', get_string('name', 'gradingform_checklist'), ['size' => 52]);
         $form->addRule('name', get_string('required'), 'required');
         $form->setType('name', PARAM_TEXT);
 
-        // description
+        // Description.
         $options = gradingform_checklist_controller::description_form_field_options($this->_customdata['context']);
         $form->addElement('editor', 'description_editor', get_string('description', 'gradingform_checklist'), null, $options);
         $form->setType('description_editor', PARAM_RAW);
 
-        // benchmark
+        // Benchmark.
         $form->addElement('hidden', 'usebenchmark', 0);
         $form->setType('usebenchmark', PARAM_BOOL);
         $form->setDefault('usebenchmark', 0);
@@ -109,7 +113,7 @@ class gradingform_checklist_editchecklist extends moodleform {
 
         $this->add_benchmark_toggle_script();
 
-        // checklist editor
+        // Checklist editor.
         $form->addElement(
             'html',
             \core\output\html_writer::div(
@@ -127,7 +131,11 @@ class gradingform_checklist_editchecklist extends moodleform {
         $buttonarray = [];
         $buttonarray[] = &$form->createElement('submit', 'savechecklist', get_string('savechecklist', 'gradingform_checklist'));
         if ($this->_customdata['allowdraft']) {
-            $buttonarray[] = &$form->createElement('submit', 'savechecklistdraft', get_string('savechecklistdraft', 'gradingform_checklist'));
+            $buttonarray[] = &$form->createElement(
+                'submit',
+                'savechecklistdraft',
+                get_string('savechecklistdraft', 'gradingform_checklist')
+            );
         }
         $editbutton = &$form->createElement('submit', 'editchecklist', ' ');
         $editbutton->freeze();
@@ -225,13 +233,13 @@ JS);
         $form = $this->_form;
         $checklistel = $form->getElement('checklist');
         if ($checklistel->non_js_button_pressed($data['checklist'])) {
-            // if JS is disabled and button such as 'Add group' is pressed - prevent from submit
+            // If JS is disabled and button such as 'Add group' is pressed - prevent from submit.
             $err['checklistdummy'] = 1;
         } else if (isset($data['editchecklist'])) {
-            // continue editing
+            // Continue editing.
             $err['checklistdummy'] = 1;
         } else if (isset($data['savechecklist']) && $data['savechecklist']) {
-            // If user attempts to make checklist active - it needs to be validated
+            // If user attempts to make checklist active - it needs to be validated.
             if ($checklistel->validate($data['checklist']) !== false) {
                 $err['checklistdummy'] = 1;
             }
@@ -266,20 +274,20 @@ JS);
     public function need_confirm_regrading($controller) {
         $data = $this->get_data();
         if (isset($data->checklist['regrade'])) {
-            // we have already displayed the confirmation on the previous step
+            // We have already displayed the confirmation on the previous step.
             return false;
         }
         if (!isset($data->savechecklist) || !$data->savechecklist) {
-            // we only need confirmation when button 'Save checklist' is pressed
+            // We only need confirmation when button 'Save checklist' is pressed.
             return false;
         }
         if (!$controller->has_active_instances()) {
-            // nothing to re-grade, confirmation not needed
+            // Nothing to re-grade, confirmation not needed.
             return false;
         }
         $changelevel = $controller->update_or_check_checklist($data);
         if ($changelevel == 0) {
-            // no changes in the checklist, no confirmation needed
+            // No changes in the checklist, no confirmation needed.
             return false;
         }
 
@@ -294,7 +302,7 @@ JS);
             }
         }
 
-        // replace button text 'savechecklist' and unfreeze 'Back to edit' button
+        // Replace button text 'savechecklist' and unfreeze 'Back to edit' button.
         $this->findButton('savechecklist')->setValue(get_string('continue'));
         $el =& $this->findButton('editchecklist');
         $el->setValue(get_string('backtoediting', 'gradingform_checklist'));

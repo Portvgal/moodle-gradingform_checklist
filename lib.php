@@ -1,18 +1,18 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - http://moodle.org/.
 //
-// Moodle is free software: you can redistribute it and/or modify
+// Moodle is free software: you can redistribute it and/or modify.
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// Moodle is distributed in the hope that it will be useful,
+// Moodle is distributed in the hope that it will be useful,.
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// You should have received a copy of the GNU General Public License.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
  * Grading method controller for the Checklist plugin
@@ -41,7 +41,7 @@ const CHECKLIST = 'checklist';
  * This controller encapsulates the checklist grading logic
  */
 class gradingform_checklist_controller extends gradingform_controller {
-    // Modes of displaying the checklist (used in gradingform_checklist_renderer)
+    // Modes of displaying the checklist (used in gradingform_checklist_renderer).
     /** checklist display mode: For editing (moderator or teacher creates a checklist) */
     const DISPLAY_EDIT_FULL     = 1;
     /** checklist display mode: Preview the checklist design with hidden fields */
@@ -171,21 +171,21 @@ class gradingform_checklist_controller extends gradingform_controller {
     protected function delete_plugin_definition() {
         global $DB;
 
-        // get the list of instances
+        // Get the list of instances.
         $instances = array_keys($DB->get_records('grading_instances', ['definitionid' => $this->definition->id], '', 'id'));
-        // delete all fillings
+        // Delete all fillings.
         $DB->delete_records_list('gradingform_checklist_fills', 'instanceid', $instances);
         $DB->delete_records_list('gradingform_checklist_obs', 'instanceid', $instances);
-        // delete instances
+        // Delete instances.
         $DB->delete_records_list('grading_instances', 'id', $instances);
         $this->delete_definition_benchmark_files();
         $DB->delete_records('gradingform_checklist_bench', ['definitionid' => $this->definition->id]);
 
-        // get the list of groups records
+        // Get the list of groups records.
         $groups = array_keys($DB->get_records('gradingform_checklist_groups', ['definitionid' => $this->definition->id], '', 'id'));
-        // delete checklist items items
+        // Delete checklist items items.
         $DB->delete_records_list('gradingform_checklist_items', 'groupid', $groups);
-        // delete groups
+        // Delete groups.
         $DB->delete_records_list('gradingform_checklist_groups', 'id', $groups);
     }
 
@@ -256,7 +256,7 @@ class gradingform_checklist_controller extends gradingform_controller {
      */
     public function extend_navigation(global_navigation $navigation, navigation_node $node = null) {
         if (has_capability('moodle/grade:managegradingforms', $this->get_context())) {
-            // no need for preview if user can manage forms, he will have link to manage.php in settings instead
+            // No need for preview if user can manage forms, he will have link to manage.php in settings instead.
             return;
         }
         if ($this->is_form_defined() && ($options = $this->get_options()) && !empty($options['alwaysshowdefinition'])) {
@@ -423,14 +423,14 @@ class gradingform_checklist_controller extends gradingform_controller {
     public function update_or_check_checklist(stdClass $newdefinition, $usermodified = null, $doupdate = false) {
         global $DB;
 
-        // firstly update the common definition data in the {grading_definition} table
+        // Firstly update the common definition data in the {grading_definition} table.
         if ($this->definition === false) {
             if (!$doupdate) {
-                // if we create the new definition there is no such thing as re-grading anyway
+                // If we create the new definition there is no such thing as re-grading anyway.
                 return 5;
             }
-            // if definition does not exist yet, create a blank one
-            // (we need id to save files embedded in description)
+            // If definition does not exist yet, create a blank one.
+            // We need id to save files embedded in description.
             parent::update_definition(new stdClass(), $usermodified);
             parent::load_definition();
         }
@@ -450,7 +450,7 @@ class gradingform_checklist_controller extends gradingform_controller {
             $this->definition->id
         );
 
-        // reload the definition from the database
+        // Reload the definition from the database.
         $currentdefinition = $this->get_definition(true);
         $haschanges = [];
         $currentbenchmark = $currentdefinition->benchmark ?? self::get_default_benchmark();
@@ -462,24 +462,24 @@ class gradingform_checklist_controller extends gradingform_controller {
             $haschanges[1] = true;
         }
 
-        // update checklist data
+        // Update checklist data.
         if (empty($newdefinition->checklist['groups'])) {
             $newgroups = [];
         } else {
-            $newgroups = $newdefinition->checklist['groups']; // new ones to be saved
+            $newgroups = $newdefinition->checklist['groups']; // New ones to be saved.
         }
         $currentgroups = $currentdefinition->checklist_groups;
         $groupsfields = ['sortorder', 'description'];
         $itemfields = ['score', 'sortorder', 'definition'];
         foreach ($newgroups as $id => $group) {
-            // get list of submitted items
+            // Get list of submitted items.
             $itemsdata = [];
             if (array_key_exists('items', $group)) {
                 $itemsdata = $group['items'];
             }
             $groupmaxscore = null;
             if (preg_match('/^NEWID\d+$/', $id)) {
-                // insert group into DB
+                // Insert group into DB.
                 $data = ['definitionid' => $this->definition->id];
                 foreach ($groupsfields as $key) {
                     if (array_key_exists($key, $group)) {
@@ -494,7 +494,7 @@ class gradingform_checklist_controller extends gradingform_controller {
                 }
                 $haschanges[5] = true;
             } else {
-                // update group in DB
+                // Update group in DB.
                 $data = [];
                 foreach ($groupsfields as $key) {
                     if (array_key_exists($key, $group) && $key == 'description') {
@@ -505,16 +505,16 @@ class gradingform_checklist_controller extends gradingform_controller {
                     }
                 }
                 if (!empty($data)) {
-                    // update only if something is changed
+                    // Update only if something is changed.
                     $data['id'] = $id;
                     if ($doupdate) {
                         $DB->update_record('gradingform_checklist_groups', $data);
                     }
                     $haschanges[1] = true;
                 }
-                // remove deleted items from DB and calculate the maximum score for this groups
+                // Remove deleted items from DB and calculate the maximum score for this groups.
                 foreach ($currentgroups[$id]['items'] as $itemid => $currentitem) {
-                    // group max score is all sum of all items (all items checked)
+                    // Group max score is all sum of all items (all items checked).
                     $groupmaxscore += $currentitem['score'];
 
                     if (!array_key_exists($itemid, $itemsdata)) {
@@ -533,7 +533,7 @@ class gradingform_checklist_controller extends gradingform_controller {
                     }
                 }
                 if (preg_match('/^NEWID\d+$/', $itemid)) {
-                    // insert item into DB
+                    // Insert item into DB.
                     $data = ['groupid' => $id];
                     foreach ($itemfields as $key) {
                         if (array_key_exists($key, $item)) {
@@ -547,10 +547,10 @@ class gradingform_checklist_controller extends gradingform_controller {
                         $itemid = $DB->insert_record('gradingform_checklist_items', $data);
                     }
 
-                    // additional item means that maximum group score will change
+                    // Additional item means that maximum group score will change.
                     $haschanges[3] = true;
                 } else {
-                    // update item in DB
+                    // Update item in DB.
                     $data = [];
                     foreach ($itemfields as $key) {
                         if (array_key_exists($key, $item) && $key == 'definition') {
@@ -561,7 +561,7 @@ class gradingform_checklist_controller extends gradingform_controller {
                         }
                     }
                     if (!empty($data)) {
-                        // update only if something is changed
+                        // Update only if something is changed.
                         $data['id'] = $itemid;
                         if ($doupdate) {
                             $DB->update_record('gradingform_checklist_items', $data);
@@ -574,7 +574,7 @@ class gradingform_checklist_controller extends gradingform_controller {
                 }
             }
         }
-        // remove deleted groups from DB
+        // Remove deleted groups from DB.
         foreach (array_keys($currentgroups) as $id) {
             if (!array_key_exists($id, $newgroups)) {
                 if ($doupdate) {
@@ -600,7 +600,7 @@ class gradingform_checklist_controller extends gradingform_controller {
             $this->save_definition_benchmark($newbenchmark);
             $this->load_definition();
         }
-        // return the maximum level of changes
+        // Return the maximum level of changes.
         $changelevels = array_keys($haschanges);
         sort($changelevels);
         return array_pop($changelevels);
@@ -951,7 +951,7 @@ class gradingform_checklist_controller extends gradingform_controller {
         $rs = $DB->get_recordset_sql($sql, $params);
         $this->definition = false;
         foreach ($rs as $record) {
-            // pick the common definition data
+            // Pick the common definition data.
             if ($this->definition === false) {
                 $this->definition = new stdClass();
                 foreach (
@@ -971,19 +971,19 @@ class gradingform_checklist_controller extends gradingform_controller {
                 }
                 $this->definition->checklist_groups = [];
             }
-            // pick the groups data
+            // Pick the groups data.
             if (!empty($record->clgid) && empty($this->definition->checklist_groups[$record->clgid])) {
                 foreach (['id', 'sortorder', 'description'] as $fieldname) {
                     $this->definition->checklist_groups[$record->clgid][$fieldname] = $record->{'clg' . $fieldname};
                 }
                 $this->definition->checklist_groups[$record->clgid]['items'] = [];
             }
-            // pick the items data
+            // Pick the items data.
             if (!empty($record->cliid)) {
                 foreach (['id', 'score', 'sortorder', 'definition'] as $fieldname) {
                     $value = $record->{'cli' . $fieldname};
                     if ($fieldname == 'score') {
-                        $value = (float)$value; // To prevent display like 1.00000
+                        $value = (float)$value; // To prevent display like 1.00000.
                     }
                     $this->definition->checklist_groups[$record->clgid]['items'][$record->cliid][$fieldname] = $value;
                 }
@@ -1053,11 +1053,11 @@ class gradingform_checklist_controller extends gradingform_controller {
         $subsql = [];
         $params = [];
 
-        // search in checklist group description
+        // Search in checklist group description.
         $subsql[] = $DB->sql_like('clg.description', '?', false, false);
         $params[] = '%' . $DB->sql_like_escape($token) . '%';
 
-        // search in checklist item definition
+        // Search in checklist item definition.
         $subsql[] = $DB->sql_like('cli.definition', '?', false, false);
         $params[] = '%' . $DB->sql_like_escape($token) . '%';
 
@@ -1672,7 +1672,7 @@ class gradingform_checklist_instance extends gradingform_instance { // phpcs:ign
         foreach ($data['groups'] as $groupid => $group) {
             foreach ($group['items'] as $itemid => $record) {
                 $record['remarkformat'] = FORMAT_HTML;
-                // handle deletions later
+                // Handle deletions later.
                 if (empty($record['remark']) && empty($record['id'])) {
                     continue;
                 }
@@ -1706,10 +1706,10 @@ class gradingform_checklist_instance extends gradingform_instance { // phpcs:ign
             }
         }
 
-        // take care of unchecked items / deleted comments
+        // Take care of unchecked items / deleted comments.
         foreach ($currentgrade['groups'] as $groupid => $group) {
             foreach ($group['items'] as $itemid => $record) {
-                // if the 'id' and 'remark' elements are empty then it is not checked and there is no comment
+                // If the 'id' and 'remark' elements are empty then it is not checked and there is no comment.
                 if (empty($data['groups'][$groupid]['items'][$itemid]['id']) && empty($data['groups'][$groupid]['items'][$itemid]['remark'])) {
                     $DB->delete_records('gradingform_checklist_fills', ['id' => $record['id']]);
                 }
@@ -1875,7 +1875,7 @@ class gradingform_checklist_instance extends gradingform_instance { // phpcs:ign
         $curscore = 0;
         foreach ($grade['groups'] as $groupid => $group) {
             foreach ($group['items'] as $itemid => $record) {
-                // itemid of 0 means a group remark, not used for scoring; also make sure it is checked
+                // Itemid of 0 means a group remark, not used for scoring; also make sure it is checked.
                 if (!empty($itemid) && !empty($record['checked'])) {
                     $curscore += $this->get_controller()->get_definition()->checklist_groups[$groupid]['items'][$record['itemid']]['score'];
                 }
@@ -1958,7 +1958,7 @@ class gradingform_checklist_instance extends gradingform_instance { // phpcs:ign
             $curfilling = $currentinstance->get_checklist_filling();
             foreach ($curfilling['groups'] as $groupid => $group) {
                 foreach ($group['items'] as $itemid => $item) {
-                    // the saved checked status
+                    // The saved checked status.
                     $value['groups'][$groupid]['items'][$itemid]['savedchecked'] = !empty($item['checked']);
                     $newremark = null;
                     $newchecked = null;

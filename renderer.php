@@ -1,18 +1,18 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - http://moodle.org/.
 //
-// Moodle is free software: you can redistribute it and/or modify
+// Moodle is free software: you can redistribute it and/or modify.
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// Moodle is distributed in the hope that it will be useful,
+// Moodle is distributed in the hope that it will be useful,.
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// You should have received a copy of the GNU General Public License.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
  * Renderer for the Checklist plugin
@@ -109,7 +109,7 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
             $group = ['id' => '{GROUP-id}', 'description' => '{GROUP-description}', 'sortorder' => '{GROUP-sortorder}', 'class' => '{GROUP-class}'];
         } else {
             foreach (['sortorder', 'description', 'class'] as $key) {
-                // set missing array elements to empty strings to avoid warnings
+                // Set missing array elements to empty strings to avoid warnings.
                 if (!array_key_exists($key, $group)) {
                     $group[$key] = '';
                 }
@@ -126,7 +126,7 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
                     'id' => '{NAME}-groups-{GROUP-id}-' . $key, 'value' => $value, 'title' => $value, 'tabindex' => -1]);
                 $controls .= \core\output\html_writer::tag('div', $button, ['class' => $key]);
             }
-            $controls .= \core\output\html_writer::end_tag('div'); // .controls
+            $controls .= \core\output\html_writer::end_tag('div'); // Controls.
             $grouptemplate .= \core\output\html_writer::empty_tag('input', ['type' => 'hidden', 'name' => '{NAME}[groups][{GROUP-id}][sortorder]', 'value' => $group['sortorder']]);
             $labelfordesc = \core\output\html_writer::tag(
                 'label',
@@ -212,7 +212,7 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
         $displaypointsrev  = $options['showgrouppointstudent'] && ($mode == gradingform_checklist_controller::DISPLAY_VIEW);
 
         if ($displaypointseval || $displaypointsrev) {
-            // tally the checked pts and total pts
+            // Tally the checked pts and total pts.
             $checkedpts = 0;
             $totalpts   = 0;
             foreach ($group['items'] as $itemid => $item) {
@@ -224,10 +224,10 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
             $checkedpts = \core\output\html_writer::tag('span', $checkedpts, ['class' => 'scoredpoints']);
             $totalpts   = \core\output\html_writer::tag('span', $totalpts, ['class' => 'outofpoints']);
 
-            // add to the template
+            // Add to the template.
             $grouptemplate .= \core\output\html_writer::tag('div', get_string('grouppoints', 'gradingform_checklist') . ": $checkedpts/$totalpts", ['class' => 'pointstotals']);
         }
-        $grouptemplate .= \core\output\html_writer::end_tag('div'); // .group
+        $grouptemplate .= \core\output\html_writer::end_tag('div'); // Group.
 
         $grouptemplate = str_replace('{NAME}', $elementname, $grouptemplate);
         $grouptemplate = str_replace('{GROUP-id}', $group['id'], $grouptemplate);
@@ -261,14 +261,14 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
             $item = ['id' => '{ITEM-id}', 'definition' => '{ITEM-definition}', 'score' => '{ITEM-score}', 'class' => '{ITEM-class}', 'sortorder' => '{ITEM-sortorder}', 'checked' => false];
         } else {
             foreach (['score', 'definition', 'class', 'checked'] as $key) {
-                // set missing array elements to empty strings to avoid warnings
+                // Set missing array elements to empty strings to avoid warnings.
                 if (!array_key_exists($key, $item)) {
                     $item[$key] = '';
                 }
             }
         }
 
-        // Template for one item within one group
+        // Template for one item within one group.
         $divattributes = ['id' => '{NAME}-groups-{GROUP-id}-items-{ITEM-id}', 'class' => 'item' . $item['class']];
 
         $itemtemplate = \core\output\html_writer::start_tag('div', $divattributes);
@@ -406,8 +406,8 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
                 $itemtemplate .= \core\output\html_writer::tag('div', $feedbackstr . $currentremark, ['class' => 'remark']);
             }
         }
-        $itemtemplate .= \core\output\html_writer::end_tag('div'); // .item-wrapper
-        $itemtemplate .= \core\output\html_writer::end_tag('div'); // .item
+        $itemtemplate .= \core\output\html_writer::end_tag('div'); // Item wrapper.
+        $itemtemplate .= \core\output\html_writer::end_tag('div'); // Item.
 
         $itemtemplate = str_replace('{NAME}', $elementname, $itemtemplate);
         $itemtemplate = str_replace('{GROUP-id}', $groupid, $itemtemplate);
@@ -533,7 +533,7 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
      * @return string
      */
     protected function checklist_template($mode, $options, $elementname, $groupsstr, $totalpointsstr, $observationdatestr) {
-        $classsuffix = ''; // CSS suffix for class of the main div. Depends on the mode
+        $classsuffix = ''; // CSS suffix for class of the main div. Depends on the mode.
         switch ($mode) {
             case gradingform_checklist_controller::DISPLAY_EDIT_FULL:
                 $classsuffix = ' editor editable';
@@ -589,7 +589,7 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
             && $mode != gradingform_checklist_controller::DISPLAY_EDIT_FROZEN
             && $mode != gradingform_checklist_controller::DISPLAY_PREVIEW
         ) {
-            // Options are displayed only for people who can manage
+            // Options are displayed only for people who can manage.
             return '';
         }
         $html = \core\output\html_writer::start_tag('div', ['class' => 'options']);
@@ -664,7 +664,7 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
                     'placeholder' => get_string('groupremarkheadingdefault', 'gradingform_checklist'),
                     'size' => '32',
                 ]);
-                $html .= \core\output\html_writer::end_tag('div'); // .option
+                $html .= \core\output\html_writer::end_tag('div'); // Option.
                 continue;
             }
 
@@ -708,9 +708,9 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
                 }
                 $select .= \core\output\html_writer::end_tag('select');
                 $html .= $select;
-                $html .= \core\output\html_writer::end_tag('div'); // .option
+                $html .= \core\output\html_writer::end_tag('div'); // Option.
                 if ($option == 'observationdefault' && $observationoptionsopen) {
-                    $html .= \core\output\html_writer::end_tag('div'); // .observationoptions
+                    $html .= \core\output\html_writer::end_tag('div'); // Observation options.
                     $observationoptionsopen = false;
                 }
                 continue;
@@ -719,7 +719,7 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
             if ($mode == gradingform_checklist_controller::DISPLAY_EDIT_FROZEN && $value) {
                 $html .= \core\output\html_writer::empty_tag('input', $attrs + ['type' => 'hidden', 'value' => $value]);
             }
-            // Display option as checkbox
+            // Display option as checkbox.
             $attrs['type'] = 'checkbox';
             $attrs['value'] = 1;
             if ($parentoption !== null) {
@@ -743,10 +743,10 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
             $html .= \core\output\html_writer::empty_tag('input', $attrs);
             $html .= \core\output\html_writer::tag('label', get_string($option, 'gradingform_checklist'), ['for' => $attrs['id']]);
 
-            $html .= \core\output\html_writer::end_tag('div'); // .option
+            $html .= \core\output\html_writer::end_tag('div'); // Option.
         }
         if ($observationoptionsopen) {
-            $html .= \core\output\html_writer::end_tag('div'); // .observationoptions
+            $html .= \core\output\html_writer::end_tag('div'); // Observation options.
         }
         if ($mode == gradingform_checklist_controller::DISPLAY_EDIT_FULL) {
             $html .= \core\output\html_writer::tag('script', <<<JS
@@ -794,7 +794,7 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
 }());
 JS);
         }
-        $html .= \core\output\html_writer::end_tag('div'); // .options
+        $html .= \core\output\html_writer::end_tag('div'); // Options.
         return $html;
     }
 
@@ -836,7 +836,7 @@ JS);
                 $item['checked'] = !empty($groupvalue['items'][$itemid]['checked']);
                 if ($item['checked'] && ($mode == gradingform_checklist_controller::DISPLAY_EVAL_FROZEN || $mode == gradingform_checklist_controller::DISPLAY_REVIEW || $mode == gradingform_checklist_controller::DISPLAY_VIEW)) {
                     $item['class'] .= ' checked';
-                    // in mode DISPLAY_EVAL the class 'checked' will be added by JS if it is enabled. If JS is not enabled, the 'checked' class will only confuse
+                    // In mode DISPLAY_EVAL the class 'checked' will be added by JS if it is enabled. If JS is not enabled, the 'checked' class will only confuse.
                 }
                 if (!empty($groupvalue['items'][$itemid]['savedchecked'])) {
                     $item['class'] .= ' currentchecked';
@@ -865,7 +865,7 @@ JS);
             $checkedpts = \core\output\html_writer::tag('span', $scoredpoints, ['class' => 'scoredpoints']);
             $totalpts   = \core\output\html_writer::tag('span', $totalpoints, ['class' => 'outofpoints']);
 
-            // add to the template
+            // Add to the template.
             $totalpointsstr = \core\output\html_writer::tag('div', get_string('overallpoints', 'gradingform_checklist') . ": $checkedpts/$totalpts", ['class' => 'pointstotals']);
         }
         $observationdatestr = $this->observation_date_control($mode, $options, $elementname, $values);

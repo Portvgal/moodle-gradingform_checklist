@@ -34,7 +34,7 @@ use core\exception\coding_exception;
 use context;
 use core_grades\component_gradeitem as gradeitem;
 use core_grades\component_gradeitems;
-// Moodle patch INT-19461: Add missing core_external imports
+// Moodle patch INT-19461: Add missing core_external imports.
 use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_multiple_structure;
@@ -382,7 +382,11 @@ class fetch extends external_api {
                         'id' => new external_value(PARAM_INT, 'ID of the Criteria'),
                         'description' => new external_value(PARAM_RAW, 'Description of the Criteria'),
                         'groupfeedback' => new external_value(PARAM_RAW, 'Group feedback', VALUE_OPTIONAL),
-                        'maxgrouppoints' => new external_value(PARAM_LOCALISEDFLOAT, 'Maximum number of criterion points', VALUE_OPTIONAL),
+                        'maxgrouppoints' => new external_value(
+                            PARAM_LOCALISEDFLOAT,
+                            'Maximum number of criterion points',
+                            VALUE_OPTIONAL
+                        ),
                         'grouppoints' => new external_value(PARAM_LOCALISEDFLOAT, 'Criterion points', VALUE_OPTIONAL),
                         'items' => new external_multiple_structure(new external_single_structure([
                             'id' => new external_value(PARAM_INT, 'ID of item'),
@@ -390,7 +394,11 @@ class fetch extends external_api {
                             'score' => new external_value(PARAM_RAW, 'What this item is worth'),
                             'definition' => new external_value(PARAM_RAW, 'Definition of the item'),
                             'checked' => new external_value(PARAM_BOOL, 'Selected flag'),
-                            'remark' => new external_value(PARAM_RAW, 'Any remarks for this criterion for the user being assessed', VALUE_OPTIONAL),
+                            'remark' => new external_value(
+                                PARAM_RAW,
+                                'Any remarks for this criterion for the user being assessed',
+                                VALUE_OPTIONAL
+                            ),
                         ])),
                     ])
                 ),
@@ -401,7 +409,11 @@ class fetch extends external_api {
                     'buttonicon' => new external_value(PARAM_TEXT, 'Benchmark button icon'),
                     'title' => new external_value(PARAM_TEXT, 'Benchmark title'),
                 ], 'Teacher-only checklist benchmark', VALUE_OPTIONAL),
-                'maxpoints' => new external_value(PARAM_LOCALISEDFLOAT, 'Maximum number of points for all criteria', VALUE_OPTIONAL),
+                'maxpoints' => new external_value(
+                    PARAM_LOCALISEDFLOAT,
+                    'Maximum number of points for all criteria',
+                    VALUE_OPTIONAL
+                ),
                 'points' => new external_value(PARAM_LOCALISEDFLOAT, 'Points obtained for all criteria', VALUE_OPTIONAL),
                 'timecreated' => new external_value(PARAM_INT, 'The time that the grade was created'),
                 'usergrade' => new external_value(PARAM_RAW, 'Current user grade'),
@@ -422,7 +434,13 @@ class fetch extends external_api {
      * @param int $format The input format of the string
      * @return string
      */
-    protected static function get_formatted_text(context $context, int $definitionid, string $filearea, string $text, int $format): string {
+    protected static function get_formatted_text(
+        context $context,
+        int $definitionid,
+        string $filearea,
+        string $text,
+        int $format
+    ): string {
         $formatoptions = [
             'noclean' => false,
             'trusted' => false,

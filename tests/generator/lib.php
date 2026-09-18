@@ -76,7 +76,12 @@ class gradingform_checklist_generator extends component_generator_base {
         $benchmarkformat = $options['benchmarkformat'] ?? FORMAT_HTML;
         $benchmarkbuttonlabel = $options['benchmarkbuttonlabel'] ?? 'Open to view Benchmarks';
         $benchmarkbuttonicon = $options['benchmarkbuttonicon'] ?? 'fa-solid fa-file-circle-check';
-        unset($options['benchmark'], $options['benchmarkformat'], $options['benchmarkbuttonlabel'], $options['benchmarkbuttonicon']);
+        unset(
+            $options['benchmark'],
+            $options['benchmarkformat'],
+            $options['benchmarkbuttonlabel'],
+            $options['benchmarkbuttonicon']
+        );
         $checklist->set_benchmark($benchmark, $benchmarkformat, $benchmarkbuttonlabel, $benchmarkbuttonicon);
         foreach ($options as $key => $value) {
             $checklist->set_option($key, $value);

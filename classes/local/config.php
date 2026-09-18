@@ -16,7 +16,6 @@
 
 namespace gradingform_checklist\local;
 
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Central access to Checklist administrator configuration.

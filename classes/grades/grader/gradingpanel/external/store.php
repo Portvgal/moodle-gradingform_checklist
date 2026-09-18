@@ -34,7 +34,7 @@ use core\exception\coding_exception;
 use context;
 use core_grades\component_gradeitem as gradeitem;
 use core_grades\component_gradeitems;
-// Moodle patch INT-19461: Add missing core_external imports
+// Moodle patch INT-19461: Add missing core_external imports.
 use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_single_structure;

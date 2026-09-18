@@ -1,18 +1,18 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - http://moodle.org/.
 //
-// Moodle is free software: you can redistribute it and/or modify
+// Moodle is free software: you can redistribute it and/or modify.
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// Moodle is distributed in the hope that it will be useful,
+// Moodle is distributed in the hope that it will be useful,.
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// You should have received a copy of the GNU General Public License.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
  * Grading method controller for the Checklist plugin
@@ -57,7 +57,7 @@ class MoodleQuickForm_checklisteditor extends HTML_QuickForm_input {
     }
 
     /** @var string Help button HTML. */
-    public $_helpbutton = '';
+    public $_helpbutton = ''; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
     /** @var string|false|null Result of the last validation. */
     protected $validationerrors = null;
     /** @var bool Whether the element has already been validated. */
@@ -79,37 +79,28 @@ class MoodleQuickForm_checklisteditor extends HTML_QuickForm_input {
         return trim($value);
     }
 
+    // phpcs:disable moodle.NamingConventions.ValidFunctionName.LowercaseMethod
     /**
-     * Constructor.
+     * Set html for help button.
      *
-     * @param string|null $elementname Element name.
-     * @param string|null $elementlabel Element label.
-     * @param array|null $attributes Element attributes.
-     */
-    public function __construct($elementname = null, $elementlabel = null, $attributes = null) {
-        parent::__construct($elementname, $elementlabel, $attributes);
-    }
-
-    /**
-     * set html for help button
-     *
-     * @access public
      * @param array $helpbuttonargs array of arguments to make a help button
      * @param string $function function name to call to get html
      */
-    public function setHelpButton($helpbuttonargs, $function = 'helpbutton') { // phpcs:ignore moodle.NamingConventions.ValidFunctionName.LowercaseMethod
+    public function setHelpButton($helpbuttonargs, $function = 'helpbutton') {
         debugging('component setHelpButton() is not used any more, please use $mform->setHelpButton() instead');
     }
+    // phpcs:enable moodle.NamingConventions.ValidFunctionName.LowercaseMethod
 
+    // phpcs:disable moodle.NamingConventions.ValidFunctionName.LowercaseMethod
     /**
-     * get html for help button
+     * Get html for help button.
      *
-     * @access   public
      * @return  string html for help button
      */
-    public function getHelpButton() { // phpcs:ignore moodle.NamingConventions.ValidFunctionName.LowercaseMethod
+    public function getHelpButton() {
         return $this->_helpbutton;
     }
+    // phpcs:enable moodle.NamingConventions.ValidFunctionName.LowercaseMethod
 
     /**
      * The renderer will take care itself about different display in normal and frozen states
@@ -143,9 +134,11 @@ class MoodleQuickForm_checklisteditor extends HTML_QuickForm_input {
         $data = $this->prepare_data(null, $this->wasvalidated);
         if (!$this->_flagFrozen) {
             $mode = gradingform_checklist_controller::DISPLAY_EDIT_FULL;
-            $module = ['name' => 'gradingform_checklisteditor', 'fullpath' => '/grade/grading/form/checklist/js/checklisteditor.js',
+            $module = ['name' => 'gradingform_checklisteditor',
+                'fullpath' => '/grade/grading/form/checklist/js/checklisteditor.js',
                 'strings' => [['confirmdeletegroup', 'gradingform_checklist'], ['confirmdeleteitem', 'gradingform_checklist'],
-                    ['groupempty', 'gradingform_checklist'], ['itemempty', 'gradingform_checklist'], ['maxlengthalert', 'gradingform_checklist'],
+                    ['groupempty', 'gradingform_checklist'], ['itemempty', 'gradingform_checklist'],
+                    ['maxlengthalert', 'gradingform_checklist'],
                 ]];
             $PAGE->requires->js_init_call(
                 'M.gradingform_checklisteditor.init',
@@ -158,7 +151,7 @@ class MoodleQuickForm_checklisteditor extends HTML_QuickForm_input {
                 $module
             );
         } else {
-            // Checklist is frozen, no javascript needed
+            // Checklist is frozen, no javascript needed.
             if ($this->_persistantFreeze) {
                 $mode = gradingform_checklist_controller::DISPLAY_EDIT_FROZEN;
             } else {
@@ -205,7 +198,7 @@ class MoodleQuickForm_checklisteditor extends HTML_QuickForm_input {
             $value['groups'] = [];
             $errors['err_nogroups'] = 1;
         }
-        // If options are present in $value, replace default values with submitted values
+        // If options are present in $value, replace default values with submitted values.
         if (!empty($value['options'])) {
             foreach (array_keys($return['options']) as $option) {
                 if ($option == 'groupremarkheading') {
@@ -227,7 +220,7 @@ class MoodleQuickForm_checklisteditor extends HTML_QuickForm_input {
                     );
                     continue;
                 }
-                // special treatment for checkboxes
+                // Special treatment for checkboxes.
                 if (!empty($value['options'][$option])) {
                     $return['options'][$option] = $value['options'][$option];
                 } else {
@@ -236,7 +229,7 @@ class MoodleQuickForm_checklisteditor extends HTML_QuickForm_input {
             }
         }
         if (is_array($value)) {
-            // for other array keys of $value no special treatmeant neeeded, copy them to return value as is
+            // For other array keys of $value no special treatmeant neeeded, copy them to return value as is.
             foreach (array_keys($value) as $key) {
                 if ($key != 'options' && $key != 'groups') {
                     $return[$key] = $value[$key];
@@ -244,7 +237,7 @@ class MoodleQuickForm_checklisteditor extends HTML_QuickForm_input {
             }
         }
 
-        // iterate through groups
+        // Iterate through groups.
         $lastaction = null;
         $lastid = null;
         foreach ($value['groups'] as $id => $group) {
@@ -317,7 +310,7 @@ class MoodleQuickForm_checklisteditor extends HTML_QuickForm_input {
                     }
                 }
 
-                // sortorder for items
+                // Sortorder for items.
                 $itemsortorder = 1;
                 foreach (array_keys($items) as $itemid) {
                     $items[$itemid]['sortorder'] = $itemsortorder++;
@@ -375,13 +368,13 @@ class MoodleQuickForm_checklisteditor extends HTML_QuickForm_input {
             $errors['err_totalscore'] = 1;
         }
 
-        // add sort order field to groups
+        // Add sort order field to groups.
         $csortorder = 1;
         foreach (array_keys($return['groups']) as $id) {
             $return['groups'][$id]['sortorder'] = $csortorder++;
         }
 
-        // create validation error string (if needed)
+        // Create validation error string (if needed).
         if ($withvalidation) {
             if (count($errors)) {
                 $rv = [];
@@ -467,6 +460,7 @@ class MoodleQuickForm_checklisteditor extends HTML_QuickForm_input {
         return $this->validationerrors;
     }
 
+    // phpcs:disable moodle.NamingConventions.ValidFunctionName.LowercaseMethod
     /**
      * Prepares the data for saving
      * @see prepare_data()
@@ -475,8 +469,9 @@ class MoodleQuickForm_checklisteditor extends HTML_QuickForm_input {
      * @param boolean $assoc
      * @return array
      */
-    public function exportValue(&$submitvalues, $assoc = false) { // phpcs:ignore moodle.NamingConventions.ValidFunctionName.LowercaseMethod
+    public function exportValue(&$submitvalues, $assoc = false) {
         $value = $this->prepare_data($this->_findValue($submitvalues));
         return $this->_prepareValue($value, $assoc);
     }
+    // phpcs:enable moodle.NamingConventions.ValidFunctionName.LowercaseMethod
 }
