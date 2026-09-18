@@ -32,9 +32,10 @@ use core\exception\moodle_exception;
  * @category   test
  * @copyright  Copyright (c) 2023 Open LMS (https://www.openlms.net)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @coversNothing
  *
  */
-class store_test extends advanced_testcase {
+final class store_test extends advanced_testcase {
     /**
      * Ensure that an execute with an invalid component is rejected.
      */

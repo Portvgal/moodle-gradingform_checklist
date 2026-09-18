@@ -37,8 +37,10 @@ require_once($CFG->dirroot . '/grade/grading/form/checklist/lib.php');
 
 /**
  * Checklist importer tests.
+ *
+ * @coversNothing
  */
-class importer_test extends advanced_testcase {
+final class importer_test extends advanced_testcase {
     /**
      * Administrator limits are used by both import validation and the schema.
      */

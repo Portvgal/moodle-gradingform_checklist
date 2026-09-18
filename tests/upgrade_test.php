@@ -42,6 +42,7 @@ require_once($CFG->dirroot . '/grade/grading/form/checklist/db/upgrade.php');
  * @category   test
  * @copyright  2026 Open LMS (https://www.openlms.net)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @coversNothing
  */
 final class upgrade_test extends advanced_testcase {
     /**

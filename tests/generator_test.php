@@ -42,8 +42,9 @@ require_once($CFG->dirroot . '/grade/grading/form/checklist/lib.php');
  * @category   test
  * @copyright  Copyright (c) 2023 Open LMS (https://www.openlms.net)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @coversNothing
  */
-class generator_test extends advanced_testcase {
+final class generator_test extends advanced_testcase {
     /**
      * Test checklist editor validation accepts the configured long-text limits.
      */

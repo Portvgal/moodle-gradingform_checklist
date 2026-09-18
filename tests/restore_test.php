@@ -41,6 +41,7 @@ require_once($CFG->dirroot . '/grade/grading/form/checklist/backup/moodle2/resto
  * @category   test
  * @copyright  2026 Open LMS (https://www.openlms.net)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @coversNothing
  */
 final class restore_test extends advanced_testcase {
     /**
