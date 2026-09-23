@@ -256,7 +256,7 @@ class gradingform_checklist_controller extends gradingform_controller {
      * @param settings_navigation $settingsnav The settings navigation.
      * @param navigation_node $node The navigation node.
      */
-    public function extend_settings_navigation(settings_navigation $settingsnav, navigation_node $node = null) {
+    public function extend_settings_navigation(settings_navigation $settingsnav, ?navigation_node $node = null) {
         $node->add(
             get_string('definechecklist', 'gradingform_checklist'),
             $this->get_editor_url(),
@@ -276,7 +276,7 @@ class gradingform_checklist_controller extends gradingform_controller {
      * @param global_navigation $navigation The global navigation.
      * @param navigation_node $node The navigation node.
      */
-    public function extend_navigation(global_navigation $navigation, navigation_node $node = null) {
+    public function extend_navigation(global_navigation $navigation, ?navigation_node $node = null) {
         if (has_capability('moodle/grade:managegradingforms', $this->get_context())) {
             // No need for preview if user can manage forms, he will have link to manage.php in settings instead.
             return;
