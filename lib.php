@@ -254,7 +254,7 @@ class gradingform_checklist_controller extends gradingform_controller {
      * and there is an area with the active grading method set to the given plugin.
      *
      * @param settings_navigation $settingsnav The settings navigation.
-     * @param navigation_node $node The navigation node.
+     * @param navigation_node|null $node The navigation node.
      */
     public function extend_settings_navigation(settings_navigation $settingsnav, ?navigation_node $node = null) {
         $node->add(
@@ -274,7 +274,7 @@ class gradingform_checklist_controller extends gradingform_controller {
      * FEATURE_ADVANCED_GRADING and there is an area with the active grading method set to the given plugin.
      *
      * @param global_navigation $navigation The global navigation.
-     * @param navigation_node $node The navigation node.
+     * @param navigation_node|null $node The navigation node.
      */
     public function extend_navigation(global_navigation $navigation, ?navigation_node $node = null) {
         if (has_capability('moodle/grade:managegradingforms', $this->get_context())) {
