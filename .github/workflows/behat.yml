@@ -1,48 +1,41 @@
 name: Browser Journey Checks
 run-name: Browser journeys on ${{ github.ref_name }}
 
-on:
-  push:
-  pull_request:
-  workflow_dispatch:
+on: [push, pull_request, workflow_dispatch]
 
 permissions:
   contents: read
 
 jobs:
   behat:
-    name: Moodle 4.5 / Chrome browser journeys
+    name: Moodle ${{ matrix.moodle }} / ${{ matrix.browser }}
     runs-on: ubuntu-24.04
-
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {moodle: '4.5', branch: MOODLE_405_STABLE, php: '8.3', browser: chrome}
+          - {moodle: '4.5', branch: MOODLE_405_STABLE, php: '8.3', browser: firefox}
+          - {moodle: '5.0', branch: MOODLE_500_STABLE, php: '8.4', browser: chrome}
+          - {moodle: '5.1', branch: MOODLE_501_STABLE, php: '8.4', browser: chrome}
+          - {moodle: '5.2', branch: MOODLE_502_STABLE, php: '8.4', browser: chrome}
+          - {moodle: '5.2', branch: MOODLE_502_STABLE, php: '8.4', browser: firefox}
     services:
       postgres:
         image: postgres:17
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_HOST_AUTH_METHOD: trust
-        ports:
-          - 5432:5432
+        env: {POSTGRES_USER: postgres, POSTGRES_HOST_AUTH_METHOD: trust}
+        ports: ['5432:5432']
         options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 3
-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 3
     steps:
-      - name: Check out plugin
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+        with: {path: plugin, persist-credentials: false}
+      - uses: shivammathur/setup-php@v2
         with:
-          path: plugin
-          persist-credentials: false
-
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
+          php-version: ${{ matrix.php }}
           extensions: pgsql, zip, gd, soap, intl, mbstring, xml
-          ini-values: max_input_vars=5000, opcache.enable_cli=1
           coverage: none
-
       - name: Install moodle-plugin-ci
         run: |
           composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^4
@@ -50,22 +43,17 @@ jobs:
           echo "$(pwd)/ci/vendor/bin" >> "$GITHUB_PATH"
           sudo locale-gen en_AU.UTF-8
           echo "NVM_DIR=$HOME/.nvm" >> "$GITHUB_ENV"
-
       - name: Install Moodle Behat site
         run: moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1
-        env:
-          DB: pgsql
-          MOODLE_BRANCH: MOODLE_405_STABLE
-
-      - name: Run plugin Behat scenarios
+        env: {DB: pgsql, MOODLE_BRANCH: "${{ matrix.branch }}"}
+      - name: Run complete plugin Behat suite
         id: behat
-        run: moodle-plugin-ci behat --profile chrome --tags="@gradingform_checklist"
-
-      - name: Upload Behat faildump
+        run: moodle-plugin-ci behat --profile ${{ matrix.browser }} --tags="@gradingform_checklist"
+      - name: Upload faildump
         if: ${{ failure() && steps.behat.outcome == 'failure' }}
         uses: actions/upload-artifact@v7
         with:
-          name: behat-faildump
+          name: behat-faildump-${{ matrix.moodle }}-${{ matrix.browser }}
           path: moodledata/behat_dump
           retention-days: 7
           if-no-files-found: ignore

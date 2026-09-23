@@ -123,7 +123,7 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
                 $value = get_string('group' . $key, 'gradingform_checklist');
                 $labelforctrl = \core\output\html_writer::tag('label', $value, ['class' => 'hiddenelement', 'for' => '{NAME}-groups-{GROUP-id}-' . $key]);
                 $button = $labelforctrl . \core\output\html_writer::empty_tag('input', ['type' => 'submit', 'name' => '{NAME}[groups][{GROUP-id}][' . $key . ']',
-                    'id' => '{NAME}-groups-{GROUP-id}-' . $key, 'value' => $value, 'title' => $value, 'tabindex' => -1]);
+                    'id' => '{NAME}-groups-{GROUP-id}-' . $key, 'value' => $value, 'title' => $value]);
                 $controls .= \core\output\html_writer::tag('div', $button, ['class' => $key]);
             }
             $controls .= \core\output\html_writer::end_tag('div'); // Controls.
@@ -365,7 +365,6 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
                     'id' => '{NAME}-groups-{GROUP-id}-items-{ITEM-id}-' . $key,
                     'value' => $value,
                     'title' => $value,
-                    'tabindex' => -1,
                 ]);
                 $movecontrols .= \core\output\html_writer::tag('div', $button, ['class' => $key]);
             }
@@ -374,7 +373,7 @@ class gradingform_checklist_renderer extends \core\output\plugin_renderer_base {
             $value = get_string('itemdelete', 'gradingform_checklist');
             $labelfordelete = \core\output\html_writer::tag('label', $value, ['class' => 'hiddenelement', 'for' => '{NAME}-groups-{GROUP-id}-items-{ITEM-id}-delete']);
             $button = $labelfordelete . \core\output\html_writer::empty_tag('input', ['type' => 'submit', 'name' => '{NAME}[groups][{GROUP-id}][items][{ITEM-id}][delete]',
-                    'id' => '{NAME}-groups-{GROUP-id}-items-{ITEM-id}-delete', 'value' => $value, 'title' => $value, 'tabindex' => -1]);
+                    'id' => '{NAME}-groups-{GROUP-id}-items-{ITEM-id}-delete', 'value' => $value, 'title' => $value]);
             $itemtemplate .= \core\output\html_writer::tag('div', $button, ['class' => 'delete']);
         }
         $displayremark = (gradingform_checklist_controller::item_remarks_enabled($options)

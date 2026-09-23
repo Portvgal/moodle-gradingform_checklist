@@ -56,6 +56,14 @@ if ($hassiteconfig) {
         PARAM_INT,
         10
     ));
+    $settings->add(new admin_setting_configtext(
+        'gradingform_checklist/importmaxbytes',
+        new lang_string('adminimportmaxbytes', 'gradingform_checklist'),
+        new lang_string('adminimportmaxbytes_desc', 'gradingform_checklist'),
+        10485760,
+        PARAM_INT,
+        12
+    ));
 
     $settings->add(new admin_setting_heading(
         'gradingform_checklist/featuresheading',

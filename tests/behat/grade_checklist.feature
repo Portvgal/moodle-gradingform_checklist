@@ -116,6 +116,17 @@ Feature: Converting checklist score to grades
     And I press the escape key
     And the focused element is "Open to view Benchmarks" "button"
 
+  Scenario: Item movement controls are keyboard reachable and move edge-adjacent items
+    Given I am on the "forum1" "forum activity editing" page
+    And I navigate to "Advanced grading" in current page administration
+    And I select "Checklist" from the "setmethod" singleselect
+    And I follow "Edit the current form definition"
+    Then "//div[contains(@class, 'item')][.//*[contains(., 'Has title')]]//input[@title='Move item down' and not(@tabindex='-1')]" "xpath_element" should exist
+    And "//div[contains(@class, 'item')][.//*[contains(., 'Has description')]]//input[@title='Move item up' and not(@tabindex='-1')]" "xpath_element" should exist
+    When I click on "//div[contains(@class, 'item')][.//*[contains(., 'Has title')]]//input[@title='Move item down']" "xpath_element"
+    Then "//div[contains(@class, 'item')][.//*[contains(., 'Has description')]][following-sibling::div[contains(@class, 'item')][.//*[contains(., 'Has title')]]]" "xpath_element" should exist
+    And I press "Save checklist and make it ready"
+
   Scenario: Enable display of item points during evaluation and disable feedback of groups
     And I am on the "forum1" "forum activity editing" page
     And I navigate to "Advanced grading" in current page administration

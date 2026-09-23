@@ -32,6 +32,7 @@ class config {
     private const DEFAULTS = [
         'groupdescriptionmaxchars' => 500,
         'itemdefinitionmaxchars' => 1500,
+        'importmaxbytes' => 10485760,
         'enablewordimport' => 1,
         'enablejsonimport' => 1,
         'enablejsonwebservice' => 0,
@@ -92,6 +93,16 @@ class config {
     public static function limit(string $name): int {
         $value = (int)self::get($name);
         return max(1, min(100000, $value));
+    }
+
+    /**
+     * Maximum accepted compressed upload or JSON request size.
+     *
+     * @return int bytes
+     */
+    public static function import_max_bytes(): int {
+        $value = (int)self::get('importmaxbytes');
+        return max(1024, min(104857600, $value));
     }
 
     /**

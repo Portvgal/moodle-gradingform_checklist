@@ -116,6 +116,19 @@ final class importer_test extends advanced_testcase {
     }
 
     /**
+     * The web service rejects oversized JSON before resolving its grading area.
+     */
+    public function test_external_import_rejects_oversized_json(): void {
+        $this->resetAfterTest(true);
+        set_config('enablejsonwebservice', 1, 'gradingform_checklist');
+        set_config('importmaxbytes', 1024, 'gradingform_checklist');
+
+        $this->expectException(\invalid_parameter_exception::class);
+        $this->expectExceptionMessage('exceeds the site limit');
+        import_definition::execute(0, str_repeat('x', 1025), 'draft');
+    }
+
+    /**
      * The JSON import web service can create a definition when explicitly enabled.
      */
     public function test_external_import_creates_definition_when_enabled(): void {

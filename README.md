@@ -67,7 +67,9 @@ flowchart TD
 
 ## Requirements
 
-- Moodle 4.5 or later, as declared in `version.php`.
+- Moodle 4.5, 5.0, 5.1, or 5.2. These releases are exercised by the project's
+  compatibility workflow; later Moodle releases are not claimed as supported
+  until that workflow includes them.
 - A Moodle activity that supports advanced grading.
 - Standard Moodle PHP extensions for the target Moodle release.
 
@@ -107,7 +109,8 @@ install the optional
 companion plugin. It exposes the same settings through
 `local/checklistsettings` while storing values in the `gradingform_checklist`
 configuration namespace. It is not needed if the Checklist settings page already
-appears.
+appears. The companion only exposes site-wide configuration: checklist grading,
+safe defaults, and all core workflows continue to work without it.
 
 ## Upgrading from Open LMS Checklist
 
