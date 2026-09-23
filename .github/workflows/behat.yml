@@ -1,7 +1,11 @@
 name: Browser Journey Checks
 run-name: Browser journeys on ${{ github.ref_name }}
 
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -35,6 +39,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: pgsql, zip, gd, soap, intl, mbstring, xml
+          ini-values: max_input_vars=5000
           coverage: none
       - name: Install moodle-plugin-ci
         run: |

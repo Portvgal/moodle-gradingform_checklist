@@ -1,7 +1,11 @@
 name: Required Plugin Checks
 run-name: Required checks on ${{ github.ref_name }}
 
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -25,6 +29,7 @@ jobs:
         with:
           php-version: '8.3'
           extensions: pgsql, zip, gd, soap, intl, mbstring, xml
+          ini-values: max_input_vars=5000
           coverage: none
       - name: Install moodle-plugin-ci
         run: |
@@ -80,8 +85,8 @@ jobs:
           - {moodle: '5.1', branch: MOODLE_501_STABLE, php: '8.2', database: pgsql}
           - {moodle: '5.1', branch: MOODLE_501_STABLE, php: '8.2', database: mariadb}
           - {moodle: '5.1', branch: MOODLE_501_STABLE, php: '8.4', database: pgsql}
-          - {moodle: '5.2', branch: MOODLE_502_STABLE, php: '8.2', database: pgsql}
-          - {moodle: '5.2', branch: MOODLE_502_STABLE, php: '8.2', database: mariadb}
+          - {moodle: '5.2', branch: MOODLE_502_STABLE, php: '8.3', database: pgsql}
+          - {moodle: '5.2', branch: MOODLE_502_STABLE, php: '8.3', database: mariadb}
           - {moodle: '5.2', branch: MOODLE_502_STABLE, php: '8.4', database: pgsql}
     services:
       postgres:
@@ -108,6 +113,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: ${{ matrix.database == 'pgsql' && 'pgsql' || 'mysqli' }}, zip, gd, soap, intl, mbstring, xml
+          ini-values: max_input_vars=5000
           coverage: none
       - name: Install moodle-plugin-ci
         run: |
@@ -123,3 +129,17 @@ jobs:
       - run: moodle-plugin-ci savepoints
       - name: PHPUnit with developer debugging
         run: moodle-plugin-ci phpunit --fail-on-warning
+
+  required-baseline:
+    name: Moodle 4.5 / PHP 8.3 / PostgreSQL
+    needs: [quality, compatibility]
+    if: ${{ always() }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Enforce all required code checks
+        env:
+          QUALITY_RESULT: ${{ needs.quality.result }}
+          COMPATIBILITY_RESULT: ${{ needs.compatibility.result }}
+        run: |
+          test "$QUALITY_RESULT" = success
+          test "$COMPATIBILITY_RESULT" = success
