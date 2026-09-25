@@ -84,6 +84,11 @@ class import_definition extends external_api {
         if (!config::enabled('enablejsonwebservice')) {
             throw new \moodle_exception('featuredisabled', 'gradingform_checklist');
         }
+        if (strlen($importjson) > config::import_max_bytes()) {
+            throw new \invalid_parameter_exception(
+                get_string('importerrorfilesize', 'gradingform_checklist', config::import_max_bytes())
+            );
+        }
 
         $manager = get_grading_manager($areaid);
         $context = $manager->get_context();

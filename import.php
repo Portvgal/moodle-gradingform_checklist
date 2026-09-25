@@ -120,6 +120,11 @@ function gradingform_checklist_import_parse_draft_file(int $draftitemid, ?string
 
     /** @var \stored_file $file */
     $file = reset($files);
+    if ($file->get_filesize() > config::import_max_bytes()) {
+        return new canonical_import_data([], [], [
+            get_string('importerrorfilesize', 'gradingform_checklist', config::import_max_bytes()),
+        ]);
+    }
     $filename = clean_param($file->get_filename(), PARAM_FILE);
     $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 

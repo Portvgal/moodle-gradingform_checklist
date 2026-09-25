@@ -64,6 +64,16 @@ class docx_importer {
             $this->zip->close();
             return new canonical_import_data([], [], [get_string('importerrordocxdocument', 'gradingform_checklist')]);
         }
+        if (strlen($documentxml) > \gradingform_checklist\local\config::import_max_bytes()) {
+            $this->zip->close();
+            return new canonical_import_data([], [], [
+                get_string(
+                    'importerrorfilesize',
+                    'gradingform_checklist',
+                    \gradingform_checklist\local\config::import_max_bytes()
+                ),
+            ]);
+        }
         $this->load_relationships();
 
         $dom = new \DOMDocument();

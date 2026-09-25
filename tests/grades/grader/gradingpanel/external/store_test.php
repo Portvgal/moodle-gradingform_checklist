@@ -119,6 +119,27 @@ final class store_test extends advanced_testcase {
     }
 
     /**
+     * A student cannot store another user's checklist grade.
+     */
+    public function test_execute_store_rejects_user_without_grading_capability(): void {
+        $this->resetAfterTest();
+
+        ['forum' => $forum, 'student' => $student] = $this->get_test_data();
+        $otherstudent = $this->getDataGenerator()->create_and_enrol($forum->get_course_record(), 'student');
+        $this->setUser($student);
+
+        $this->expectException(\core\exception\required_capability_exception::class);
+        store::execute(
+            'mod_forum',
+            (int)$forum->get_context()->id,
+            'forum',
+            (int)$otherstudent->id,
+            false,
+            'formdata'
+        );
+    }
+
+    /**
      * Ensure that an execute against the correct grading method returns the current state of the user.
      */
     public function test_execute_store_graded(): void {
