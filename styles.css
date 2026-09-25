@@ -271,7 +271,7 @@
 }
 
 #page-grade-grading-manage #region-main > div:has(.gradingform-checklist-import-actions) > .actions
-> a.action.btn.btn-lg .action-text,
+ > a.action.btn.btn-lg .action-text,
 .gradingform-checklist-import-primary > a.action.btn.btn-lg .action-text {
     display: block;
     flex: 0 0 auto;
@@ -284,17 +284,17 @@
 }
 
 #page-grade-grading-manage #region-main > div:has(.gradingform-checklist-import-actions) > .actions
-> a.action.btn.btn-lg:nth-child(1) {
+ > a.action.btn.btn-lg:nth-child(1) {
     order: 10;
 }
 
 #page-grade-grading-manage #region-main > div:has(.gradingform-checklist-import-actions) > .actions
-> a.action.btn.btn-lg:nth-child(2) {
+ > a.action.btn.btn-lg:nth-child(2) {
     order: 11;
 }
 
 #page-grade-grading-manage #region-main > div:has(.gradingform-checklist-import-actions) > .actions
-> a.action.btn.btn-lg:nth-child(3) {
+ > a.action.btn.btn-lg:nth-child(3) {
     order: 12;
 }
 
@@ -303,12 +303,12 @@
 }
 
 #page-grade-grading-manage #region-main > div:has(.gradingform-checklist-import-actions.is-defined) > .actions
-> a.action.btn.btn-lg:nth-child(2) {
+ > a.action.btn.btn-lg:nth-child(2) {
     order: 12;
 }
 
 #page-grade-grading-manage #region-main > div:has(.gradingform-checklist-import-actions.is-defined) > .actions
-> a.action.btn.btn-lg:nth-child(3) {
+ > a.action.btn.btn-lg:nth-child(3) {
     order: 13;
 }
 
